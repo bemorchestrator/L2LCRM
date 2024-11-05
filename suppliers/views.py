@@ -7,15 +7,23 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect
 from .models import Supplier
 from .forms import SupplierForm
+from django.core.paginator import Paginator
 
 @csrf_protect
 def supplier_list(request):
     """
-    View to display the list of suppliers.
+    View to display the list of suppliers with pagination.
     """
     suppliers = Supplier.objects.all()  # Fetch all suppliers
+    paginator = Paginator(suppliers, 15)  # Display 10 suppliers per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
     form = SupplierForm()
-    return render(request, 'suppliers/supplier_list.html', {'suppliers': suppliers, 'form': form})
+    return render(request, 'suppliers/supplier_list.html', {
+        'page_obj': page_obj,
+        'form': form
+    })
 
 def add_supplier(request):
     """
