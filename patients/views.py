@@ -8,16 +8,24 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect
+from django.core.paginator import Paginator
 
 @csrf_protect
 @login_required
 def patient_list(request):
     """
-    View to display the list of patients.
+    View to display the list of patients with pagination.
     """
-    patients = Patients.objects.all()
+    patients = Patients.objects.all()  # Fetch all patients
+    paginator = Paginator(patients, 10)  # Display 10 patients per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
     form = PatientForm()
-    return render(request, 'patients/patient_list.html', {'patients': patients, 'form': form})
+    return render(request, 'patients/patient_list.html', {
+        'page_obj': page_obj,
+        'form': form
+    })
 
 def add_patient(request):
     """
