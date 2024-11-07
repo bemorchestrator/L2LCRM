@@ -57,6 +57,7 @@
                 <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400 bg-white">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-[#131313] dark:text-gray-400">
                         <tr>
+                            <!-- Existing headers -->
                             <th scope="col" class="p-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <input id="checkbox-all" type="checkbox" class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
@@ -64,83 +65,27 @@
                                 </div>
                             </th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Product</th>
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Product Type</th>
+                            <!-- New Product Category Column -->
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Product Category</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Quantity</th>
+                            <!-- Moved UOM Column -->
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">UOM</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Supplier</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Currency</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Price</th>
-                            <th scope="col" class="px-4 py-3 whitespace-nowrap">UOM</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Discountable (All)</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Discountable (Members)</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Active</th>
+                            
+                            <!-- New Column Header -->
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Remaining Components</th>
+
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="productTableBody">
-                        {% for product in page_obj %}
-                        <tr id="product-row-{{ product.id }}" class="hover:bg-gray-100 dark:hover:bg-gray-700">
-                            <td class="w-4 px-4 py-3 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <input id="checkbox-{{ product.id }}" name="product_ids" value="{{ product.id }}" type="checkbox" class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                    <label for="checkbox-{{ product.id }}" class="sr-only">Select product</label>
-                                </div>
-                            </td>
-                            <th scope="row" class="flex items-center px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-gray-500">
-                                {% if product.photo %}
-                                    <img 
-                                        src="{{ product.photo.url }}" 
-                                        alt="{{ product.item_name }}" 
-                                        class="w-8 h-8 mr-3 object-cover rounded product-image cursor-pointer" 
-                                        data-full-url="{{ product.photo.url }}"
-                                        title="Click to view full image"
-                                    >
-                                {% else %}
-                                    <img 
-                                        src="{% static 'images/placeholder.png' %}" 
-                                        alt="{{ product.item_name }}" 
-                                        class="w-8 h-8 mr-3 object-cover rounded product-image cursor-pointer" 
-                                        data-full-url="{% static 'images/placeholder.png' %}"
-                                        title="Click to view full image"
-                                    >
-                                {% endif %}
-                                {{ product.item_name }}  
-                            </th>
-                            <td class="px-4 py-2 whitespace-nowrap">{{ product.quantity }}</td>
-                            <td class="px-4 py-2 whitespace-nowrap">{{ product.supplier.supplier_name }}</td>
-                            <td class="px-4 py-2 whitespace-nowrap">{{ product.currency_code }}</td>
-                            <td class="px-4 py-2 whitespace-nowrap">${{ product.retail_price }}</td>
-                            <td class="px-4 py-2 whitespace-nowrap">{{ product.uom }}</td>
-                            <td class="px-4 py-2 whitespace-nowrap">{{ product.discountable_all|yesno:"Yes,No" }}</td>
-                            <td class="px-4 py-2 whitespace-nowrap">{{ product.discountable_members|yesno:"Yes,No" }}</td>
-                            <td class="px-4 py-2 whitespace-nowrap">{{ product.active|yesno:"Yes,No" }}</td>
-                            <td class="px-4 py-2 whitespace-nowrap flex space-x-2">
-                                <!-- Edit Button -->
-                                <button
-                                    type="button"
-                                    class="text-blue-600 hover:text-blue-800 focus:outline-none"
-                                    onclick="editProduct('{{ product.id }}')"
-                                    title="Edit Product"
-                                >
-                                    <!-- Edit Icon -->
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 18a1 1 0 01-1-1v-4.586l10.293-10.293a1 1 0 011.414 0l2.586 2.586a1 1 0 010 1.414L9.414 17H5z" />
-                                    </svg>
-                                </button>
-
-                                <!-- Individual Delete Button -->
-                                <button
-                                    type="button"
-                                    class="text-red-600 hover:text-red-800 focus:outline-none"
-                                    onclick="deleteProduct('{{ product.id }}')"
-                                    title="Delete Product"
-                                >
-                                    <!-- Delete Icon -->
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M6 3V4H4V6H16V4H14V3H6ZM6 6V15C6 16.1046 6.89543 17 8 17H12C13.1046 17 14 16.1046 14 15V6H6Z" />
-                                    </svg>
-                                </button>
-                            </td>
-                        </tr>
-                        {% endfor %}
+                        {% include 'inventory/_product_rows.html' with products=page_obj %}
                     </tbody>
                 </table>
             </div>
@@ -300,17 +245,52 @@
                         {% endif %}
                     </div>
                     <div>
-                        {{ form.uom.label_tag }}
-                        {{ form.uom }}
+                        <label for="uom" class="block text-sm font-medium text-gray-700 dark:text-gray-300">UOM</label>
+                        <select id="uom" name="uom" class="block w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 bg-white text-gray-900 dark:bg-[#1a1a1a] dark:border-gray-600 dark:text-gray-300 sm:text-sm">
+                            <option value="">Select UOM</option>
+                            <!-- Dynamic options will be appended here via JavaScript -->
+                        </select>
                         {% if form.uom.errors %}
                             <p class="text-red-500 text-xs mt-1">{{ form.uom.errors }}</p>
                         {% endif %}
-                    </div>
+                    </div>                                  
                     <div>
                         {{ form.quantity.label_tag }}
                         {{ form.quantity }}
                         {% if form.quantity.errors %}
                             <p class="text-red-500 text-xs mt-1">{{ form.quantity.errors }}</p>
+                        {% endif %}
+                    </div>
+                    <!-- New Product Category Field -->
+                    <div>
+                        {{ form.product_category.label_tag }}
+                        {{ form.product_category }}
+                        {% if form.product_category.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.product_category.errors }}</p>
+                        {% endif %}
+                    </div>
+                    <!-- Custom Product Category Field (Initially Hidden) -->
+                    <div id="customProductCategoryContainer" class="hidden">
+                        {{ form.custom_product_category.label_tag }}
+                        {{ form.custom_product_category }}
+                        {% if form.custom_product_category.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.custom_product_category.errors }}</p>
+                        {% endif %}
+                    </div>
+                    <!-- Existing Product Type Field -->
+                    <div>
+                        {{ form.product_type.label_tag }}
+                        {{ form.product_type }}
+                        {% if form.product_type.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.product_type.errors }}</p>
+                        {% endif %}
+                    </div>
+                    <!-- Linked Article Field (Initially Hidden) -->
+                    <div id="linkedArticleContainer" class="hidden">
+                        {{ form.linked_article.label_tag }}
+                        {{ form.linked_article }}
+                        {% if form.linked_article.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.linked_article.errors }}</p>
                         {% endif %}
                     </div>
                     <div class="flex items-center">
@@ -358,8 +338,11 @@
 <!-- Include SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- JavaScript for Modal, Delete, Edit, and Search Functionality -->
+<!-- JavaScript for Modal, Delete, Edit, Search, and Dynamic UOM Functionality -->
 <script>
+    // Define placeholder image URL
+    const placeholderImageUrl = "{% static 'images/placeholder.png' %}";
+
     // Function to get CSRF token from cookies
     function getCookie(name) {
         let cookieValue = null;
@@ -376,6 +359,39 @@
         return cookieValue;
     }
     const csrfToken = getCookie('csrftoken');
+
+    // UOM Mappings for JavaScript
+    const uomMappings = {
+        'Capsule': ['Pieces', 'Bottles'],
+        'Tablet': ['Pieces', 'Bottles'],
+        'Powder': ['Grams', 'Kilograms'],
+        'Liquid': ['ml', 'Liters'],
+        'Other': []  // Customize as needed for 'Other'
+    };
+
+    // Function to update UOM options based on selected product_category
+    function updateUomOptions(selectedCategory, selectedUom = null) {
+        const options = uomMappings[selectedCategory] || [];
+        const uomSelect = document.querySelector('select[name="uom"]');
+        if (!uomSelect) return;
+
+        // Clear existing options
+        uomSelect.innerHTML = '<option value="">Select UOM</option>';
+
+        // Populate new options
+        options.forEach(uom => {
+            const option = document.createElement('option');
+            option.value = uom;
+            option.textContent = uom;
+            if (uom === selectedUom) {
+                option.selected = true;
+            }
+            uomSelect.appendChild(option);
+        });
+
+        // Enable or disable UOM based on availability
+        uomSelect.disabled = options.length === 0;
+    }
 
     // Modal elements
     const openModalButton = document.getElementById('openModalButton');
@@ -432,6 +448,25 @@
         productForm.action = "{% url 'add_product' %}";
         modalTitle.textContent = "Add New Product";
         submitButton.textContent = "Save Product";
+        // Re-enable and hide linked_article and custom_product_category fields if they were disabled
+        const linkedArticleContainer = document.getElementById('linkedArticleContainer');
+        const linkedArticleField = productForm.querySelector('select[name="linked_article"]');
+        if (linkedArticleContainer) {
+            linkedArticleContainer.classList.add('hidden');
+            linkedArticleField.disabled = true;
+            linkedArticleField.value = ''; // Clear the field
+        }
+        const customProductCategoryContainer = document.getElementById('customProductCategoryContainer');
+        const customProductCategoryField = productForm.querySelector('input[name="custom_product_category"]');
+        if (customProductCategoryContainer) {
+            customProductCategoryContainer.classList.add('hidden');
+            customProductCategoryField.disabled = true;
+            customProductCategoryField.value = ''; // Clear the field
+        }
+        // Reset UOM options based on default or existing selection
+        const productCategorySelect = productForm.querySelector('select[name="product_category"]');
+        const selectedCategory = productCategorySelect.value;
+        updateUomOptions(selectedCategory);
     }
 
     // Handle 'Select All' checkbox
@@ -500,6 +535,8 @@
                                 row.remove();
                             }
                         });
+                        // Uncheck the 'Select All' checkbox
+                        document.getElementById('checkbox-all').checked = false;
                     } else {
                         Swal.fire(
                             'Error!',
@@ -534,7 +571,7 @@
                 // Prepare form data
                 let formData = new FormData();
                 // Send AJAX request to delete product
-                fetch("{% url 'delete_product' product_id=0 %}".replace('0', productId), {
+                fetch("{% url 'delete_product' product_id=0 %}".replace('/0/', `/${productId}/`), {
                     method: 'POST',
                     headers: {
                         'X-CSRFToken': csrfToken,
@@ -601,7 +638,7 @@
     // Edit Product Functionality
     function editProduct(productId) {
         // Fetch product data via AJAX
-        fetch("{% url 'edit_product' product_id=0 %}".replace('0', productId), {
+        fetch("{% url 'delete_product' product_id=0 %}".replace('/0/', `/${productId}/`), {
             method: 'GET',
             headers: {
                 'X-CSRFToken': csrfToken,
@@ -618,13 +655,52 @@
                 productForm.querySelector('select[name="supplier"]').value = product.supplier_id || '';
                 productForm.querySelector('input[name="currency_code"]').value = product.currency_code || '';
                 productForm.querySelector('input[name="retail_price"]').value = product.retail_price || '';
-                productForm.querySelector('input[name="uom"]').value = product.uom || '';
+                productForm.querySelector('select[name="uom"]').value = product.uom || '';
                 productForm.querySelector('input[name="quantity"]').value = product.quantity || '';
-                productForm.querySelector('input[name="discountable_all"]').checked = !!product.discountable_all;
-                productForm.querySelector('input[name="discountable_members"]').checked = !!product.discountable_members;
-                productForm.querySelector('input[name="active"]').checked = !!product.active;
+                productForm.querySelector('select[name="product_type"]').value = product.product_type || ''; // Populate product_type
+                productForm.querySelector('select[name="product_category"]').value = product.product_category || ''; // Populate product_category
+                productForm.querySelector('input[name="discountable_all"]').checked = product.discountable_all === true;
+                productForm.querySelector('input[name="discountable_members"]').checked = product.discountable_members === true;
+                productForm.querySelector('input[name="active"]').checked = product.active === true;
+                productForm.querySelector('select[name="linked_article"]').value = product.linked_article_id || '';
+                productForm.querySelector('input[name="custom_product_category"]').value = product.custom_product_category || '';
+
+                // Show or hide linked_article field based on product_type
+                const linkedArticleContainer = document.getElementById('linkedArticleContainer');
+                const linkedArticleField = productForm.querySelector('select[name="linked_article"]');
+                if (product.product_type === 'Component') {
+                    linkedArticleContainer.classList.remove('hidden');
+                    linkedArticleField.disabled = false;
+                } else {
+                    linkedArticleContainer.classList.add('hidden');
+                    linkedArticleField.disabled = true;
+                    linkedArticleField.value = ''; // Clear linked_article if not Component
+                }
+
+                // Show or hide custom_product_category field based on product_category
+                const customProductCategoryContainer = document.getElementById('customProductCategoryContainer');
+                const customProductCategoryField = productForm.querySelector('input[name="custom_product_category"]');
+                if (product.product_category === 'Other') {
+                    customProductCategoryContainer.classList.remove('hidden');
+                    customProductCategoryField.disabled = false;
+                    // Optionally, disable UOM if 'Other' should have free-form UOM
+                    updateUomOptions('Other');
+                    const uomSelect = productForm.querySelector('select[name="uom"]');
+                    if (uomSelect) {
+                        uomSelect.disabled = true;
+                        uomSelect.value = ''; // Clear UOM if it's disabled
+                    }
+                } else {
+                    customProductCategoryContainer.classList.add('hidden');
+                    customProductCategoryField.disabled = true;
+                    customProductCategoryField.value = ''; // Clear custom category if not 'Other'
+                    // Update UOM options based on selected category
+                    const selectedCategory = product.product_category;
+                    updateUomOptions(selectedCategory, product.uom);
+                }
+
                 // Change form action to update_product
-                productForm.action = "{% url 'update_product' product_id=0 %}".replace('0', product.id);
+                productForm.action = "{% url 'delete_product' product_id=0 %}".replace('/0/', `/${productId}/`);
                 // Update modal title and button text
                 modalTitle.textContent = "Edit Product";
                 submitButton.textContent = "Update Product";
@@ -692,50 +768,59 @@
                                 >
                             ` : `
                                 <img 
-                                    src="{% static 'images/placeholder.png' %}" 
+                                    src="${placeholderImageUrl}" 
                                     alt="${updatedProduct.item_name}" 
                                     class="w-8 h-8 mr-3 object-cover rounded product-image cursor-pointer" 
-                                    data-full-url="{% static 'images/placeholder.png' %}"
+                                    data-full-url="${placeholderImageUrl}"
                                     title="Click to view full image"
                                 >
                             `}
-                            ${updatedProduct.item_name}
+                            ${updatedProduct.item_name}  
                         `;
+                        // Update Product Type
+                        row.querySelector('td:nth-child(3)').textContent = updatedProduct.product_type;
+                        // Update Product Category
+                        row.querySelector('td:nth-child(4)').textContent = updatedProduct.product_category;
                         // Update Quantity
-                        row.querySelector('td:nth-child(3)').textContent = updatedProduct.quantity;
-                        // Update Supplier
-                        row.querySelector('td:nth-child(4)').textContent = updatedProduct.supplier_name;
-                        // Update Currency
-                        row.querySelector('td:nth-child(5)').textContent = updatedProduct.currency_code;
-                        // Update Price
-                        row.querySelector('td:nth-child(6)').textContent = `$${updatedProduct.retail_price}`;
+                        row.querySelector('td:nth-child(5)').textContent = updatedProduct.quantity;
                         // Update UOM
-                        row.querySelector('td:nth-child(7)').textContent = updatedProduct.uom;
+                        row.querySelector('td:nth-child(6)').textContent = updatedProduct.uom;
+                        // Update Supplier
+                        row.querySelector('td:nth-child(7)').textContent = updatedProduct.supplier_name;
+                        // Update Currency
+                        row.querySelector('td:nth-child(8)').textContent = updatedProduct.currency_code;
+                        // Update Price
+                        row.querySelector('td:nth-child(9)').textContent = `$${updatedProduct.retail_price}`;
                         // Update Discountable (All)
-                        row.querySelector('td:nth-child(8)').textContent = updatedProduct.discountable_all;
+                        row.querySelector('td:nth-child(10)').textContent = updatedProduct.discountable_all ? 'Yes' : 'No';
                         // Update Discountable (Members)
-                        row.querySelector('td:nth-child(9)').textContent = updatedProduct.discountable_members;
+                        row.querySelector('td:nth-child(11)').textContent = updatedProduct.discountable_members ? 'Yes' : 'No';
                         // Update Active
-                        row.querySelector('td:nth-child(10)').textContent = updatedProduct.active;
+                        row.querySelector('td:nth-child(12)').textContent = updatedProduct.active ? 'Yes' : 'No';
+                        // Update Remaining Components
+                        row.querySelector('td:nth-child(13)').textContent = updatedProduct.product_type === 'Article' ? updatedProduct.remaining_component_stock : 'N/A';
 
                         // Re-attach event listener for the new image
-                        row.querySelector('.product-image').addEventListener('click', function() {
-                            const fullImageUrl = this.getAttribute('data-full-url');
-                            const altText = this.getAttribute('alt');
-                            Swal.fire({
-                                title: altText,
-                                imageUrl: fullImageUrl,
-                                imageAlt: altText,
-                                showCloseButton: true,
-                                showConfirmButton: false,
-                                width: 'auto',
-                                heightAuto: true,
-                                customClass: {
-                                    popup: 'p-0 rounded-lg',
-                                    image: 'object-contain w-auto h-96' // Adjust size as needed
-                                }
+                        const productImage = row.querySelector('.product-image');
+                        if (productImage) {
+                            productImage.addEventListener('click', function() {
+                                const fullImageUrl = this.getAttribute('data-full-url');
+                                const altText = this.getAttribute('alt');
+                                Swal.fire({
+                                    title: altText,
+                                    imageUrl: fullImageUrl,
+                                    imageAlt: altText,
+                                    showCloseButton: true,
+                                    showConfirmButton: false,
+                                    width: 'auto',
+                                    heightAuto: true,
+                                    customClass: {
+                                        popup: 'p-0 rounded-lg',
+                                        image: 'object-contain w-auto h-96' // Adjust size as needed
+                                    }
+                                });
                             });
-                        });
+                        }
                     }
                     // Close modal and reset form
                     modal.classList.add('hidden');
@@ -796,6 +881,7 @@
                 productTableBody.innerHTML = '';
                 // Populate table with new data
                 data.products.forEach(product => {
+                    // Create the table row manually
                     const row = document.createElement('tr');
                     row.id = `product-row-${product.id}`;
                     row.classList.add('hover:bg-gray-100', 'dark:hover:bg-gray-700');
@@ -826,22 +912,40 @@
                             >
                         ` : `
                             <img 
-                                src="{% static 'images/placeholder.png' %}" 
+                                src="${placeholderImageUrl}" 
                                 alt="${product.item_name}" 
                                 class="w-8 h-8 mr-3 object-cover rounded product-image cursor-pointer" 
-                                data-full-url="{% static 'images/placeholder.png' %}"
+                                data-full-url="${placeholderImageUrl}"
                                 title="Click to view full image"
                             >
                         `}
-                        ${product.item_name}
+                        ${product.item_name}  
                     `;
                     row.appendChild(productCell);
+
+                    // Product Type Cell
+                    const productTypeCell = document.createElement('td');
+                    productTypeCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
+                    productTypeCell.textContent = product.product_type;
+                    row.appendChild(productTypeCell);
+
+                    // Product Category Cell
+                    const productCategoryCell = document.createElement('td');
+                    productCategoryCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
+                    productCategoryCell.textContent = product.product_category;
+                    row.appendChild(productCategoryCell);
 
                     // Quantity Cell
                     const quantityCell = document.createElement('td');
                     quantityCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
                     quantityCell.textContent = product.quantity;
                     row.appendChild(quantityCell);
+
+                    // UOM Cell (Moved)
+                    const uomCell = document.createElement('td');
+                    uomCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
+                    uomCell.textContent = product.uom;
+                    row.appendChild(uomCell);
 
                     // Supplier Cell
                     const supplierCell = document.createElement('td');
@@ -861,29 +965,29 @@
                     priceCell.textContent = `$${product.retail_price}`;
                     row.appendChild(priceCell);
 
-                    // UOM Cell
-                    const uomCell = document.createElement('td');
-                    uomCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
-                    uomCell.textContent = product.uom;
-                    row.appendChild(uomCell);
-
                     // Discountable (All) Cell
                     const discountAllCell = document.createElement('td');
                     discountAllCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
-                    discountAllCell.textContent = product.discountable_all;
+                    discountAllCell.textContent = product.discountable_all ? 'Yes' : 'No';
                     row.appendChild(discountAllCell);
 
                     // Discountable (Members) Cell
                     const discountMembersCell = document.createElement('td');
                     discountMembersCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
-                    discountMembersCell.textContent = product.discountable_members;
+                    discountMembersCell.textContent = product.discountable_members ? 'Yes' : 'No';
                     row.appendChild(discountMembersCell);
 
                     // Active Cell
                     const activeCell = document.createElement('td');
                     activeCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
-                    activeCell.textContent = product.active;
+                    activeCell.textContent = product.active ? 'Yes' : 'No';
                     row.appendChild(activeCell);
+
+                    // Remaining Components Cell (New)
+                    const remainingComponentsCell = document.createElement('td');
+                    remainingComponentsCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
+                    remainingComponentsCell.textContent = product.product_type === 'Article' ? product.remaining_component_stock : 'N/A';
+                    row.appendChild(remainingComponentsCell);
 
                     // Actions Cell
                     const actionsCell = document.createElement('td');
@@ -919,28 +1023,33 @@
 
                     // Append the row to the table body
                     productTableBody.appendChild(row);
+
+                    // Re-attach event listener for the new image
+                    const productImage = row.querySelector('.product-image');
+                    if (productImage) {
+                        productImage.addEventListener('click', function() {
+                            const fullImageUrl = this.getAttribute('data-full-url');
+                            const altText = this.getAttribute('alt');
+                            Swal.fire({
+                                title: altText,
+                                imageUrl: fullImageUrl,
+                                imageAlt: altText,
+                                showCloseButton: true,
+                                showConfirmButton: false,
+                                width: 'auto',
+                                heightAuto: true,
+                                customClass: {
+                                    popup: 'p-0 rounded-lg',
+                                    image: 'object-contain w-auto h-96' // Adjust size as needed
+                                }
+                            });
+                        });
+                    }
                 });
 
-                // Re-attach event listeners for the new images
-                document.querySelectorAll('.product-image').forEach(function(image) {
-                    image.addEventListener('click', function() {
-                        const fullImageUrl = this.getAttribute('data-full-url');
-                        const altText = this.getAttribute('alt');
-                        Swal.fire({
-                            title: altText,
-                            imageUrl: fullImageUrl,
-                            imageAlt: altText,
-                            showCloseButton: true,
-                            showConfirmButton: false,
-                            width: 'auto',
-                            heightAuto: true,
-                            customClass: {
-                                popup: 'p-0 rounded-lg',
-                                image: 'object-contain w-auto h-96' // Adjust size as needed
-                            }
-                        });
-                    });
-                });
+                // Update "Select All" checkbox state
+                document.getElementById('checkbox-all').checked = false;
+
             } else {
                 Swal.fire(
                     'Error!',
@@ -970,6 +1079,65 @@
             });
         {% endfor %}
     {% endif %}
+
+    // JavaScript to handle showing/hiding the linked_article and custom_product_category fields based on product_type and product_category
+    document.addEventListener('DOMContentLoaded', function() {
+        const productForm = document.getElementById('productForm');
+        const productTypeSelect = productForm.querySelector('select[name="product_type"]');
+        const linkedArticleContainer = document.getElementById('linkedArticleContainer');
+        const linkedArticleField = productForm.querySelector('select[name="linked_article"]');
+        
+        const productCategorySelect = productForm.querySelector('select[name="product_category"]');
+        const customProductCategoryContainer = document.getElementById('customProductCategoryContainer');
+        const customProductCategoryField = productForm.querySelector('input[name="custom_product_category"]');
+        const uomSelect = productForm.querySelector('select[name="uom"]');
+        
+        // Function to show or hide the linked_article field based on product_type
+        function toggleLinkedArticle() {
+            const selectedType = productTypeSelect.value;
+            if (selectedType === 'Component') {
+                linkedArticleContainer.classList.remove('hidden');
+                linkedArticleField.disabled = false;
+            } else {
+                linkedArticleContainer.classList.add('hidden');
+                linkedArticleField.disabled = true;
+                linkedArticleField.value = ''; // Clear linked_article if not Component
+            }
+        }
+
+        // Function to show or hide the custom_product_category input based on product_category
+        function toggleCustomProductCategory() {
+            const selectedCategory = productCategorySelect.value;
+            if (selectedCategory === 'Other') {
+                customProductCategoryContainer.classList.remove('hidden');
+                customProductCategoryField.disabled = false;
+                
+                // Disable UOM if 'Other' should allow free-form UOM
+                updateUomOptions('Other');
+                uomSelect.disabled = true;
+                uomSelect.value = ''; // Clear UOM if it's disabled
+            } else {
+                customProductCategoryContainer.classList.add('hidden');
+                customProductCategoryField.disabled = true;
+                customProductCategoryField.value = ''; // Clear custom category input
+                
+                // Update UOM options based on the selected category
+                updateUomOptions(selectedCategory);
+                uomSelect.disabled = false;
+            }
+        }
+
+        // Initial setup based on current selections
+        toggleLinkedArticle();
+        toggleCustomProductCategory();
+
+        // Initialize UOM options based on current product_category
+        updateUomOptions(productCategorySelect.value, uomSelect.value);
+
+        // Add event listeners for changes in product_type and product_category
+        productTypeSelect.addEventListener('change', toggleLinkedArticle);
+        productCategorySelect.addEventListener('change', toggleCustomProductCategory);
+    });
 </script>
 
 {% endblock %}

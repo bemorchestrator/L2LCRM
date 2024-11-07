@@ -28,14 +28,26 @@
         {% endif %}
         {{ product.item_name }}  
     </th>
+    <td class="px-4 py-2 whitespace-nowrap">{{ product.get_product_type_display }}</td>
+    <td class="px-4 py-2 whitespace-nowrap">{{ product.get_product_category_display }}</td>
     <td class="px-4 py-2 whitespace-nowrap">{{ product.quantity }}</td>
+    <td class="px-4 py-2 whitespace-nowrap">{{ product.uom }}</td>
     <td class="px-4 py-2 whitespace-nowrap">{{ product.supplier.supplier_name }}</td>
     <td class="px-4 py-2 whitespace-nowrap">{{ product.currency_code }}</td>
     <td class="px-4 py-2 whitespace-nowrap">${{ product.retail_price }}</td>
-    <td class="px-4 py-2 whitespace-nowrap">{{ product.uom }}</td>
     <td class="px-4 py-2 whitespace-nowrap">{{ product.discountable_all|yesno:"Yes,No" }}</td>
     <td class="px-4 py-2 whitespace-nowrap">{{ product.discountable_members|yesno:"Yes,No" }}</td>
     <td class="px-4 py-2 whitespace-nowrap">{{ product.active|yesno:"Yes,No" }}</td>
+    
+    <!-- New Data Cell for Remaining Components -->
+    <td class="px-4 py-2 whitespace-nowrap">
+        {% if product.product_type == 'Article' %}
+            {{ product.remaining_component_stock }}
+        {% else %}
+            N/A
+        {% endif %}
+    </td>
+
     <td class="px-4 py-2 whitespace-nowrap flex space-x-2">
         <!-- Edit Button -->
         <button

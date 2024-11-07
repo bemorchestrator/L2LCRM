@@ -11,5 +11,6 @@ urlpatterns = [
     path('products/edit/<int:product_id>/', views.edit_product, name='edit_product'),
     path('products/update/<int:product_id>/', views.update_product, name='update_product'),
     path('search_products/', views.search_products, name='search_products'),
+    path('get-uom-options/', views.get_uom_options, name='get_uom_options'),
     
 ]

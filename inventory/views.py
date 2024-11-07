@@ -1,21 +1,33 @@
+# inventory/views.py
+
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from .models import Product
 from .forms import ProductForm
 from django.contrib import messages
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.http import require_POST, require_GET
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db.models import Prefetch
 
-@csrf_protect
 @login_required
 def product_list(request):
     """
-    View to display the list of products with pagination.
+    View to display the list of products with pagination and remaining components.
     """
-    products = Product.objects.all().select_related('supplier')  # Optimize query with select_related
-    paginator = Paginator(products, 15)  # Display 10 products per page
+    # Prefetch related components only for Articles to optimize queries
+    products = Product.objects.all().select_related('supplier').prefetch_related(
+        Prefetch('components', queryset=Product.objects.filter(product_type=Product.COMPONENT))
+    )
+
+    # Add component stock information for articles
+    for product in products:
+        if product.product_type == Product.ARTICLE:
+            product.remaining_component_stock = product.get_total_component_stock()
+        else:
+            product.remaining_component_stock = 'N/A'  # For Components
+
+    paginator = Paginator(products, 15)  # Display 15 products per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
@@ -40,15 +52,19 @@ def add_product(request):
                     'id': product.id,
                     'item_name': product.item_name,
                     'quantity': product.quantity,
-                    'supplier_id': product.supplier.id,
-                    'supplier_name': product.supplier.supplier_name,
+                    'uom': product.uom,
+                    'supplier_id': product.supplier.id if product.supplier else '',
+                    'supplier_name': product.supplier.supplier_name if product.supplier else '',
                     'currency_code': product.currency_code,
                     'retail_price': str(product.retail_price),
-                    'uom': product.uom,
                     'discountable_all': 'Yes' if product.discountable_all else 'No',
                     'discountable_members': 'Yes' if product.discountable_members else 'No',
                     'active': 'Yes' if product.active else 'No',
                     'photo_url': product.photo.url if product.photo else '',
+                    'product_type': product.product_type,
+                    'product_category': product.product_category,
+                    'custom_product_category': product.custom_product_category or '',
+                    'linked_article_id': product.linked_article.id if product.linked_article else None,
                 }
                 return JsonResponse({'status': 'success', 'message': 'Product added successfully!', 'product': product_data})
             else:
@@ -107,15 +123,19 @@ def edit_product(request, product_id):
             'id': product.id,
             'item_name': product.item_name,
             'quantity': product.quantity,
-            'supplier_id': product.supplier.id,
-            'supplier_name': product.supplier.supplier_name,
+            'uom': product.uom,
+            'supplier_id': product.supplier.id if product.supplier else '',
+            'supplier_name': product.supplier.supplier_name if product.supplier else '',
             'currency_code': product.currency_code,
             'retail_price': str(product.retail_price) if product.retail_price else '',
-            'uom': product.uom,
             'discountable_all': bool(product.discountable_all),
             'discountable_members': bool(product.discountable_members),
             'active': bool(product.active),
             'photo_url': product.photo.url if product.photo else '',
+            'product_type': product.product_type,
+            'product_category': product.product_category,
+            'custom_product_category': product.custom_product_category or '',
+            'linked_article_id': product.linked_article.id if product.linked_article else '',
         }
         return JsonResponse({'status': 'success', 'product': data})
     else:
@@ -137,15 +157,20 @@ def update_product(request, product_id):
                 'id': updated_product.id,
                 'item_name': updated_product.item_name,
                 'quantity': updated_product.quantity,
-                'supplier_id': updated_product.supplier.id,
-                'supplier_name': updated_product.supplier.supplier_name,
+                'uom': updated_product.uom,
+                'supplier_id': updated_product.supplier.id if updated_product.supplier else '',
+                'supplier_name': updated_product.supplier.supplier_name if updated_product.supplier else '',
                 'currency_code': updated_product.currency_code,
                 'retail_price': str(updated_product.retail_price),
-                'uom': updated_product.uom,
                 'discountable_all': 'Yes' if updated_product.discountable_all else 'No',
                 'discountable_members': 'Yes' if updated_product.discountable_members else 'No',
                 'active': 'Yes' if updated_product.active else 'No',
                 'photo_url': updated_product.photo.url if updated_product.photo else '',
+                'product_type': updated_product.product_type,
+                'product_category': updated_product.product_category,
+                'custom_product_category': updated_product.custom_product_category or '',
+                'linked_article_id': updated_product.linked_article.id if updated_product.linked_article else None,
+                'remaining_component_stock': updated_product.get_total_component_stock() if updated_product.product_type == Product.ARTICLE else 'N/A',
             }
             return JsonResponse({'status': 'success', 'message': 'Product updated successfully!', 'product': data})
         else:
@@ -161,9 +186,20 @@ def search_products(request):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         query = request.GET.get('q', '').strip()
         if query:
-            products = Product.objects.filter(item_name__icontains=query).select_related('supplier')
+            products = Product.objects.filter(item_name__icontains=query).select_related('supplier').prefetch_related(
+                Prefetch('components', queryset=Product.objects.filter(product_type=Product.COMPONENT))
+            )
         else:
-            products = Product.objects.all().select_related('supplier')
+            products = Product.objects.all().select_related('supplier').prefetch_related(
+                Prefetch('components', queryset=Product.objects.filter(product_type=Product.COMPONENT))
+            )
+        
+        # Add remaining_component_stock to each product
+        for product in products:
+            if product.product_type == Product.ARTICLE:
+                product.remaining_component_stock = product.get_total_component_stock()
+            else:
+                product.remaining_component_stock = 'N/A'
         
         # Serialize products
         products_data = []
@@ -172,15 +208,37 @@ def search_products(request):
                 'id': product.id,
                 'item_name': product.item_name,
                 'quantity': product.quantity,
-                'supplier_name': product.supplier.supplier_name,
+                'uom': product.uom,
+                'supplier_name': product.supplier.supplier_name if product.supplier else '',
                 'currency_code': product.currency_code,
                 'retail_price': str(product.retail_price),
-                'uom': product.uom,
                 'discountable_all': 'Yes' if product.discountable_all else 'No',
                 'discountable_members': 'Yes' if product.discountable_members else 'No',
                 'active': 'Yes' if product.active else 'No',
                 'photo_url': product.photo.url if product.photo else '',
+                'product_type': product.product_type,
+                'product_category': product.product_category,
+                'custom_product_category': product.custom_product_category or '',
+                'linked_article_id': product.linked_article.id if product.linked_article else None,
+                'remaining_component_stock': product.remaining_component_stock,
             })
         return JsonResponse({'status': 'success', 'products': products_data})
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+
+@login_required
+@require_GET
+def get_uom_options(request):
+    """
+    AJAX view to return UOM options based on selected product_category.
+    """
+    product_category = request.GET.get('product_category')
+    uom_mappings = {
+        'Capsule': ['Pieces', 'Bottles'],
+        'Tablet': ['Pieces', 'Bottles'],
+        'Powder': ['Grams', 'Kilograms'],
+        'Liquid': ['ml', 'Liters'],
+    }
+    uom_options = uom_mappings.get(product_category, [])
+    return JsonResponse({'uom_options': uom_options})
