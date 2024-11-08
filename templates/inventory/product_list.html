@@ -638,7 +638,7 @@
     // Edit Product Functionality
     function editProduct(productId) {
         // Fetch product data via AJAX
-        fetch("{% url 'delete_product' product_id=0 %}".replace('/0/', `/${productId}/`), {
+        fetch("{% url 'edit_product' product_id=0 %}".replace('/0/', `/${productId}/`), {
             method: 'GET',
             headers: {
                 'X-CSRFToken': csrfToken,
@@ -700,7 +700,7 @@
                 }
 
                 // Change form action to update_product
-                productForm.action = "{% url 'delete_product' product_id=0 %}".replace('/0/', `/${productId}/`);
+                productForm.action = "{% url 'update_product' product_id=0 %}".replace('/0/', `/${productId}/`);
                 // Update modal title and button text
                 modalTitle.textContent = "Edit Product";
                 submitButton.textContent = "Update Product";
