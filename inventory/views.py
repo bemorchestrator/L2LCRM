@@ -242,3 +242,11 @@ def get_uom_options(request):
     }
     uom_options = uom_mappings.get(product_category, [])
     return JsonResponse({'uom_options': uom_options})
+
+
+def article_list(request):
+    articles = Product.objects.filter(product_type=Product.ARTICLE).select_related('supplier')
+    paginator = Paginator(articles, 15)  # Adjust as needed
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'inventory/article_list.html', {'page_obj': page_obj})
