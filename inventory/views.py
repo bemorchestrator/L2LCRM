@@ -250,3 +250,10 @@ def article_list(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return render(request, 'inventory/article_list.html', {'page_obj': page_obj})
+
+def component_list(request):
+    components = Product.objects.filter(product_type=Product.COMPONENT).select_related('supplier')
+    paginator = Paginator(components, 15)  # Adjust as needed
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'inventory/component_list.html', {'page_obj': page_obj})
