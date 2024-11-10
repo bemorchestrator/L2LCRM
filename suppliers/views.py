@@ -1,5 +1,3 @@
-# suppliers/views.py
-
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.contrib import messages
@@ -15,7 +13,7 @@ def supplier_list(request):
     View to display the list of suppliers with pagination.
     """
     suppliers = Supplier.objects.all()  # Fetch all suppliers
-    paginator = Paginator(suppliers, 15)  # Display 10 suppliers per page
+    paginator = Paginator(suppliers, 15)  # Display 15 suppliers per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
@@ -42,9 +40,15 @@ def add_supplier(request):
                     'supplier_name': supplier.supplier_name,
                     'contact': supplier.contact,
                     'country': supplier.country,
+                    'address': supplier.address,
                     'phone': supplier.phone,
+                    'fax': supplier.fax,
                     'email': supplier.email,
+                    'staff_in_charge': supplier.staff_in_charge,
+                    'remarks': supplier.remarks,
                     'active': 'Yes' if supplier.active else 'No',
+                    'updated': supplier.updated.strftime('%Y-%m-%d %H:%M:%S'),
+                    'created': supplier.created.strftime('%Y-%m-%d %H:%M:%S'),
                 }
                 return JsonResponse({'status': 'success', 'message': 'Supplier added successfully!', 'supplier': supplier_data})
             else:
@@ -59,20 +63,18 @@ def add_supplier(request):
                 return redirect('supplier_list')
     else:
         form = SupplierForm()
-    return render(request, 'suppliers/supplier_form.html', {'form': form})  # Separate template for non-AJAX form submission
+    return render(request, 'suppliers/supplier_form.html', {'form': form})
 
 @require_POST
 def delete_supplier(request, supplier_id):
     """
     View to delete a single supplier via AJAX or non-AJAX request.
     """
+    supplier = get_object_or_404(Supplier, id=supplier_id)
+    supplier.delete()
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        supplier = get_object_or_404(Supplier, id=supplier_id)
-        supplier.delete()
         return JsonResponse({'status': 'success', 'message': 'Supplier deleted successfully.'})
     else:
-        supplier = get_object_or_404(Supplier, id=supplier_id)
-        supplier.delete()
         messages.success(request, 'Supplier has been successfully deleted.')
         return redirect('supplier_list')
 
@@ -102,9 +104,15 @@ def edit_supplier(request, supplier_id):
             'supplier_name': supplier.supplier_name,
             'contact': supplier.contact,
             'country': supplier.country,
+            'address': supplier.address,
             'phone': supplier.phone,
+            'fax': supplier.fax,
             'email': supplier.email,
+            'staff_in_charge': supplier.staff_in_charge,
+            'remarks': supplier.remarks,
             'active': supplier.active,
+            'updated': supplier.updated.strftime('%Y-%m-%d %H:%M:%S'),
+            'created': supplier.created.strftime('%Y-%m-%d %H:%M:%S'),
         }
         return JsonResponse({'status': 'success', 'supplier': data})
     else:
@@ -127,9 +135,15 @@ def update_supplier(request, supplier_id):
                 'supplier_name': updated_supplier.supplier_name,
                 'contact': updated_supplier.contact,
                 'country': updated_supplier.country,
+                'address': updated_supplier.address,
                 'phone': updated_supplier.phone,
+                'fax': updated_supplier.fax,
                 'email': updated_supplier.email,
+                'staff_in_charge': updated_supplier.staff_in_charge,
+                'remarks': updated_supplier.remarks,
                 'active': 'Yes' if updated_supplier.active else 'No',
+                'updated': updated_supplier.updated.strftime('%Y-%m-%d %H:%M:%S'),
+                'created': updated_supplier.created.strftime('%Y-%m-%d %H:%M:%S'),
             }
             return JsonResponse({'status': 'success', 'message': 'Supplier updated successfully!', 'supplier': supplier_data})
         else:
@@ -157,9 +171,15 @@ def search_suppliers(request):
                 'supplier_name': supplier.supplier_name,
                 'contact': supplier.contact,
                 'country': supplier.country,
+                'address': supplier.address,
                 'phone': supplier.phone,
+                'fax': supplier.fax,
                 'email': supplier.email,
+                'staff_in_charge': supplier.staff_in_charge,
+                'remarks': supplier.remarks,
                 'active': 'Yes' if supplier.active else 'No',
+                'updated': supplier.updated.strftime('%Y-%m-%d %H:%M:%S'),
+                'created': supplier.created.strftime('%Y-%m-%d %H:%M:%S'),
             })
         return JsonResponse({'status': 'success', 'suppliers': suppliers_data})
     else:
