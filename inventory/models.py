@@ -3,6 +3,7 @@
 from django.db import models
 from suppliers.models import Supplier  # Import Supplier from the suppliers app
 from django.core.exceptions import ValidationError
+from django.db.models import Min, Sum
 
 class Product(models.Model):
     ARTICLE = 'Article'
@@ -110,6 +111,22 @@ class Product(models.Model):
         if self.product_type == self.ARTICLE:
             # Sum the quantity of all components linked to this article
             return self.components.aggregate(total_stock=models.Sum('quantity'))['total_stock'] or 0
+        return None
+    
+    def calculate_sellable_sets(self):
+        """Calculate the number of sellable sets based on the article's retail price and linked components' prices."""
+        if self.product_type == self.ARTICLE:
+            components = self.components.all()
+            if not components.exists():
+                return 0
+            sellable_sets = float('inf')
+            for component in components:
+                if component.retail_price and component.retail_price > 0:
+                    sellable_sets = min(sellable_sets, self.retail_price / component.retail_price)
+                else:
+                    sellable_sets = 0
+                    break
+            return int(sellable_sets) if sellable_sets != float('inf') else 0
         return None
 
     def __str__(self):

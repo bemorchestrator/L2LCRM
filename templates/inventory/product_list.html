@@ -78,8 +78,8 @@
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Discountable (Members)</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Active</th>
                             
-                            <!-- New Column Header -->
-                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Remaining Components</th>
+                            <!-- New Sellable Sets Column Header -->
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Sellable Sets</th>
 
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Actions</th>
                         </tr>
@@ -467,6 +467,11 @@
         const productCategorySelect = productForm.querySelector('select[name="product_category"]');
         const selectedCategory = productCategorySelect.value;
         updateUomOptions(selectedCategory);
+        // Reset quantity field
+        const quantityInput = productForm.querySelector('input[name="quantity"]');
+        if (quantityInput) {
+            quantityInput.value = '';
+        }
     }
 
     // Handle 'Select All' checkbox
@@ -683,7 +688,7 @@
                 if (product.product_category === 'Other') {
                     customProductCategoryContainer.classList.remove('hidden');
                     customProductCategoryField.disabled = false;
-                    // Optionally, disable UOM if 'Other' should have free-form UOM
+                    // Disable UOM if 'Other' should allow free-form UOM
                     updateUomOptions('Other');
                     const uomSelect = productForm.querySelector('select[name="uom"]');
                     if (uomSelect) {
@@ -797,8 +802,8 @@
                         row.querySelector('td:nth-child(11)').textContent = updatedProduct.discountable_members ? 'Yes' : 'No';
                         // Update Active
                         row.querySelector('td:nth-child(12)').textContent = updatedProduct.active ? 'Yes' : 'No';
-                        // Update Remaining Components
-                        row.querySelector('td:nth-child(13)').textContent = updatedProduct.product_type === 'Article' ? updatedProduct.remaining_component_stock : 'N/A';
+                        // Update Sellable Sets
+                        row.querySelector('td:nth-child(13)').textContent = updatedProduct.product_type === 'Article' ? updatedProduct.sellable_sets : 'N/A';
 
                         // Re-attach event listener for the new image
                         const productImage = row.querySelector('.product-image');
@@ -935,7 +940,7 @@
                     productCategoryCell.textContent = product.product_category;
                     row.appendChild(productCategoryCell);
 
-                    // Quantity Cell
+                    // Quantity Cell (Display `quantity_display`)
                     const quantityCell = document.createElement('td');
                     quantityCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
                     quantityCell.textContent = product.quantity;
@@ -983,11 +988,11 @@
                     activeCell.textContent = product.active ? 'Yes' : 'No';
                     row.appendChild(activeCell);
 
-                    // Remaining Components Cell (New)
-                    const remainingComponentsCell = document.createElement('td');
-                    remainingComponentsCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
-                    remainingComponentsCell.textContent = product.product_type === 'Article' ? product.remaining_component_stock : 'N/A';
-                    row.appendChild(remainingComponentsCell);
+                    // Sellable Sets Cell (New)
+                    const sellableSetsCell = document.createElement('td');
+                    sellableSetsCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
+                    sellableSetsCell.textContent = product.product_type === 'Article' ? product.sellable_sets : 'N/A';
+                    row.appendChild(sellableSetsCell);
 
                     // Actions Cell
                     const actionsCell = document.createElement('td');
@@ -1006,7 +1011,7 @@
                             </svg>
                         </button>
 
-                        <!-- Individual Delete Button -->
+                        <!-- Delete Button -->
                         <button
                             type="button"
                             class="text-red-600 hover:text-red-800 focus:outline-none"
@@ -1103,6 +1108,7 @@
                 linkedArticleField.disabled = true;
                 linkedArticleField.value = ''; // Clear linked_article if not Component
             }
+            calculateSellableSets();
         }
 
         // Function to show or hide the custom_product_category input based on product_category
@@ -1111,7 +1117,6 @@
             if (selectedCategory === 'Other') {
                 customProductCategoryContainer.classList.remove('hidden');
                 customProductCategoryField.disabled = false;
-                
                 // Disable UOM if 'Other' should allow free-form UOM
                 updateUomOptions('Other');
                 uomSelect.disabled = true;
@@ -1120,10 +1125,45 @@
                 customProductCategoryContainer.classList.add('hidden');
                 customProductCategoryField.disabled = true;
                 customProductCategoryField.value = ''; // Clear custom category input
-                
                 // Update UOM options based on the selected category
+                const selectedCategory = productCategorySelect.value;
                 updateUomOptions(selectedCategory);
                 uomSelect.disabled = false;
+            }
+            calculateSellableSets();
+        }
+
+        // Function to calculate and update Sellable Sets
+        function calculateSellableSets() {
+            const selectedType = productTypeSelect.value;
+            if (selectedType === 'Article') {
+                const retailPrice = parseFloat(productForm.querySelector('input[name="retail_price"]').value) || 0;
+                const linkedArticleId = productForm.querySelector('select[name="linked_article"]').value;
+                let componentPrice = 0;
+
+                if (linkedArticleId) {
+                    // Fetch the linked component's price via AJAX
+                    fetch("{% url 'edit_product' product_id=0 %}".replace('/0/', `/${linkedArticleId}/`), {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'same-origin'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            componentPrice = parseFloat(data.product.retail_price) || 0;
+                            const sellableSets = componentPrice > 0 ? Math.floor(retailPrice / componentPrice) : 'N/A';
+                            // Display sellable sets in the modal (if needed)
+                            // For example, you can add a readonly input field to show sellable sets
+                        }
+                    })
+                    .catch((error) => {
+                        console.log('Error fetching component price:', error);
+                    });
+                }
             }
         }
 
@@ -1137,6 +1177,47 @@
         // Add event listeners for changes in product_type and product_category
         productTypeSelect.addEventListener('change', toggleLinkedArticle);
         productCategorySelect.addEventListener('change', toggleCustomProductCategory);
+
+        // Add event listener to retail_price and linked_article fields to recalculate Sellable Sets
+        productForm.querySelector('input[name="retail_price"]').addEventListener('input', calculateSellableSets);
+        productForm.querySelector('select[name="linked_article"]').addEventListener('change', calculateSellableSets);
+
+        // Feature 2: Automatically calculate and populate quantity field in the modal
+        const linkedArticleSelect = productForm.querySelector('select[name="linked_article"]');
+        const retailPriceInput = productForm.querySelector('input[name="retail_price"]');
+        const quantityInput = productForm.querySelector('input[name="quantity"]');
+
+        function updateQuantityField() {
+            const linkedArticleId = linkedArticleSelect.value;
+            const retailPrice = parseFloat(retailPriceInput.value);
+            if (linkedArticleId && !isNaN(retailPrice)) {
+                fetch("{% url 'get_sellable_sets' %}?article_id=" + encodeURIComponent(linkedArticleId), {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        quantityInput.value = data.sellable_sets;
+                    } else {
+                        quantityInput.value = '';
+                    }
+                })
+                .catch(error => {
+                    console.log('Error fetching sellable sets:', error);
+                    quantityInput.value = '';
+                });
+            } else {
+                quantityInput.value = '';
+            }
+        }
+
+        linkedArticleSelect.addEventListener('change', updateQuantityField);
+        retailPriceInput.addEventListener('input', updateQuantityField);
     });
 </script>
 

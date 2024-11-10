@@ -2,52 +2,45 @@
 {% load static %}
 {% for product in products %}
 <tr id="product-row-{{ product.id }}" class="hover:bg-gray-100 dark:hover:bg-gray-700">
+    <!-- Checkbox Cell -->
     <td class="w-4 px-4 py-3 whitespace-nowrap">
         <div class="flex items-center">
             <input id="checkbox-{{ product.id }}" name="product_ids" value="{{ product.id }}" type="checkbox" class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
             <label for="checkbox-{{ product.id }}" class="sr-only">Select product</label>
         </div>
     </td>
+    <!-- Product Name and Image Cell -->
     <th scope="row" class="flex items-center px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-gray-500">
         {% if product.photo %}
-            <img 
-                src="{{ product.photo.url }}" 
-                alt="{{ product.item_name }}" 
-                class="w-8 h-8 mr-3 object-cover rounded product-image cursor-pointer" 
-                data-full-url="{{ product.photo.url }}"
-                title="Click to view full image"
-            >
+            <img src="{{ product.photo.url }}" alt="{{ product.item_name }}" class="w-8 h-8 mr-3 object-cover rounded product-image cursor-pointer" data-full-url="{{ product.photo.url }}" title="Click to view full image">
         {% else %}
-            <img 
-                src="{% static 'images/placeholder.png' %}" 
-                alt="{{ product.item_name }}" 
-                class="w-8 h-8 mr-3 object-cover rounded product-image cursor-pointer" 
-                data-full-url="{% static 'images/placeholder.png' %}"
-                title="Click to view full image"
-            >
+            <img src="{% static 'images/placeholder.png' %}" alt="{{ product.item_name }}" class="w-8 h-8 mr-3 object-cover rounded product-image cursor-pointer" data-full-url="{% static 'images/placeholder.png' %}" title="Click to view full image">
         {% endif %}
-        {{ product.item_name }}  
+        {{ product.item_name }}
     </th>
+    <!-- Product Type Cell -->
     <td class="px-4 py-2 whitespace-nowrap">{{ product.get_product_type_display }}</td>
+    <!-- Product Category Cell -->
     <td class="px-4 py-2 whitespace-nowrap">{{ product.get_product_category_display }}</td>
-    <td class="px-4 py-2 whitespace-nowrap">{{ product.quantity }}</td>
+    <!-- Quantity Cell (Display `quantity_display`) -->
+    <td class="px-4 py-2 whitespace-nowrap">{{ product.quantity_display }}</td>
+    <!-- UOM Cell -->
     <td class="px-4 py-2 whitespace-nowrap">{{ product.uom }}</td>
+    <!-- Supplier Cell -->
     <td class="px-4 py-2 whitespace-nowrap">{{ product.supplier.supplier_name }}</td>
+    <!-- Currency Code Cell -->
     <td class="px-4 py-2 whitespace-nowrap">{{ product.currency_code }}</td>
+    <!-- Retail Price Cell -->
     <td class="px-4 py-2 whitespace-nowrap">${{ product.retail_price }}</td>
+    <!-- Discountable (All) Cell -->
     <td class="px-4 py-2 whitespace-nowrap">{{ product.discountable_all|yesno:"Yes,No" }}</td>
+    <!-- Discountable (Members) Cell -->
     <td class="px-4 py-2 whitespace-nowrap">{{ product.discountable_members|yesno:"Yes,No" }}</td>
+    <!-- Active Cell -->
     <td class="px-4 py-2 whitespace-nowrap">{{ product.active|yesno:"Yes,No" }}</td>
-    
-    <!-- New Data Cell for Remaining Components -->
-    <td class="px-4 py-2 whitespace-nowrap">
-        {% if product.product_type == 'Article' %}
-            {{ product.remaining_component_stock }}
-        {% else %}
-            N/A
-        {% endif %}
-    </td>
-
+    <!-- Sellable Sets Cell -->
+    <td class="px-4 py-2 whitespace-nowrap">{{ product.sellable_sets }}</td>
+    <!-- Actions Cell -->
     <td class="px-4 py-2 whitespace-nowrap flex space-x-2">
         <!-- Edit Button -->
         <button
@@ -62,7 +55,7 @@
             </svg>
         </button>
 
-        <!-- Individual Delete Button -->
+        <!-- Delete Button -->
         <button
             type="button"
             class="text-red-600 hover:text-red-800 focus:outline-none"
