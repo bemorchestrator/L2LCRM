@@ -1,0 +1,442 @@
+<!-- clinic/templates/patients/patient_detail.html -->
+
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<section class="py-6">
+    <div class="container mx-auto px-4">
+        <div class="bg-white dark:bg-[#1a1a1a] shadow-md rounded-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold text-gray-700 dark:text-gray-200">
+                    Patient Details
+                </h2>
+                <a href="{% url 'patient_list' %}" class="px-4 py-2 bg-[#c4c508] text-slate-600 rounded-lg hover:bg-[#ffffff]">
+                    Back to List
+                </a>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Profile Photo -->
+                <div class="flex flex-col items-center">
+                    {% if patient.profile_photo %}
+                        <img src="{{ patient.profile_photo.url }}" alt="Profile Photo" class="w-32 h-32 rounded-full object-cover mb-4">
+                    {% else %}
+                        <div class="w-32 h-32 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center mb-4">
+                            <span class="text-gray-700 dark:text-gray-200">No Photo</span>
+                        </div>
+                    {% endif %}
+                    <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-200">{{ patient.first_name }} {{ patient.last_name }}</h3>
+                    <p class="text-gray-500 dark:text-gray-400">Patient No: {{ patient.patient_no }}</p>
+                </div>
+
+                <!-- Patient Information -->
+                <div class="space-y-4">
+                    <div>
+                        <span class="font-medium text-gray-700 dark:text-gray-200">Birth Date:</span>
+                        <span class="text-gray-600 dark:text-gray-400">{{ patient.birth_date|date:"m/d/Y" }}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700 dark:text-gray-200">Age:</span>
+                        <span class="text-gray-600 dark:text-gray-400">{{ patient.age }}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700 dark:text-gray-200">NRIC:</span>
+                        <span class="text-gray-600 dark:text-gray-400">{{ patient.nric }}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700 dark:text-gray-200">Country:</span>
+                        <span class="text-gray-600 dark:text-gray-400">{{ patient.country }}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700 dark:text-gray-200">Address:</span>
+                        <span class="text-gray-600 dark:text-gray-400">{{ patient.address }}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700 dark:text-gray-200">Phone:</span>
+                        <span class="text-gray-600 dark:text-gray-400">{{ patient.phone }}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700 dark:text-gray-200">Fax:</span>
+                        <span class="text-gray-600 dark:text-gray-400">{{ patient.fax }}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700 dark:text-gray-200">Email:</span>
+                        <span class="text-gray-600 dark:text-gray-400">{{ patient.email }}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700 dark:text-gray-200">Consented:</span>
+                        <span class="text-gray-600 dark:text-gray-400">{{ patient.consented|yesno:"Yes,No" }}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700 dark:text-gray-200">Active:</span>
+                        <span class="text-gray-600 dark:text-gray-400">{{ patient.active|yesno:"Yes,No" }}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700 dark:text-gray-200">Remarks:</span>
+                        <span class="text-gray-600 dark:text-gray-400">{{ patient.remarks }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit and Delete Buttons -->
+            <div class="mt-6 flex space-x-4">
+                <button
+                    type="button"
+                    class="px-4 py-2 bg-[#c4c508] text-slate-600 rounded-lg hover:bg-[#ffffff]"
+                    id="openModalButton"
+                >
+                    Edit Patient
+                </button>
+                <button
+                    type="button"
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    onclick="deletePatient('{{ patient.id }}')"
+                >
+                    Delete Patient
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal for Editing Patient -->
+<div id="modal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-50 z-50">
+    <!-- Modal Content -->
+    <div class="bg-white dark:bg-[#131313] rounded-lg shadow-lg w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center px-4 py-3 border-b dark:border-gray-700">
+            <h3 id="modalTitle" class="text-lg font-semibold text-gray-700 dark:text-gray-200">
+                Edit Patient
+            </h3>
+            <button id="closeModalButton" class="text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        <form id="patientForm" method="POST" enctype="multipart/form-data" action="{% url 'update_patient' patient.id %}">
+            {% csrf_token %}
+            <div class="px-4 py-5">
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        {{ form.patient_no.label_tag }}
+                        {{ form.patient_no }}
+                        {% if form.patient_no.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.patient_no.errors }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.first_name.label_tag }}
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.first_name.errors }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.last_name.label_tag }}
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.last_name.errors }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.birth_date.label_tag }}
+                        {{ form.birth_date }}
+                        {% if form.birth_date.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.birth_date.errors }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label for="age" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Age</label>
+                        <input type="text" id="age" name="age" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white" readonly>
+                    </div>
+                    <div>
+                        {{ form.nric.label_tag }}
+                        {{ form.nric }}
+                        {% if form.nric.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.nric.errors }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.country.label_tag }}
+                        {{ form.country }}
+                        {% if form.country.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.country.errors }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.address.label_tag }}
+                        {{ form.address }}
+                        {% if form.address.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.address.errors }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.phone.label_tag }}
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.phone.errors }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.fax.label_tag }}
+                        {{ form.fax }}
+                        {% if form.fax.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.fax.errors }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.email.label_tag }}
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.email.errors }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.profile_photo.label_tag }}
+                        {{ form.profile_photo }}
+                        {% if form.profile_photo.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.profile_photo.errors }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {{ form.remarks.label_tag }}
+                        {{ form.remarks }}
+                        {% if form.remarks.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.remarks.errors }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="flex items-center">
+                        {{ form.consented }}
+                        <label for="id_consented" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Consented</label>
+                        {% if form.consented.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.consented.errors }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="flex items-center">
+                        {{ form.active }}
+                        <label for="id_active" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Active</label>
+                        {% if form.active.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.active.errors }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="px-4 py-3 border-t dark:border-gray-700 flex justify-end">
+                <button type="button" id="closeModalButtonFooter" class="mr-3 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                    Cancel
+                </button>
+                <button type="submit" id="submitButton" class="px-4 py-2 bg-[#C4C508] text-white rounded-lg hover:bg-[#A4A308] dark:bg-[#C4C508] dark:hover:bg-[#A4A308]">
+                    Update Patient
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Include SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- JavaScript for Modal and Edit Functionality -->
+<script>
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrfToken = getCookie('csrftoken');
+
+    // Modal elements
+    const openModalButton = document.getElementById('openModalButton');
+    const modal = document.getElementById('modal');
+    const closeModalButtons = document.querySelectorAll('#closeModalButton, #closeModalButtonFooter');
+    const patientForm = document.getElementById('patientForm');
+    const modalTitle = document.getElementById('modalTitle');
+    const submitButton = document.getElementById('submitButton');
+
+    // Function to calculate age
+    function calculateAge(birthDate) {
+        const today = new Date();
+        const birth = new Date(birthDate);
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
+    }
+
+    // Event listener for birth_date input to calculate age
+    const birthDateInput = patientForm.querySelector('input[name="birth_date"]');
+    const ageInput = document.getElementById('age');
+
+    birthDateInput.addEventListener('change', function() {
+        const birthDate = this.value;
+        if (birthDate) {
+            const age = calculateAge(birthDate);
+            ageInput.value = age;
+        } else {
+            ageInput.value = '';
+        }
+    });
+
+    // Open modal for editing patient
+    openModalButton.addEventListener('click', () => {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    });
+
+    // Close modal
+    closeModalButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            resetForm();
+        });
+    });
+
+    // Close modal when clicking outside the modal content
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            resetForm();
+        }
+    });
+
+    // Reset form to default state
+    function resetForm() {
+        patientForm.reset();
+        ageInput.value = '{{ patient.age }}'; // Reset age to original value
+        // If profile_photo was uploaded, it cannot be reset via JavaScript for security reasons
+    }
+
+    // Handle form submission for updating patient
+    patientForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        fetch(this.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                Swal.fire(
+                    'Updated!',
+                    data.message,
+                    'success'
+                ).then(() => {
+                    // Optionally, refresh the page to show updated details
+                    window.location.reload();
+                });
+            } else {
+                if (data.errors) {
+                    let errorMessages = '';
+                    const errors = JSON.parse(data.errors);
+                    for (let field in errors) {
+                        errors[field].forEach(error => {
+                            errorMessages += `${error.message}<br>`;
+                        });
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Form Errors',
+                        html: errorMessages
+                    });
+                } else {
+                    Swal.fire(
+                        'Error!',
+                        data.message || 'An error occurred while updating the patient.',
+                        'error'
+                    );
+                }
+            }
+        })
+        .catch((error) => {
+            Swal.fire(
+                'Error!',
+                'An error occurred while updating the patient.',
+                'error'
+            );
+        });
+    });
+
+    // Individual delete functionality
+    function deletePatient(patientId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'You will not be able to recover this patient!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let formData = new FormData();
+                fetch("{% url 'delete_patient' patient_id=0 %}".replace('0', patientId), {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire(
+                            'Deleted!',
+                            'The patient has been deleted.',
+                            'success'
+                        ).then(() => {
+                            window.location.href = "{% url 'patient_list' %}";
+                        });
+                    } else {
+                        Swal.fire(
+                            'Error!',
+                            data.message || 'An error occurred while deleting the patient.',
+                            'error'
+                        );
+                    }
+                })
+                .catch((error) => {
+                    Swal.fire(
+                        'Error!',
+                        'An error occurred while deleting the patient.',
+                        'error'
+                    );
+                });
+            }
+        });
+    }
+
+    // Display SweetAlert2 notifications based on Django messages
+    {% if messages %}
+        {% for message in messages %}
+            Swal.fire({
+                icon: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}",
+                title: "{% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% elif message.tags == 'warning' %}Warning{% else %}Notice{% endif %}",
+                text: "{{ message }}",
+                timer: 3000,
+                showConfirmButton: false
+            });
+        {% endfor %}
+    {% endif %}
+</script>
+{% endblock %}

@@ -1,7 +1,7 @@
-<!-- clinic/templates/clinic/_patient_rows.html -->
+<!-- clinic/templates/patients/_patient_rows.html -->
 {% load static %}
 {% for patient in patients %}
-<tr id="patient-row-{{ patient.id }}" class="hover:bg-gray-100 dark:hover:bg-gray-700">
+<tr id="patient-row-{{ patient.id }}" class="hover:bg-gray-100 dark:hover:bg-gray-300">
     <!-- Checkbox Cell -->
     <td class="w-4 px-4 py-3 whitespace-nowrap">
         <div class="flex items-center">
@@ -26,47 +26,57 @@
     
     <!-- Patient Number Cell -->
     <th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-gray-500">
-        {{ patient.patient_no }}
+        <a href="{% url 'patient_detail' patient_id=patient.id %}" class="text-[#515f48] hover:text-white underline">
+            {{ patient.patient_no }}
+        </a>
     </th>
     
     <!-- First Name Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ patient.first_name }}</td>
+    <td class="px-4 py-2 whitespace-nowrap">
+        <a href="{% url 'patient_detail' patient_id=patient.id %}" class="text-[#515f48] hover:text-white underline">
+            {{ patient.first_name }}
+        </a>
+    </td>
     
     <!-- Last Name Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ patient.last_name }}</td>
+    <td class="px-4 py-2 whitespace-nowrap">
+        <a href="{% url 'patient_detail' patient_id=patient.id %}" class="text-[#515f48] hover:text-white underline">
+            {{ patient.last_name }}
+        </a>
+    </td>
     
     <!-- Birth Date Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ patient.birth_date|date:"m/d/Y" }}</td>
+    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.birth_date|date:"m/d/Y" }}</td>
     
-    <!-- Age Cell --> <!-- New Cell for Age -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ patient.age }}</td>
+    <!-- Age Cell -->
+    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.age }}</td>
     
     <!-- NRIC Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ patient.nric }}</td>
+    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.nric }}</td>
     
     <!-- Country Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ patient.country }}</td>
+    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.country }}</td>
     
     <!-- Address Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ patient.address }}</td>
+    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.address }}</td>
     
     <!-- Phone Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ patient.phone }}</td>
+    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.phone }}</td>
     
     <!-- Fax Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ patient.fax }}</td>
+    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.fax }}</td>
     
     <!-- Email Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ patient.email }}</td>
+    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.email }}</td>
     
     <!-- Consented Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ patient.consented|yesno:"Yes,No" }}</td>
+    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.consented|yesno:"Yes,No" }}</td>
     
     <!-- Remarks Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ patient.remarks }}</td>
+    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.remarks }}</td>
     
     <!-- Active Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ patient.active|yesno:"Yes,No" }}</td>
+    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.active|yesno:"Yes,No" }}</td>
     
     <!-- Actions Cell -->
     <td class="px-4 py-2 whitespace-nowrap flex space-x-2">

@@ -27,6 +27,42 @@ def patient_list(request):
         'form': form
     })
 
+def patient_detail(request, patient_id):
+    """
+    View to display the details of a specific patient and handle edit form.
+    """
+    patient = get_object_or_404(Patients, id=patient_id)
+    if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        form = PatientForm(request.POST, request.FILES, instance=patient)
+        if form.is_valid():
+            patient = form.save()
+            updated_patient = Patients.objects.get(id=patient_id)
+            data = {
+                'id': updated_patient.id,
+                'patient_no': updated_patient.patient_no,
+                'first_name': updated_patient.first_name,
+                'last_name': updated_patient.last_name,
+                'birth_date': updated_patient.birth_date.strftime('%m/%d/%Y') if updated_patient.birth_date else '',
+                'age': updated_patient.age,
+                'nric': updated_patient.nric,
+                'country': updated_patient.country,
+                'address': updated_patient.address,
+                'phone': updated_patient.phone,
+                'fax': updated_patient.fax,
+                'email': updated_patient.email,
+                'consented': 'Yes' if updated_patient.consented else 'No',
+                'remarks': updated_patient.remarks,
+                'active': 'Yes' if updated_patient.active else 'No',
+                'profile_photo_url': updated_patient.profile_photo.url if updated_patient.profile_photo else ''
+            }
+            return JsonResponse({'status': 'success', 'message': 'Patient updated successfully!', 'patient': data})
+        else:
+            errors = form.errors.as_json()
+            return JsonResponse({'status': 'error', 'message': 'There were errors in the form.', 'errors': errors})
+    else:
+        form = PatientForm(instance=patient)
+    return render(request, 'patients/patient_detail.html', {'patient': patient, 'form': form})
+
 def add_patient(request):
     """
     View to handle adding a new patient.
