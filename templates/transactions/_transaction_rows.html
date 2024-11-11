@@ -1,0 +1,47 @@
+<!-- transactions/templates/transactions/_transaction_rows.html -->
+{% for transaction in transactions %}
+<tr id="transaction-row-{{ transaction.id }}" class="hover:bg-gray-100 dark:hover:bg-gray-700">
+    <td class="p-4 whitespace-nowrap">
+        <div class="flex items-center">
+            <input id="checkbox-{{ transaction.id }}" name="transaction_ids" value="{{ transaction.id }}" type="checkbox" class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+            <label for="checkbox-{{ transaction.id }}" class="sr-only">Select transaction</label>
+        </div>
+    </td>
+    <td class="px-4 py-3 whitespace-nowrap">{{ transaction.transaction_no }}</td>
+    <td class="px-4 py-3 whitespace-nowrap">{{ transaction.patient }}</td>
+    <td class="px-4 py-3 whitespace-nowrap">{{ transaction.date }}</td>
+    <td class="px-4 py-3 whitespace-nowrap">{{ transaction.issuer }}</td>
+    <td class="px-4 py-3 whitespace-nowrap">{{ transaction.tel }}</td>
+    <td class="px-4 py-3 whitespace-nowrap">{{ transaction.email }}</td>
+    <td class="px-4 py-3 whitespace-nowrap">{{ transaction.address }}</td>
+    <td class="px-4 py-3 whitespace-nowrap flex space-x-2">
+        <button
+            type="button"
+            class="text-blue-600 hover:text-blue-800 focus:outline-none"
+            onclick="editTransaction('{{ transaction.id }}')"
+            title="Edit Transaction"
+        >
+            <!-- Edit Icon -->
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 18a1 1 0 01-1-1v-4.586l10.293-10.293a1 1 0 011.414 0l2.586 2.586a1 1 0 010 1.414L9.414 17H5z" />
+            </svg>
+        </button>
+
+        <button
+            type="button"
+            class="text-red-600 hover:text-red-800 focus:outline-none"
+            onclick="deleteTransaction('{{ transaction.id }}')"
+            title="Delete Transaction"
+        >
+            <!-- Delete Icon -->
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M6 3V4H4V6H16V4H14V3H6ZM6 6V15C6 16.1046 6.89543 17 8 17H12C13.1046 17 14 16.1046 14 15V6H6Z" />
+            </svg>
+        </button>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="9" class="px-4 py-3 text-center text-gray-500">No transactions found.</td>
+</tr>
+{% endfor %}
