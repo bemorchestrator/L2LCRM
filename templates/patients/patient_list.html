@@ -63,11 +63,12 @@
                                     <label for="checkbox-all" class="sr-only">Select all patients</label>
                                 </div>
                             </th>
-                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Profile Photo</th> <!-- New Column -->
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Profile Photo</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Patient Number</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">First Name</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Last Name</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Birth Date</th>
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Age</th> <!-- New Column for Age -->
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">NRIC</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Country</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Address</th>
@@ -101,7 +102,8 @@
                             </th>
                             <td class="px-4 py-2 whitespace-nowrap">{{ patient.first_name }}</td>
                             <td class="px-4 py-2 whitespace-nowrap">{{ patient.last_name }}</td>
-                            <td class="px-4 py-2 whitespace-nowrap">{{ patient.birth_date }}</td>
+                            <td class="px-4 py-2 whitespace-nowrap">{{ patient.birth_date|date:"m/d/Y" }}</td>
+                            <td class="px-4 py-2 whitespace-nowrap">{{ patient.age }}</td> <!-- Display Age -->
                             <td class="px-4 py-2 whitespace-nowrap">{{ patient.nric }}</td>
                             <td class="px-4 py-2 whitespace-nowrap">{{ patient.country }}</td>
                             <td class="px-4 py-2 whitespace-nowrap">{{ patient.address }}</td>
@@ -299,6 +301,10 @@
                         {% endif %}
                     </div>
                     <div>
+                        <label for="age" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Age</label>
+                        <input type="text" id="age" name="age" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white" readonly>
+                    </div>
+                    <div>
                         {{ form.nric.label_tag }}
                         {{ form.nric }}
                         {% if form.nric.errors %}
@@ -341,7 +347,7 @@
                         {% endif %}
                     </div>
                     <div>
-                        {{ form.profile_photo.label_tag }} <!-- New Field -->
+                        {{ form.profile_photo.label_tag }}
                         {{ form.profile_photo }}
                         {% if form.profile_photo.errors %}
                             <p class="text-red-500 text-xs mt-1">{{ form.profile_photo.errors }}</p>
@@ -426,6 +432,32 @@
         };
     }
 
+    // Function to calculate age
+    function calculateAge(birthDate) {
+        const today = new Date();
+        const birth = new Date(birthDate);
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
+    }
+
+    // Event listener for birth_date input to calculate age
+    const birthDateInput = patientForm.querySelector('input[name="birth_date"]');
+    const ageInput = document.getElementById('age');
+
+    birthDateInput.addEventListener('change', function() {
+        const birthDate = this.value;
+        if (birthDate) {
+            const age = calculateAge(birthDate);
+            ageInput.value = age;
+        } else {
+            ageInput.value = '';
+        }
+    });
+
     // Open modal for adding new patient
     openModalButton.addEventListener('click', () => {
         resetForm();
@@ -456,6 +488,7 @@
         isEditMode = false;
         editPatientId = null;
         patientForm.reset();
+        ageInput.value = '';
         patientForm.action = "{% url 'add_patient' %}";
         modalTitle.textContent = "Add New Patient";
         submitButton.textContent = "Save Patient";
@@ -622,6 +655,13 @@
                 patientForm.querySelector('textarea[name="remarks"]').value = patient.remarks || '';
                 patientForm.querySelector('input[name="consented"]').checked = !!patient.consented;
                 patientForm.querySelector('input[name="active"]').checked = !!patient.active;
+                // Calculate and set age
+                if (patient.birth_date) {
+                    const age = calculateAge(patient.birth_date);
+                    ageInput.value = age;
+                } else {
+                    ageInput.value = '';
+                }
                 // Note: profile_photo cannot be set programmatically for security reasons
                 patientForm.action = "{% url 'update_patient' patient_id=0 %}".replace('0', patient.id);
                 modalTitle.textContent = "Edit Patient";
@@ -684,15 +724,16 @@
                         row.querySelector('td:nth-child(3)').textContent = updatedPatient.first_name;
                         row.querySelector('td:nth-child(4)').textContent = updatedPatient.last_name;
                         row.querySelector('td:nth-child(5)').textContent = updatedPatient.birth_date;
-                        row.querySelector('td:nth-child(6)').textContent = updatedPatient.nric;
-                        row.querySelector('td:nth-child(7)').textContent = updatedPatient.country;
-                        row.querySelector('td:nth-child(8)').textContent = updatedPatient.address;
-                        row.querySelector('td:nth-child(9)').textContent = updatedPatient.phone;
-                        row.querySelector('td:nth-child(10)').textContent = updatedPatient.fax;
-                        row.querySelector('td:nth-child(11)').textContent = updatedPatient.email;
-                        row.querySelector('td:nth-child(12)').textContent = updatedPatient.consented;
-                        row.querySelector('td:nth-child(13)').textContent = updatedPatient.remarks;
-                        row.querySelector('td:nth-child(14)').textContent = updatedPatient.active;
+                        row.querySelector('td:nth-child(6)').textContent = updatedPatient.age; // Update Age
+                        row.querySelector('td:nth-child(7)').textContent = updatedPatient.nric;
+                        row.querySelector('td:nth-child(8)').textContent = updatedPatient.country;
+                        row.querySelector('td:nth-child(9)').textContent = updatedPatient.address;
+                        row.querySelector('td:nth-child(10)').textContent = updatedPatient.phone;
+                        row.querySelector('td:nth-child(11)').textContent = updatedPatient.fax;
+                        row.querySelector('td:nth-child(12)').textContent = updatedPatient.email;
+                        row.querySelector('td:nth-child(13)').textContent = updatedPatient.consented;
+                        row.querySelector('td:nth-child(14)').textContent = updatedPatient.remarks;
+                        row.querySelector('td:nth-child(15)').textContent = updatedPatient.active;
                     }
                     modal.classList.add('hidden');
                     modal.classList.remove('flex');
@@ -798,6 +839,12 @@
                     birthDateCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
                     birthDateCell.textContent = patient.birth_date;
                     row.appendChild(birthDateCell);
+
+                    // Age Cell
+                    const ageCell = document.createElement('td');
+                    ageCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
+                    ageCell.textContent = patient.age;
+                    row.appendChild(ageCell);
 
                     // NRIC Cell
                     const nricCell = document.createElement('td');

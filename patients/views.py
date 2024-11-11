@@ -36,13 +36,14 @@ def add_patient(request):
         if form.is_valid():
             patient = form.save()
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                # Prepare patient data to send back
+                # Prepare patient data to send back, including age
                 patient_data = {
                     'id': patient.id,
                     'patient_no': patient.patient_no,
                     'first_name': patient.first_name,
                     'last_name': patient.last_name,
-                    'birth_date': patient.birth_date.strftime('%Y-%m-%d') if patient.birth_date else '',
+                    'birth_date': patient.birth_date.strftime('%m/%d/%Y') if patient.birth_date else '',
+                    'age': patient.age,  # Include age
                     'nric': patient.nric,
                     'country': patient.country,
                     'address': patient.address,
@@ -119,7 +120,8 @@ def edit_patient(request, patient_id):
             'patient_no': patient.patient_no,
             'first_name': patient.first_name,
             'last_name': patient.last_name,
-            'birth_date': patient.birth_date.strftime('%Y-%m-%d') if patient.birth_date else '',
+            'birth_date': patient.birth_date.strftime('%m/%d/%Y') if patient.birth_date else '',
+            'age': patient.age,  # Include age
             'nric': patient.nric,
             'country': patient.country,
             'address': patient.address,
@@ -151,7 +153,8 @@ def update_patient(request, patient_id):
                 'patient_no': updated_patient.patient_no,
                 'first_name': updated_patient.first_name,
                 'last_name': updated_patient.last_name,
-                'birth_date': updated_patient.birth_date.strftime('%Y-%m-%d') if updated_patient.birth_date else '',
+                'birth_date': updated_patient.birth_date.strftime('%m/%d/%Y') if updated_patient.birth_date else '',
+                'age': updated_patient.age,  # Include age
                 'nric': updated_patient.nric,
                 'country': updated_patient.country,
                 'address': updated_patient.address,
@@ -196,7 +199,8 @@ def search_patients(request):
                 'patient_no': patient.patient_no,
                 'first_name': patient.first_name,
                 'last_name': patient.last_name,
-                'birth_date': patient.birth_date.strftime('%Y-%m-%d') if patient.birth_date else '',
+                'birth_date': patient.birth_date.strftime('%m/%d/%Y') if patient.birth_date else '',
+                'age': patient.age,  # Include age
                 'nric': patient.nric,
                 'country': patient.country,
                 'address': patient.address,

@@ -1,6 +1,5 @@
-# patients/models.py
-
 from django.db import models
+from datetime import date
 
 class Patients(models.Model):
     patient_no = models.CharField(max_length=20, unique=True)
@@ -24,6 +23,15 @@ class Patients(models.Model):
     )
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def age(self):
+        """Calculates the age of the patient based on the birth_date."""
+        if self.birth_date:
+            today = date.today()
+            age = today.year - self.birth_date.year - ((today.month, today.day) < (self.birth_date.month, self.birth_date.day))
+            return age
+        return None
 
     def __str__(self):
         # Assuming you want to display first and last name
