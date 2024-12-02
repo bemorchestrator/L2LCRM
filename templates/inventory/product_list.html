@@ -1,12 +1,10 @@
-<!-- inventory/templates/inventory/product_list.html -->
-
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
 <section>
     <div class="container mx-auto px-4">
         <div class="relative overflow-hidden bg-white shadow-md sm:rounded-lg dark:bg-[#1a1a1a]">
-            <!-- Header with stats, search, and action buttons -->
+            <!-- Header with stats and search -->
             <div class="flex flex-col px-4 py-3 space-y-3 lg:flex-row lg:items-center lg:justify-between lg:space-y-0 lg:space-x-4">
                 <div class="flex items-center flex-1 space-x-4">
                     <h5 class="text-lg font-semibold">
@@ -15,7 +13,7 @@
                     </h5>
                     <!-- Search Input -->
                     <div class="relative w-full max-w-sm">
-                        <input type="text" id="searchInput" placeholder="Search products..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                        <input type="text" id="searchProducts" placeholder="Search products..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.387a1 1 0 01-1.414 1.414l-4.387-4.387zM14 8a6 6 0 11-12 0 6 6 0 0112 0z" clip-rule="evenodd" />
@@ -23,69 +21,154 @@
                         </div>
                     </div>
                 </div>
-                <div class="flex flex-row flex-shrink-0 space-x-3 md:flex-row md:items-center lg:justify-end">
-                    <!-- Bulk Delete Button -->
-                    <button
-                        type="button"
-                        class="flex items-center justify-center w-10 h-10 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 rounded-full focus:outline-none dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-800"
-                        id="bulkDeleteButton"
-                        title="Delete Selected Products"
-                    >
-                        <!-- Delete Icon -->
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M6 3V4H4V6H16V4H14V3H6ZM6 6V15C6 16.1046 6.89543 17 8 17H12C13.1046 17 14 16.1046 14 15V6H6Z" />
-                        </svg>
-                    </button>
-
-                    <!-- Add New Product Button -->
-                    <button 
-                        type="button" 
-                        class="flex items-center justify-center w-10 h-10 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 rounded-full focus:outline-none dark:bg-green-500 dark:hover:bg-green-600 dark:focus:ring-green-800" 
-                        id="openModalButton"
-                        title="Add New Product"
-                    >
-                        <!-- Plus Icon -->
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0V11H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-                        </svg>
+                <!-- Add Product Button -->
+                <div class="flex-shrink-0">
+                    <button id="openModalButton" class="btn btn-primary px-4 py-2 text-white bg-teal-500 rounded-lg hover:bg-green-600">
+                        Add
                     </button>
                 </div>
             </div>
 
             <!-- Product Table -->
             <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400 bg-white">
+                <table class="min-w-full text-sm text-left text-gray-500 dark:text-gray-400 bg-white">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-[#131313] dark:text-gray-400">
                         <tr>
-                            <!-- Existing headers -->
+                            <!-- Checkbox Header -->
                             <th scope="col" class="p-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <input id="checkbox-all" type="checkbox" class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
                                     <label for="checkbox-all" class="sr-only">Select all products</label>
                                 </div>
                             </th>
-                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Product</th>
-                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Product Type</th>
-                            <!-- New Product Category Column -->
-                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Product Category</th>
+                            <!-- Image Header -->
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Image</th>
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Item Name</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Quantity</th>
-                            <!-- Moved UOM Column -->
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">UOM</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Supplier</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Currency</th>
-                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Price</th>
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Retail Price</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Discountable (All)</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Discountable (Members)</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Active</th>
-                            
-                            <!-- New Sellable Sets Column Header -->
-                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Sellable Sets</th>
-
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Remaining Components</th>
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Sellable Sets</th> <!-- New Column -->
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="productTableBody">
-                        {% include 'inventory/_product_rows.html' with products=page_obj %}
+                        {% for product in products %}
+                            <tr class="border-b dark:border-gray-700" id="product-row-{{ product.id }}">
+                                <!-- Checkbox -->
+                                <td class="p-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" value="{{ product.id }}" class="product-checkbox w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                        <label class="sr-only">Select product</label>
+                                    </div>
+                                </td>
+                                <!-- Image -->
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    {% if product.photo_url %}
+                                        <img src="{{ product.photo_url }}" alt="{{ product.item_name }}" class="w-12 h-12 object-cover rounded">
+                                    {% else %}
+                                        <span class="text-gray-500">No Image</span>
+                                    {% endif %}
+                                </td>
+                                <!-- Item Name -->
+                                <td class="px-4 py-3 whitespace-nowrap">{{ product.item_name }}</td>
+                                <!-- Quantity -->
+                                <td class="px-4 py-3 whitespace-nowrap">{{ product.quantity }}</td>
+                                <!-- UOM -->
+                                <td class="px-4 py-3 whitespace-nowrap">{{ product.uom }}</td>
+                                <!-- Supplier -->
+                                <td class="px-4 py-3 whitespace-nowrap">{{ product.supplier_name }}</td>
+                                <!-- Currency -->
+                                <td class="px-4 py-3 whitespace-nowrap">{{ product.currency_code }}</td>
+                                <!-- Retail Price -->
+                                <td class="px-4 py-3 whitespace-nowrap">{{ product.retail_price }}</td>
+                                <!-- Discountable (All) -->
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    {% if product.discountable_all %}
+                                        <span class="text-green-600">Yes</span>
+                                    {% else %}
+                                        <span class="text-red-600">No</span>
+                                    {% endif %}
+                                </td>
+                                <!-- Discountable (Members) -->
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    {% if product.discountable_members %}
+                                        <span class="text-green-600">Yes</span>
+                                    {% else %}
+                                        <span class="text-red-600">No</span>
+                                    {% endif %}
+                                </td>
+                                <!-- Active -->
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    {% if product.active %}
+                                        <span class="text-green-600">Active</span>
+                                    {% else %}
+                                        <span class="text-red-600">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <!-- Remaining Components -->
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    {% if product.product_type == 'Article' %}
+                                        {{ product.remaining_component_stock }}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <!-- Sellable Sets -->
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    {% if product.product_type == 'Article' %}
+                                        {{ product.sellable_sets }}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <!-- Actions -->
+                                <td class="px-4 py-3 whitespace-nowrap flex space-x-2">
+                                    <button class="edit-button text-blue-600 hover:text-blue-900" data-product-id="{{ product.id }}">
+                                        Edit
+                                    </button>
+                                    <button class="delete-button text-red-600 hover:text-red-900" data-product-id="{{ product.id }}">
+                                        Delete
+                                    </button>
+                                    {% if product.product_type == 'Article' %}
+                                        <button class="view-components-button text-green-600 hover:text-green-900" data-product-id="{{ product.id }}">
+                                            View Components
+                                        </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% if product.product_type == 'Article' and product.linked_components %}
+                                <tr id="linked-components-{{ product.id }}" class="hidden bg-gray-100 dark:bg-[#1a1a1a]">
+                                    <td colspan="14" class="px-4 py-3">
+                                        <div class="overflow-x-auto">
+                                            <table class="min-w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                                <thead class="text-xs text-gray-700 uppercase bg-gray-200 dark:bg-gray-700 dark:text-gray-400">
+                                                    <tr>
+                                                        <th class="px-4 py-2">Component Name</th>
+                                                        <th class="px-4 py-2">Quantity Available</th>
+                                                        <th class="px-4 py-2">Units per Article</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for component in product.linked_components %}
+                                                        <tr class="border-b dark:border-gray-600">
+                                                            <td class="px-4 py-2">{{ component.item_name }}</td>
+                                                            <td class="px-4 py-2">{{ component.quantity }}</td>
+                                                            <td class="px-4 py-2">{{ component.units_per_article }}</td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -115,7 +198,7 @@
                 <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                     <div>
                         <p class="text-sm text-gray-700 dark:text-gray-300">
-                            Showing <span class="font-medium">{{ page_obj.start_index }}</span> to <span class="font-medium">{{ page_obj.end_index }}</span> of <span class="font-medium">{{ page_obj.paginator.count }}</span> results
+                            Showing <span class="font-medium">{{ page_obj.start_index }}</span> to <span class="font-medium">{{ page_obj.end_index }}</span> of <span class="font-medium">{{ page_obj.paginator.count }}</span> products
                         </p>
                     </div>
                     <div>
@@ -198,12 +281,12 @@
     </div>
 </section>
 
-<!-- Modal Background -->
-<div id="modal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-50 z-50">
+<!-- Add/Edit Product Modal -->
+<div id="addProductModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
     <!-- Modal Content -->
-    <div class="bg-white dark:bg-[#131313] rounded-lg shadow-lg w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="bg-white dark:bg-[#131313] rounded-lg shadow-lg w-full max-w-2xl mx-auto max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center px-4 py-3 border-b dark:border-gray-700">
-            <h3 id="modalTitle" class="text-lg font-semibold text-gray-700 dark:text-gray-200">
+            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200" id="modalTitle">
                 Add New Product
             </h3>
             <button id="closeModalButton" class="text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">
@@ -212,1013 +295,552 @@
                 </svg>
             </button>
         </div>
-        <form id="productForm" method="POST" enctype="multipart/form-data" action="{% url 'add_product' %}">
+        <form method="POST" enctype="multipart/form-data" id="productForm" action="{% url 'add_product' %}">
             {% csrf_token %}
+            <!-- Hidden input for product ID (used for editing) -->
+            <input type="hidden" name="product_id" id="product_id" value="">
             <div class="px-4 py-5">
-                <div class="grid grid-cols-1 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Product Type -->
                     <div>
-                        {{ form.item_name.label_tag }}
-                        {{ form.item_name }}
-                        {% if form.item_name.errors %}
-                            <p class="text-red-500 text-xs mt-1">{{ form.item_name.errors }}</p>
-                        {% endif %}
-                    </div>
-                    <div>
-                        {{ form.supplier.label_tag }}
-                        {{ form.supplier }}
-                        {% if form.supplier.errors %}
-                            <p class="text-red-500 text-xs mt-1">{{ form.supplier.errors }}</p>
-                        {% endif %}
-                    </div>
-                    <div>
-                        {{ form.currency_code.label_tag }}
-                        {{ form.currency_code }}
-                        {% if form.currency_code.errors %}
-                            <p class="text-red-500 text-xs mt-1">{{ form.currency_code.errors }}</p>
-                        {% endif %}
-                    </div>
-                    <div>
-                        {{ form.retail_price.label_tag }}
-                        {{ form.retail_price }}
-                        {% if form.retail_price.errors %}
-                            <p class="text-red-500 text-xs mt-1">{{ form.retail_price.errors }}</p>
-                        {% endif %}
-                    </div>
-                    <div>
-                        <label for="uom" class="block text-sm font-medium text-gray-700 dark:text-gray-300">UOM</label>
-                        <select id="uom" name="uom" class="block w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 bg-white text-gray-900 dark:bg-[#1a1a1a] dark:border-gray-600 dark:text-gray-300 sm:text-sm">
-                            <option value="">Select UOM</option>
-                            <!-- Dynamic options will be appended here via JavaScript -->
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product Type</label>
+                        <select id="product_type" name="product_type" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <option value="">Select Product Type</option>
+                            <option value="Article">Article</option>
+                            <option value="Component">Component</option>
                         </select>
-                        {% if form.uom.errors %}
-                            <p class="text-red-500 text-xs mt-1">{{ form.uom.errors }}</p>
-                        {% endif %}
-                    </div>                                  
+                    </div>
+                    
+                    <!-- Linked Article (Visible only if Product Type is Component) -->
+                    <div id="linked_article_container" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Linked Article</label>
+                        <select name="linked_article" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <option value="">Select Article</option>
+                            {% for article in articles %}
+                                <option value="{{ article.id }}">{{ article.item_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Item Name -->
                     <div>
-                        {{ form.quantity.label_tag }}
-                        {{ form.quantity }}
-                        {% if form.quantity.errors %}
-                            <p class="text-red-500 text-xs mt-1">{{ form.quantity.errors }}</p>
-                        {% endif %}
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Item Name</label>
+                        <input type="text" name="item_name" id="item_name" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
                     </div>
-                    <!-- New Product Category Field -->
+
+                    <!-- Supplier -->
                     <div>
-                        {{ form.product_category.label_tag }}
-                        {{ form.product_category }}
-                        {% if form.product_category.errors %}
-                            <p class="text-red-500 text-xs mt-1">{{ form.product_category.errors }}</p>
-                        {% endif %}
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Supplier</label>
+                        <select name="supplier" id="supplier" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                            <option value="">Select Supplier</option>
+                            {% for supplier in suppliers %}
+                                <option value="{{ supplier.id }}">{{ supplier.supplier_name }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
-                    <!-- Custom Product Category Field (Initially Hidden) -->
-                    <div id="customProductCategoryContainer" class="hidden">
-                        {{ form.custom_product_category.label_tag }}
-                        {{ form.custom_product_category }}
-                        {% if form.custom_product_category.errors %}
-                            <p class="text-red-500 text-xs mt-1">{{ form.custom_product_category.errors }}</p>
-                        {% endif %}
-                    </div>
-                    <!-- Existing Product Type Field -->
+
+                    <!-- Container -->
                     <div>
-                        {{ form.product_type.label_tag }}
-                        {{ form.product_type }}
-                        {% if form.product_type.errors %}
-                            <p class="text-red-500 text-xs mt-1">{{ form.product_type.errors }}</p>
-                        {% endif %}
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Container</label>
+                        <select name="container" id="container" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                            <option value="">Select Container</option>
+                            {% for container in containers %}
+                                <option value="{{ container.id }}">{{ container.name }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
-                    <!-- Linked Article Field (Initially Hidden) -->
-                    <div id="linkedArticleContainer" class="hidden">
-                        {{ form.linked_article.label_tag }}
-                        {{ form.linked_article }}
-                        {% if form.linked_article.errors %}
-                            <p class="text-red-500 text-xs mt-1">{{ form.linked_article.errors }}</p>
-                        {% endif %}
-                    </div>
-                    <div class="flex items-center">
-                        {{ form.discountable_all }}
-                        <label for="id_discountable_all" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Discountable (All)</label>
-                        {% if form.discountable_all.errors %}
-                            <p class="text-red-500 text-xs mt-1">{{ form.discountable_all.errors }}</p>
-                        {% endif %}
-                    </div>
-                    <div class="flex items-center">
-                        {{ form.discountable_members }}
-                        <label for="id_discountable_members" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Discountable (Members)</label>
-                        {% if form.discountable_members.errors %}
-                            <p class="text-red-500 text-xs mt-1">{{ form.discountable_members.errors }}</p>
-                        {% endif %}
-                    </div>
-                    <div class="flex items-center">
-                        {{ form.active }}
-                        <label for="id_active" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Active</label>
-                        {% if form.active.errors %}
-                            <p class="text-red-500 text-xs mt-1">{{ form.active.errors }}</p>
-                        {% endif %}
-                    </div>
+
+
+                    <!-- Currency Code -->
                     <div>
-                        {{ form.photo.label_tag }}
-                        {{ form.photo }}
-                        {% if form.photo.errors %}
-                            <p class="text-red-500 text-xs mt-1">{{ form.photo.errors }}</p>
-                        {% endif %}
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Currency Code</label>
+                        <input type="text" name="currency_code" id="currency_code" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g., USD" required>
+                    </div>
+
+                    <!-- Retail Price -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Retail Price</label>
+                        <input type="number" name="retail_price" id="retail_price" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" step="0.01" required>
+                    </div>
+
+                    <!-- Content Type -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Content Type</label>
+                        <select id="content_type" name="content_type" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <option value="Tablet">Tablet</option>
+                            <option value="Capsule">Capsule</option>
+                            <option value="Powder">Powder</option>
+                            <option value="Liquid">Liquid</option>
+                            <option value="Cream">Cream</option>
+                            <option value="Leaves">Leaves</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <!-- UOM -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">UOM</label>
+                        <select id="uom" name="uom" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                            <option value="">Select UOM</option>
+                            {% for uom in uomMappings %}
+                                <option value="{{ uom }}">{{ uom }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Custom Content Type -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Custom Content Type</label>
+                        <input type="text" name="custom_content_type" id="custom_content_type" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+
+                    <!-- Photo -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Photo</label>
+                        <input type="file" name="photo" id="photo" class="block w-full text-gray-900 bg-gray-100 rounded-md shadow-sm dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+
+                    <!-- Quantity -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Quantity</label>
+                        <input type="number" name="quantity" id="quantity" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
                     </div>
                 </div>
             </div>
             <div class="px-4 py-3 border-t dark:border-gray-700 flex justify-end">
-                <button type="button" id="closeModalButtonFooter" class="mr-3 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                <button type="button" id="cancelButton" class="mr-3 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                     Cancel
                 </button>
                 <button type="submit" id="submitButton" class="px-4 py-2 bg-[#C4C508] text-white rounded-lg hover:bg-[#A4A308] dark:bg-[#C4C508] dark:hover:bg-[#A4A308]">
-                    Save Product
+                    Add Product
                 </button>
             </div>
         </form>
     </div>
 </div>
+{% endblock %}
 
-<!-- Include SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<!-- JavaScript for Modal, Delete, Edit, Search, and Dynamic UOM Functionality -->
+{% block extra_js %}
+<!-- Define URL variables using Django's template tags -->
 <script>
-    // Define placeholder image URL
-    const placeholderImageUrl = "{% static 'images/placeholder.png' %}";
+    // URLs for AJAX requests
+    const getUOMOptionsURL = "{% url 'get_uom_options' %}";
+    const editProductURLTemplate = "{% url 'edit_product' 0 %}".replace('0', 'PRODUCT_ID_PLACEHOLDER');
+    const updateProductURLTemplate = "{% url 'update_product' 0 %}".replace('0', 'PRODUCT_ID_PLACEHOLDER');
+    const deleteProductURLTemplate = "{% url 'delete_product' 0 %}".replace('0', 'PRODUCT_ID_PLACEHOLDER');
+    const searchProductsURL = "{% url 'search_products' %}";
+    const csrfToken = "{{ csrf_token }}";
+</script>
 
-    // Function to get CSRF token from cookies
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let cookie of cookies) {
-                cookie = cookie.trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    const csrfToken = getCookie('csrftoken');
-
-    // UOM Mappings for JavaScript
+<script>
     const uomMappings = {
-        'Capsule': ['Pieces', 'Bottles'],
-        'Tablet': ['Pieces', 'Bottles'],
+        'Tablet': ['Pieces'],
+        'Capsule': ['Pieces'],
         'Powder': ['Grams', 'Kilograms'],
         'Liquid': ['ml', 'Liters'],
-        'Other': []  // Customize as needed for 'Other'
+        'Cream': ['Grams'],
+        'Leaves': ['Grams'],
+        'Other': ['Custom']
     };
 
-    // Function to update UOM options based on selected product_category
-    function updateUomOptions(selectedCategory, selectedUom = null) {
-        const options = uomMappings[selectedCategory] || [];
-        const uomSelect = document.querySelector('select[name="uom"]');
-        if (!uomSelect) return;
+    document.addEventListener('DOMContentLoaded', () => {
+        const contentTypeSelect = document.getElementById('content_type');
+        const uomSelect = document.getElementById('uom');
+        const productTypeSelect = document.getElementById('product_type');
+        const linkedArticleContainer = document.getElementById('linked_article_container');
+        const containerSelect = document.getElementById('container'); // New Container Select
 
-        // Clear existing options
-        uomSelect.innerHTML = '<option value="">Select UOM</option>';
+        const updateUOMOptions = () => {
+            const containerName = containerSelect.value;
+            const contentType = contentTypeSelect.value;
 
-        // Populate new options
-        options.forEach(uom => {
-            const option = document.createElement('option');
-            option.value = uom;
-            option.textContent = uom;
-            if (uom === selectedUom) {
-                option.selected = true;
-            }
-            uomSelect.appendChild(option);
-        });
-
-        // Enable or disable UOM based on availability
-        uomSelect.disabled = options.length === 0;
-    }
-
-    // Modal elements
-    const openModalButton = document.getElementById('openModalButton');
-    const modal = document.getElementById('modal');
-    const closeModalButtons = document.querySelectorAll('#closeModalButton, #closeModalButtonFooter');
-    const productForm = document.getElementById('productForm');
-    const modalTitle = document.getElementById('modalTitle');
-    const submitButton = document.getElementById('submitButton');
-
-    let isEditMode = false;
-    let editProductId = null;
-
-    // Debounce function to limit the rate of function calls
-    function debounce(func, delay) {
-        let debounceTimer;
-        return function() {
-            const context = this;
-            const args = arguments;
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => func.apply(context, args), delay);
-        };
-    }
-
-    // Open modal for adding new product
-    openModalButton.addEventListener('click', () => {
-        resetForm();
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    });
-
-    // Close modal
-    closeModalButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            resetForm();
-        });
-    });
-
-    // Close modal when clicking outside the modal content
-    window.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            resetForm();
-        }
-    });
-
-    // Reset form to default (add mode)
-    function resetForm() {
-        isEditMode = false;
-        editProductId = null;
-        productForm.reset();
-        productForm.action = "{% url 'add_product' %}";
-        modalTitle.textContent = "Add New Product";
-        submitButton.textContent = "Save Product";
-        // Re-enable and hide linked_article and custom_product_category fields if they were disabled
-        const linkedArticleContainer = document.getElementById('linkedArticleContainer');
-        const linkedArticleField = productForm.querySelector('select[name="linked_article"]');
-        if (linkedArticleContainer) {
-            linkedArticleContainer.classList.add('hidden');
-            linkedArticleField.disabled = true;
-            linkedArticleField.value = ''; // Clear the field
-        }
-        const customProductCategoryContainer = document.getElementById('customProductCategoryContainer');
-        const customProductCategoryField = productForm.querySelector('input[name="custom_product_category"]');
-        if (customProductCategoryContainer) {
-            customProductCategoryContainer.classList.add('hidden');
-            customProductCategoryField.disabled = true;
-            customProductCategoryField.value = ''; // Clear the field
-        }
-        // Reset UOM options based on default or existing selection
-        const productCategorySelect = productForm.querySelector('select[name="product_category"]');
-        const selectedCategory = productCategorySelect.value;
-        updateUomOptions(selectedCategory);
-        // Reset quantity field
-        const quantityInput = productForm.querySelector('input[name="quantity"]');
-        if (quantityInput) {
-            quantityInput.value = '';
-        }
-    }
-
-    // Handle 'Select All' checkbox
-    document.getElementById('checkbox-all').addEventListener('change', function() {
-        let checkboxes = document.querySelectorAll('input[name="product_ids"]');
-        checkboxes.forEach((checkbox) => {
-            checkbox.checked = this.checked;
-        });
-    });
-
-    // Bulk delete functionality
-    document.getElementById('bulkDeleteButton').addEventListener('click', function() {
-        // Collect selected product IDs
-        let checkboxes = document.querySelectorAll('input[name="product_ids"]:checked');
-        if (checkboxes.length === 0) {
-            Swal.fire(
-                'No products selected',
-                'Please select at least one product to delete.',
-                'warning'
-            );
-            return;
-        }
-
-        let productIds = [];
-        checkboxes.forEach((checkbox) => {
-            productIds.push(checkbox.value);
-        });
-
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'You will not be able to recover these products!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete them!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Prepare form data
-                let formData = new FormData();
-                productIds.forEach((id) => {
-                    formData.append('product_ids', id);
-                });
-                // Send AJAX request to bulk delete products
-                fetch("{% url 'bulk_delete_products' %}", {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': csrfToken,
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    credentials: 'same-origin',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        Swal.fire(
-                            'Deleted!',
-                            'Your selected products have been deleted.',
-                            'success'
-                        );
-                        // Remove the deleted product rows from the table
-                        productIds.forEach((productId) => {
-                            let row = document.getElementById('product-row-' + productId);
-                            if (row) {
-                                row.remove();
-                            }
-                        });
-                        // Uncheck the 'Select All' checkbox
-                        document.getElementById('checkbox-all').checked = false;
-                    } else {
-                        Swal.fire(
-                            'Error!',
-                            data.message || 'An error occurred.',
-                            'error'
-                        );
-                    }
-                })
-                .catch((error) => {
-                    Swal.fire(
-                        'Error!',
-                        'An error occurred.',
-                        'error'
-                    );
-                });
-            }
-        });
-    });
-
-    // Individual delete functionality
-    function deleteProduct(productId) {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'You will not be able to recover this product!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Prepare form data
-                let formData = new FormData();
-                // Send AJAX request to delete product
-                fetch("{% url 'delete_product' product_id=0 %}".replace('/0/', `/${productId}/`), {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': csrfToken,
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    credentials: 'same-origin',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        Swal.fire(
-                            'Deleted!',
-                            'Your product has been deleted.',
-                            'success'
-                        );
-                        // Remove the deleted product row from the table
-                        let row = document.getElementById('product-row-' + productId);
-                        if (row) {
-                            row.remove();
+            if (containerName && contentType) {
+                // Use the correct URL and encode parameters
+                fetch(`${getUOMOptionsURL}?container_id=${encodeURIComponent(containerName)}&content_type=${encodeURIComponent(contentType)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
                         }
-                    } else {
-                        Swal.fire(
-                            'Error!',
-                            data.message || 'An error occurred.',
-                            'error'
-                        );
-                    }
-                })
-                .catch((error) => {
-                    Swal.fire(
-                        'Error!',
-                        'An error occurred while deleting the product.',
-                        'error'
-                    );
-                });
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.status === 'success') {
+                            uomSelect.innerHTML = '<option value="">Select UOM</option>';
+                            data.uom_options.forEach(uom => {
+                                const option = document.createElement('option');
+                                option.value = uom;
+                                option.textContent = uom;
+                                uomSelect.appendChild(option);
+                            });
+                            uomSelect.required = true;
+                        } else {
+                            uomSelect.innerHTML = '<option value="">Select UOM</option>';
+                            uomSelect.required = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching UOM options:', error);
+                    });
+            } else {
+                uomSelect.innerHTML = '<option value="">Select UOM</option>';
+                uomSelect.required = false;
             }
-        });
-    }
+        };
 
-    // Handle Image Click to Show in Modal
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.product-image').forEach(function(image) {
-            image.addEventListener('click', function() {
-                const fullImageUrl = this.getAttribute('data-full-url');
-                const altText = this.getAttribute('alt');
-                Swal.fire({
-                    title: altText,
-                    imageUrl: fullImageUrl,
-                    imageAlt: altText,
-                    showCloseButton: true,
-                    showConfirmButton: false,
-                    width: 'auto',
-                    heightAuto: true,
-                    customClass: {
-                        popup: 'p-0 rounded-lg',
-                        image: 'object-contain w-auto h-96' // Adjust size as needed
-                    }
-                });
+        const toggleLinkedArticle = (productType) => {
+            if (productType === 'Component') {
+                linkedArticleContainer.classList.remove('hidden');
+                // Make it required
+                document.querySelector('select[name="linked_article"]').setAttribute('required', 'required');
+            } else {
+                linkedArticleContainer.classList.add('hidden');
+                document.querySelector('select[name="linked_article"]').removeAttribute('required');
+            }
+        };
+
+        // Initialize UOM options based on current container and content type
+        updateUOMOptions();
+
+        // Event listeners for container and content type changes
+        containerSelect.addEventListener('change', updateUOMOptions);
+        contentTypeSelect.addEventListener('change', updateUOMOptions);
+        productTypeSelect.addEventListener('change', function () {
+            toggleLinkedArticle(this.value);
+        });
+
+        // Initialize linked_article visibility based on current product type
+        toggleLinkedArticle(productTypeSelect.value);
+
+        // Handle View Components Button Click
+        document.querySelectorAll('.view-components-button').forEach(button => {
+            button.addEventListener('click', function () {
+                const productId = this.getAttribute('data-product-id');
+                const componentsRow = document.getElementById(`linked-components-${productId}`);
+                if (componentsRow.classList.contains('hidden')) {
+                    componentsRow.classList.remove('hidden');
+                } else {
+                    componentsRow.classList.add('hidden');
+                }
             });
         });
     });
+</script>
 
-    // Edit Product Functionality
-    function editProduct(productId) {
-        // Fetch product data via AJAX
-        fetch("{% url 'edit_product' product_id=0 %}".replace('/0/', `/${productId}/`), {
-            method: 'GET',
-            headers: {
-                'X-CSRFToken': csrfToken,
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            credentials: 'same-origin'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                const product = data.product;
-                // Populate form fields
-                productForm.querySelector('input[name="item_name"]').value = product.item_name || '';
-                productForm.querySelector('select[name="supplier"]').value = product.supplier_id || '';
-                productForm.querySelector('input[name="currency_code"]').value = product.currency_code || '';
-                productForm.querySelector('input[name="retail_price"]').value = product.retail_price || '';
-                productForm.querySelector('select[name="uom"]').value = product.uom || '';
-                productForm.querySelector('input[name="quantity"]').value = product.quantity || '';
-                productForm.querySelector('select[name="product_type"]').value = product.product_type || ''; // Populate product_type
-                productForm.querySelector('select[name="product_category"]').value = product.product_category || ''; // Populate product_category
-                productForm.querySelector('input[name="discountable_all"]').checked = product.discountable_all === true;
-                productForm.querySelector('input[name="discountable_members"]').checked = product.discountable_members === true;
-                productForm.querySelector('input[name="active"]').checked = product.active === true;
-                productForm.querySelector('select[name="linked_article"]').value = product.linked_article_id || '';
-                productForm.querySelector('input[name="custom_product_category"]').value = product.custom_product_category || '';
+<script>
+    // Get elements
+    const modal = document.getElementById('addProductModal');
+    const openModalButton = document.getElementById('openModalButton');
+    const closeModalButton = document.getElementById('closeModalButton');
+    const cancelButton = document.getElementById('cancelButton');
+    const productForm = document.getElementById('productForm');
+    const modalTitle = document.getElementById('modalTitle');
+    const submitButton = document.getElementById('submitButton');
+    const productIdInput = document.getElementById('product_id');
 
-                // Show or hide linked_article field based on product_type
-                const linkedArticleContainer = document.getElementById('linkedArticleContainer');
-                const linkedArticleField = productForm.querySelector('select[name="linked_article"]');
-                if (product.product_type === 'Component') {
-                    linkedArticleContainer.classList.remove('hidden');
-                    linkedArticleField.disabled = false;
-                } else {
-                    linkedArticleContainer.classList.add('hidden');
-                    linkedArticleField.disabled = true;
-                    linkedArticleField.value = ''; // Clear linked_article if not Component
-                }
-
-                // Show or hide custom_product_category field based on product_category
-                const customProductCategoryContainer = document.getElementById('customProductCategoryContainer');
-                const customProductCategoryField = productForm.querySelector('input[name="custom_product_category"]');
-                if (product.product_category === 'Other') {
-                    customProductCategoryContainer.classList.remove('hidden');
-                    customProductCategoryField.disabled = false;
-                    // Disable UOM if 'Other' should allow free-form UOM
-                    updateUomOptions('Other');
-                    const uomSelect = productForm.querySelector('select[name="uom"]');
-                    if (uomSelect) {
-                        uomSelect.disabled = true;
-                        uomSelect.value = ''; // Clear UOM if it's disabled
-                    }
-                } else {
-                    customProductCategoryContainer.classList.add('hidden');
-                    customProductCategoryField.disabled = true;
-                    customProductCategoryField.value = ''; // Clear custom category if not 'Other'
-                    // Update UOM options based on selected category
-                    const selectedCategory = product.product_category;
-                    updateUomOptions(selectedCategory, product.uom);
-                }
-
-                // Change form action to update_product
-                productForm.action = "{% url 'update_product' product_id=0 %}".replace('/0/', `/${productId}/`);
-                // Update modal title and button text
-                modalTitle.textContent = "Edit Product";
-                submitButton.textContent = "Update Product";
-                // Set edit mode flags
-                isEditMode = true;
-                editProductId = product.id;
-                // Open modal
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            } else {
-                Swal.fire(
-                    'Error!',
-                    data.message || 'Failed to fetch product data.',
-                    'error'
-                );
-            }
-        })
-        .catch((error) => {
-            console.log('Error:', error);
-            Swal.fire(
-                'Error!',
-                'An error occurred while fetching product data.',
-                'error'
-            );
-        });
+    // Function to open modal
+    function openModal() {
+        modal.classList.remove('hidden');
+        // Reset form to add mode
+        modalTitle.textContent = 'Add New Product';
+        submitButton.textContent = 'Add Product';
+        productForm.action = "{% url 'add_product' %}";
+        productIdInput.value = '';
+        productForm.reset();
+        // Hide linked_article_container if necessary
+        const linkedArticleContainer = document.getElementById('linked_article_container');
+        linkedArticleContainer.classList.add('hidden');
+        // Reset UOM options
+        const uomSelect = document.getElementById('uom');
+        uomSelect.innerHTML = '<option value="">Select UOM</option>';
     }
 
-    // Handle form submission for adding and editing
-    productForm.addEventListener('submit', function(event) {
-        if (isEditMode && editProductId) {
-            event.preventDefault(); // Prevent default form submission
+    // Function to close modal
+    function closeModal() {
+        modal.classList.add('hidden');
+        productForm.reset();
+        // Reset form to add mode
+        modalTitle.textContent = 'Add New Product';
+        submitButton.textContent = 'Add Product';
+        productForm.action = "{% url 'add_product' %}";
+        productIdInput.value = '';
+        // Hide linked_article_container if necessary
+        const linkedArticleContainer = document.getElementById('linked_article_container');
+        linkedArticleContainer.classList.add('hidden');
+        // Reset UOM options
+        const uomSelect = document.getElementById('uom');
+        uomSelect.innerHTML = '<option value="">Select UOM</option>';
+    }
 
-            const formData = new FormData(this);
+    // Event listeners for opening and closing modal
+    openModalButton.addEventListener('click', openModal);
+    closeModalButton.addEventListener('click', closeModal);
+    cancelButton.addEventListener('click', closeModal);
 
-            fetch(productForm.action, {
-                method: 'POST',
+    // Close modal when clicking outside the modal content
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Handle Edit Button Click
+    document.querySelectorAll('.edit-button').forEach(button => {
+        button.addEventListener('click', function () {
+            const productId = this.getAttribute('data-product-id');
+            const editProductURL = editProductURLTemplate.replace('PRODUCT_ID_PLACEHOLDER', productId);
+            fetch(editProductURL, {
                 headers: {
-                    'X-CSRFToken': csrfToken,
                     'X-Requested-With': 'XMLHttpRequest'
-                },
-                credentials: 'same-origin',
-                body: formData
+                }
             })
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    Swal.fire(
-                        'Updated!',
-                        data.message,
-                        'success'
-                    );
-                    // Optionally, update the product row in the table with new data
-                    const updatedProduct = data.product;
-                    const row = document.getElementById('product-row-' + updatedProduct.id);
-                    if (row) {
-                        // Update Product Cell with Image and Name
-                        row.querySelector('th[scope="row"]').innerHTML = `
-                            ${updatedProduct.photo_url ? `
-                                <img 
-                                    src="${updatedProduct.photo_url}" 
-                                    alt="${updatedProduct.item_name}" 
-                                    class="w-8 h-8 mr-3 object-cover rounded product-image cursor-pointer" 
-                                    data-full-url="${updatedProduct.photo_url}"
-                                    title="Click to view full image"
-                                >
-                            ` : `
-                                <img 
-                                    src="${placeholderImageUrl}" 
-                                    alt="${updatedProduct.item_name}" 
-                                    class="w-8 h-8 mr-3 object-cover rounded product-image cursor-pointer" 
-                                    data-full-url="${placeholderImageUrl}"
-                                    title="Click to view full image"
-                                >
-                            `}
-                            ${updatedProduct.item_name}  
-                        `;
-                        // Update Product Type
-                        row.querySelector('td:nth-child(3)').textContent = updatedProduct.product_type;
-                        // Update Product Category
-                        row.querySelector('td:nth-child(4)').textContent = updatedProduct.product_category;
-                        // Update Quantity
-                        row.querySelector('td:nth-child(5)').textContent = updatedProduct.quantity;
-                        // Update UOM
-                        row.querySelector('td:nth-child(6)').textContent = updatedProduct.uom;
-                        // Update Supplier
-                        row.querySelector('td:nth-child(7)').textContent = updatedProduct.supplier_name;
-                        // Update Currency
-                        row.querySelector('td:nth-child(8)').textContent = updatedProduct.currency_code;
-                        // Update Price
-                        row.querySelector('td:nth-child(9)').textContent = `$${updatedProduct.retail_price}`;
-                        // Update Discountable (All)
-                        row.querySelector('td:nth-child(10)').textContent = updatedProduct.discountable_all ? 'Yes' : 'No';
-                        // Update Discountable (Members)
-                        row.querySelector('td:nth-child(11)').textContent = updatedProduct.discountable_members ? 'Yes' : 'No';
-                        // Update Active
-                        row.querySelector('td:nth-child(12)').textContent = updatedProduct.active ? 'Yes' : 'No';
-                        // Update Sellable Sets
-                        row.querySelector('td:nth-child(13)').textContent = updatedProduct.product_type === 'Article' ? updatedProduct.sellable_sets : 'N/A';
-
-                        // Re-attach event listener for the new image
-                        const productImage = row.querySelector('.product-image');
-                        if (productImage) {
-                            productImage.addEventListener('click', function() {
-                                const fullImageUrl = this.getAttribute('data-full-url');
-                                const altText = this.getAttribute('alt');
-                                Swal.fire({
-                                    title: altText,
-                                    imageUrl: fullImageUrl,
-                                    imageAlt: altText,
-                                    showCloseButton: true,
-                                    showConfirmButton: false,
-                                    width: 'auto',
-                                    heightAuto: true,
-                                    customClass: {
-                                        popup: 'p-0 rounded-lg',
-                                        image: 'object-contain w-auto h-96' // Adjust size as needed
-                                    }
-                                });
-                            });
-                        }
+                    const product = data.product;
+                    // Fill the form with product data
+                    document.getElementById('product_type').value = product.product_type;
+                    // Trigger change event to update UOM and linked article visibility
+                    document.getElementById('product_type').dispatchEvent(new Event('change'));
+                    document.getElementById('item_name').value = product.item_name;
+                    document.getElementById('supplier').value = product.supplier_id;
+                    document.getElementById('container').value = product.container_id; // Set the container value
+                    document.getElementById('currency_code').value = product.currency_code;
+                    document.getElementById('retail_price').value = product.retail_price;
+                    document.getElementById('content_type').value = product.content_type;
+                    // After setting container and content type, UOM options should update via event listeners
+                    document.getElementById('uom').value = product.uom;
+                    document.getElementById('custom_content_type').value = product.custom_content_type;
+                    document.getElementById('quantity').value = product.quantity;
+                    if (product.product_type === 'Component') {
+                        document.querySelector('select[name="linked_article"]').value = product.linked_article_id;
                     }
-                    // Close modal and reset form
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                    resetForm();
+                    // Set the form action to update URL
+                    productForm.action = updateProductURLTemplate.replace('PRODUCT_ID_PLACEHOLDER', productId);
+                    // Set the hidden product_id input
+                    productIdInput.value = productId;
+                    // Update modal title and submit button text
+                    modalTitle.textContent = 'Edit Product';
+                    submitButton.textContent = 'Save Changes';
+                    // Open the modal
+                    modal.classList.remove('hidden');
                 } else {
-                    // Handle form errors
-                    if (data.errors) {
-                        let errorMessages = '';
-                        const errors = JSON.parse(data.errors);
-                        for (let field in errors) {
-                            errors[field].forEach(error => {
-                                errorMessages += `${error.message}<br>`;
-                            });
-                        }
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Form Errors',
-                            html: errorMessages
-                        });
-                    } else {
-                        Swal.fire(
-                            'Error!',
-                            data.message || 'An error occurred while updating the product.',
-                            'error'
-                        );
-                    }
+                    alert(data.message);
                 }
             })
-            .catch((error) => {
-                Swal.fire(
-                    'Error!',
-                    'An error occurred while updating the product.',
-                    'error'
-                );
+            .catch(error => {
+                console.error('Error fetching product data:', error);
+                alert('An error occurred while fetching product data.');
             });
-        }
+        });
     });
 
-    // Search Functionality with Autocomplete
-    const searchInput = document.getElementById('searchInput');
-    const productTableBody = document.getElementById('productTableBody');
-
-    searchInput.addEventListener('input', debounce(function() {
-        const query = this.value.trim();
-        fetch("{% url 'search_products' %}?q=" + encodeURIComponent(query), {
-            method: 'GET',
-            headers: {
-                'X-CSRFToken': csrfToken,
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            credentials: 'same-origin'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                // Clear existing table body
-                productTableBody.innerHTML = '';
-                // Populate table with new data
-                data.products.forEach(product => {
-                    // Create the table row manually
-                    const row = document.createElement('tr');
-                    row.id = `product-row-${product.id}`;
-                    row.classList.add('hover:bg-gray-100', 'dark:hover:bg-gray-700');
-
-                    // Checkbox Cell
-                    const checkboxCell = document.createElement('td');
-                    checkboxCell.classList.add('w-4', 'px-4', 'py-3', 'whitespace-nowrap');
-                    checkboxCell.innerHTML = `
-                        <div class="flex items-center">
-                            <input id="checkbox-${product.id}" name="product_ids" value="${product.id}" type="checkbox" class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                            <label for="checkbox-${product.id}" class="sr-only">Select product</label>
-                        </div>
-                    `;
-                    row.appendChild(checkboxCell);
-
-                    // Product Name Cell
-                    const productCell = document.createElement('th');
-                    productCell.scope = "row";
-                    productCell.classList.add('flex', 'items-center', 'px-4', 'py-2', 'font-medium', 'text-gray-900', 'whitespace-nowrap', 'dark:text-gray-500');
-                    productCell.innerHTML = `
-                        ${product.photo_url ? `
-                            <img 
-                                src="${product.photo_url}" 
-                                alt="${product.item_name}" 
-                                class="w-8 h-8 mr-3 object-cover rounded product-image cursor-pointer" 
-                                data-full-url="${product.photo_url}"
-                                title="Click to view full image"
-                            >
-                        ` : `
-                            <img 
-                                src="${placeholderImageUrl}" 
-                                alt="${product.item_name}" 
-                                class="w-8 h-8 mr-3 object-cover rounded product-image cursor-pointer" 
-                                data-full-url="${placeholderImageUrl}"
-                                title="Click to view full image"
-                            >
-                        `}
-                        ${product.item_name}  
-                    `;
-                    row.appendChild(productCell);
-
-                    // Product Type Cell
-                    const productTypeCell = document.createElement('td');
-                    productTypeCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
-                    productTypeCell.textContent = product.product_type;
-                    row.appendChild(productTypeCell);
-
-                    // Product Category Cell
-                    const productCategoryCell = document.createElement('td');
-                    productCategoryCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
-                    productCategoryCell.textContent = product.product_category;
-                    row.appendChild(productCategoryCell);
-
-                    // Quantity Cell (Display `quantity_display`)
-                    const quantityCell = document.createElement('td');
-                    quantityCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
-                    quantityCell.textContent = product.quantity;
-                    row.appendChild(quantityCell);
-
-                    // UOM Cell (Moved)
-                    const uomCell = document.createElement('td');
-                    uomCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
-                    uomCell.textContent = product.uom;
-                    row.appendChild(uomCell);
-
-                    // Supplier Cell
-                    const supplierCell = document.createElement('td');
-                    supplierCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
-                    supplierCell.textContent = product.supplier_name;
-                    row.appendChild(supplierCell);
-
-                    // Currency Code Cell
-                    const currencyCell = document.createElement('td');
-                    currencyCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
-                    currencyCell.textContent = product.currency_code;
-                    row.appendChild(currencyCell);
-
-                    // Retail Price Cell
-                    const priceCell = document.createElement('td');
-                    priceCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
-                    priceCell.textContent = `$${product.retail_price}`;
-                    row.appendChild(priceCell);
-
-                    // Discountable (All) Cell
-                    const discountAllCell = document.createElement('td');
-                    discountAllCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
-                    discountAllCell.textContent = product.discountable_all ? 'Yes' : 'No';
-                    row.appendChild(discountAllCell);
-
-                    // Discountable (Members) Cell
-                    const discountMembersCell = document.createElement('td');
-                    discountMembersCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
-                    discountMembersCell.textContent = product.discountable_members ? 'Yes' : 'No';
-                    row.appendChild(discountMembersCell);
-
-                    // Active Cell
-                    const activeCell = document.createElement('td');
-                    activeCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
-                    activeCell.textContent = product.active ? 'Yes' : 'No';
-                    row.appendChild(activeCell);
-
-                    // Sellable Sets Cell (New)
-                    const sellableSetsCell = document.createElement('td');
-                    sellableSetsCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
-                    sellableSetsCell.textContent = product.product_type === 'Article' ? product.sellable_sets : 'N/A';
-                    row.appendChild(sellableSetsCell);
-
-                    // Actions Cell
-                    const actionsCell = document.createElement('td');
-                    actionsCell.classList.add('px-4', 'py-2', 'whitespace-nowrap', 'flex', 'space-x-2');
-                    actionsCell.innerHTML = `
-                        <!-- Edit Button -->
-                        <button
-                            type="button"
-                            class="text-blue-600 hover:text-blue-800 focus:outline-none"
-                            onclick="editProduct('${product.id}')"
-                            title="Edit Product"
-                        >
-                            <!-- Edit Icon -->
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 18a1 1 0 01-1-1v-4.586l10.293-10.293a1 1 0 011.414 0l2.586 2.586a1 1 0 010 1.414L9.414 17H5z" />
-                            </svg>
-                        </button>
-
-                        <!-- Delete Button -->
-                        <button
-                            type="button"
-                            class="text-red-600 hover:text-red-800 focus:outline-none"
-                            onclick="deleteProduct('${product.id}')"
-                            title="Delete Product"
-                        >
-                            <!-- Delete Icon -->
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M6 3V4H4V6H16V4H14V3H6ZM6 6V15C6 16.1046 6.89543 17 8 17H12C13.1046 17 14 16.1046 14 15V6H6Z" />
-                            </svg>
-                        </button>
-                    `;
-                    row.appendChild(actionsCell);
-
-                    // Append the row to the table body
-                    productTableBody.appendChild(row);
-
-                    // Re-attach event listener for the new image
-                    const productImage = row.querySelector('.product-image');
-                    if (productImage) {
-                        productImage.addEventListener('click', function() {
-                            const fullImageUrl = this.getAttribute('data-full-url');
-                            const altText = this.getAttribute('alt');
-                            Swal.fire({
-                                title: altText,
-                                imageUrl: fullImageUrl,
-                                imageAlt: altText,
-                                showCloseButton: true,
-                                showConfirmButton: false,
-                                width: 'auto',
-                                heightAuto: true,
-                                customClass: {
-                                    popup: 'p-0 rounded-lg',
-                                    image: 'object-contain w-auto h-96' // Adjust size as needed
-                                }
-                            });
-                        });
-                    }
-                });
-
-                // Update "Select All" checkbox state
-                document.getElementById('checkbox-all').checked = false;
-
-            } else {
-                Swal.fire(
-                    'Error!',
-                    data.message || 'An error occurred while searching.',
-                    'error'
-                );
-            }
-        })
-        .catch((error) => {
-            Swal.fire(
-                'Error!',
-                'An error occurred while searching.',
-                'error'
-            );
-        });
-    }, 300)); // Debounce delay of 300ms
-
-    // Display SweetAlert2 notifications based on Django messages
-    {% if messages %}
-        {% for message in messages %}
-            Swal.fire({
-                icon: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}",
-                title: "{% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% elif message.tags == 'warning' %}Warning{% else %}Notice{% endif %}",
-                text: "{{ message }}",
-                timer: 3000,
-                showConfirmButton: false
-            });
-        {% endfor %}
-    {% endif %}
-
-    // JavaScript to handle showing/hiding the linked_article and custom_product_category fields based on product_type and product_category
-    document.addEventListener('DOMContentLoaded', function() {
-        const productForm = document.getElementById('productForm');
-        const productTypeSelect = productForm.querySelector('select[name="product_type"]');
-        const linkedArticleContainer = document.getElementById('linkedArticleContainer');
-        const linkedArticleField = productForm.querySelector('select[name="linked_article"]');
-        
-        const productCategorySelect = productForm.querySelector('select[name="product_category"]');
-        const customProductCategoryContainer = document.getElementById('customProductCategoryContainer');
-        const customProductCategoryField = productForm.querySelector('input[name="custom_product_category"]');
-        const uomSelect = productForm.querySelector('select[name="uom"]');
-        
-        // Function to show or hide the linked_article field based on product_type
-        function toggleLinkedArticle() {
-            const selectedType = productTypeSelect.value;
-            if (selectedType === 'Component') {
-                linkedArticleContainer.classList.remove('hidden');
-                linkedArticleField.disabled = false;
-            } else {
-                linkedArticleContainer.classList.add('hidden');
-                linkedArticleField.disabled = true;
-                linkedArticleField.value = ''; // Clear linked_article if not Component
-            }
-            calculateSellableSets();
-        }
-
-        // Function to show or hide the custom_product_category input based on product_category
-        function toggleCustomProductCategory() {
-            const selectedCategory = productCategorySelect.value;
-            if (selectedCategory === 'Other') {
-                customProductCategoryContainer.classList.remove('hidden');
-                customProductCategoryField.disabled = false;
-                // Disable UOM if 'Other' should allow free-form UOM
-                updateUomOptions('Other');
-                uomSelect.disabled = true;
-                uomSelect.value = ''; // Clear UOM if it's disabled
-            } else {
-                customProductCategoryContainer.classList.add('hidden');
-                customProductCategoryField.disabled = true;
-                customProductCategoryField.value = ''; // Clear custom category input
-                // Update UOM options based on the selected category
-                const selectedCategory = productCategorySelect.value;
-                updateUomOptions(selectedCategory);
-                uomSelect.disabled = false;
-            }
-            calculateSellableSets();
-        }
-
-        // Function to calculate and update Sellable Sets
-        function calculateSellableSets() {
-            const selectedType = productTypeSelect.value;
-            if (selectedType === 'Article') {
-                const retailPrice = parseFloat(productForm.querySelector('input[name="retail_price"]').value) || 0;
-                const linkedArticleId = productForm.querySelector('select[name="linked_article"]').value;
-                let componentPrice = 0;
-
-                if (linkedArticleId) {
-                    // Fetch the linked component's price via AJAX
-                    fetch("{% url 'edit_product' product_id=0 %}".replace('/0/', `/${linkedArticleId}/`), {
-                        method: 'GET',
-                        headers: {
-                            'X-CSRFToken': csrfToken,
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        credentials: 'same-origin'
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            componentPrice = parseFloat(data.product.retail_price) || 0;
-                            const sellableSets = componentPrice > 0 ? Math.floor(retailPrice / componentPrice) : 'N/A';
-                            // Display sellable sets in the modal (if needed)
-                            // For example, you can add a readonly input field to show sellable sets
-                        }
-                    })
-                    .catch((error) => {
-                        console.log('Error fetching component price:', error);
-                    });
-                }
-            }
-        }
-
-        // Initial setup based on current selections
-        toggleLinkedArticle();
-        toggleCustomProductCategory();
-
-        // Initialize UOM options based on current product_category
-        updateUomOptions(productCategorySelect.value, uomSelect.value);
-
-        // Add event listeners for changes in product_type and product_category
-        productTypeSelect.addEventListener('change', toggleLinkedArticle);
-        productCategorySelect.addEventListener('change', toggleCustomProductCategory);
-
-        // Add event listener to retail_price and linked_article fields to recalculate Sellable Sets
-        productForm.querySelector('input[name="retail_price"]').addEventListener('input', calculateSellableSets);
-        productForm.querySelector('select[name="linked_article"]').addEventListener('change', calculateSellableSets);
-
-        // Feature 2: Automatically calculate and populate quantity field in the modal
-        const linkedArticleSelect = productForm.querySelector('select[name="linked_article"]');
-        const retailPriceInput = productForm.querySelector('input[name="retail_price"]');
-        const quantityInput = productForm.querySelector('input[name="quantity"]');
-
-        function updateQuantityField() {
-            const linkedArticleId = linkedArticleSelect.value;
-            const retailPrice = parseFloat(retailPriceInput.value);
-            if (linkedArticleId && !isNaN(retailPrice)) {
-                fetch("{% url 'get_sellable_sets' %}?article_id=" + encodeURIComponent(linkedArticleId), {
-                    method: 'GET',
+    // Handle Delete Button Click
+    document.querySelectorAll('.delete-button').forEach(button => {
+        button.addEventListener('click', function () {
+            const productId = this.getAttribute('data-product-id');
+            if (confirm('Are you sure you want to delete this product?')) {
+                const deleteProductURL = deleteProductURLTemplate.replace('PRODUCT_ID_PLACEHOLDER', productId);
+                fetch(deleteProductURL, {
+                    method: 'POST',
                     headers: {
                         'X-CSRFToken': csrfToken,
-                        'X-Requested-With': 'XMLHttpRequest'
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
                     },
-                    credentials: 'same-origin'
+                    body: JSON.stringify({})
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        quantityInput.value = data.sellable_sets;
+                        // Remove the product row from the table
+                        const row = document.getElementById(`product-row-${productId}`);
+                        if (row) {
+                            row.remove();
+                        }
+                        // Also remove the linked components row if visible
+                        const componentsRow = document.getElementById(`linked-components-${productId}`);
+                        if (componentsRow) {
+                            componentsRow.remove();
+                        }
+                        alert('Product deleted successfully.');
                     } else {
-                        quantityInput.value = '';
+                        alert(data.message || 'Failed to delete product.');
                     }
                 })
                 .catch(error => {
-                    console.log('Error fetching sellable sets:', error);
-                    quantityInput.value = '';
+                    console.error('Error deleting product:', error);
+                    alert('An error occurred while deleting the product.');
+                });
+            }
+        });
+    });
+
+    // Handle Search Input (Optional: Implement autocomplete or live search)
+    const searchInput = document.getElementById('searchProducts');
+    searchInput.addEventListener('input', function () {
+        const query = this.value.trim();
+        fetch(`${searchProductsURL}?q=${encodeURIComponent(query)}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const tbody = document.getElementById('productTableBody');
+                tbody.innerHTML = ''; // Clear existing rows
+                data.products.forEach(product => {
+                    // Construct table rows dynamically
+                    const tr = document.createElement('tr');
+                    tr.classList.add('border-b', 'dark:border-gray-700');
+                    tr.id = `product-row-${product.id}`;
+
+                    // Checkbox Cell
+                    const checkboxTd = document.createElement('td');
+                    checkboxTd.classList.add('p-4', 'whitespace-nowrap');
+                    checkboxTd.innerHTML = `
+                        <div class="flex items-center">
+                            <input type="checkbox" value="${product.id}" class="product-checkbox w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                            <label class="sr-only">Select product</label>
+                        </div>
+                    `;
+                    tr.appendChild(checkboxTd);
+
+                    // Image Cell
+                    const imageTd = document.createElement('td');
+                    imageTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    if (product.photo_url) {
+                        imageTd.innerHTML = `<img src="${product.photo_url}" alt="${product.item_name}" class="w-12 h-12 object-cover rounded">`;
+                    } else {
+                        imageTd.innerHTML = `<span class="text-gray-500">No Image</span>`;
+                    }
+                    tr.appendChild(imageTd);
+
+                    // Item Name Cell
+                    const itemNameTd = document.createElement('td');
+                    itemNameTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    itemNameTd.textContent = product.item_name;
+                    tr.appendChild(itemNameTd);
+
+                    // Quantity Cell
+                    const quantityTd = document.createElement('td');
+                    quantityTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    quantityTd.textContent = product.quantity;
+                    tr.appendChild(quantityTd);
+
+                    // UOM Cell
+                    const uomTd = document.createElement('td');
+                    uomTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    uomTd.textContent = product.uom;
+                    tr.appendChild(uomTd);
+
+                    // Supplier Cell
+                    const supplierTd = document.createElement('td');
+                    supplierTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    supplierTd.textContent = product.supplier_name;
+                    tr.appendChild(supplierTd);
+
+                    // Currency Code Cell
+                    const currencyTd = document.createElement('td');
+                    currencyTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    currencyTd.textContent = product.currency_code;
+                    tr.appendChild(currencyTd);
+
+                    // Retail Price Cell
+                    const retailPriceTd = document.createElement('td');
+                    retailPriceTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    retailPriceTd.textContent = product.retail_price;
+                    tr.appendChild(retailPriceTd);
+
+                    // Discountable (All) Cell
+                    const discountAllTd = document.createElement('td');
+                    discountAllTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    discountAllTd.innerHTML = product.discountable_all ? `<span class="text-green-600">Yes</span>` : `<span class="text-red-600">No</span>`;
+                    tr.appendChild(discountAllTd);
+
+                    // Discountable (Members) Cell
+                    const discountMembersTd = document.createElement('td');
+                    discountMembersTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    discountMembersTd.innerHTML = product.discountable_members ? `<span class="text-green-600">Yes</span>` : `<span class="text-red-600">No</span>`;
+                    tr.appendChild(discountMembersTd);
+
+                    // Active Cell
+                    const activeTd = document.createElement('td');
+                    activeTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    activeTd.innerHTML = product.active ? `<span class="text-green-600">Active</span>` : `<span class="text-red-600">Inactive</span>`;
+                    tr.appendChild(activeTd);
+
+                    // Remaining Components Cell
+                    const remainingComponentsTd = document.createElement('td');
+                    remainingComponentsTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    remainingComponentsTd.textContent = product.remaining_component_stock;
+                    tr.appendChild(remainingComponentsTd);
+
+                    // Sellable Sets Cell
+                    const sellableSetsTd = document.createElement('td');
+                    sellableSetsTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    sellableSetsTd.textContent = product.sellable_sets;
+                    tr.appendChild(sellableSetsTd);
+
+                    // Actions Cell
+                    const actionsTd = document.createElement('td');
+                    actionsTd.classList.add('px-4', 'py-3', 'whitespace-nowrap', 'flex', 'space-x-2');
+                    actionsTd.innerHTML = `
+                        <button class="edit-button text-blue-600 hover:text-blue-900" data-product-id="${product.id}">
+                            Edit
+                        </button>
+                        <button class="delete-button text-red-600 hover:text-red-900" data-product-id="${product.id}">
+                            Delete
+                        </button>
+                        ${product.product_type === 'Article' ? `<button class="view-components-button text-green-600 hover:text-green-900" data-product-id="${product.id}">
+                            View Components
+                        </button>` : ''}
+                    `;
+                    tr.appendChild(actionsTd);
+
+                    tbody.appendChild(tr);
+
+                    // If product has linked components, add a hidden row
+                    if (product.product_type === 'Article' && product.linked_components.length > 0) {
+                        const componentsTr = document.createElement('tr');
+                        componentsTr.id = `linked-components-${product.id}`;
+                        componentsTr.classList.add('hidden', 'bg-gray-100', 'dark:bg-[#1a1a1a]');
+                        componentsTr.innerHTML = `
+                            <td colspan="14" class="px-4 py-3">
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                        <thead class="text-xs text-gray-700 uppercase bg-gray-200 dark:bg-gray-700 dark:text-gray-400">
+                                            <tr>
+                                                <th class="px-4 py-2">Component Name</th>
+                                                <th class="px-4 py-2">Quantity Available</th>
+                                                <th class="px-4 py-2">Units per Article</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${product.linked_components.map(component => `
+                                                <tr class="border-b dark:border-gray-600">
+                                                    <td class="px-4 py-2">${component.item_name}</td>
+                                                    <td class="px-4 py-2">${component.quantity}</td>
+                                                    <td class="px-4 py-2">${component.units_per_article}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        `;
+                        tbody.appendChild(componentsTr);
+                    }
                 });
             } else {
-                quantityInput.value = '';
+                // If not successful, you might want to clear the table or show a message
+                const tbody = document.getElementById('productTableBody');
+                tbody.innerHTML = '<tr><td colspan="14" class="px-4 py-3 text-center">No products found.</td></tr>';
             }
-        }
-
-        linkedArticleSelect.addEventListener('change', updateQuantityField);
-        retailPriceInput.addEventListener('input', updateQuantityField);
+        })
+        .catch(error => {
+            console.error('Error searching products:', error);
+        });
     });
 </script>
-
 {% endblock %}

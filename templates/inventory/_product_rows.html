@@ -1,72 +1,111 @@
-<!-- inventory/templates/inventory/_product_rows.html -->
-{% load static %}
 {% for product in products %}
-<tr id="product-row-{{ product.id }}" class="hover:bg-gray-100 dark:hover:bg-gray-700">
-    <!-- Checkbox Cell -->
-    <td class="w-4 px-4 py-3 whitespace-nowrap">
-        <div class="flex items-center">
-            <input id="checkbox-{{ product.id }}" name="product_ids" value="{{ product.id }}" type="checkbox" class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-            <label for="checkbox-{{ product.id }}" class="sr-only">Select product</label>
-        </div>
-    </td>
-    <!-- Product Name and Image Cell -->
-    <th scope="row" class="flex items-center px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-gray-500">
-        {% if product.photo %}
-            <img src="{{ product.photo.url }}" alt="{{ product.item_name }}" class="w-8 h-8 mr-3 object-cover rounded product-image cursor-pointer" data-full-url="{{ product.photo.url }}" title="Click to view full image">
-        {% else %}
-            <img src="{% static 'images/placeholder.png' %}" alt="{{ product.item_name }}" class="w-8 h-8 mr-3 object-cover rounded product-image cursor-pointer" data-full-url="{% static 'images/placeholder.png' %}" title="Click to view full image">
-        {% endif %}
-        {{ product.item_name }}
-    </th>
-    <!-- Product Type Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ product.get_product_type_display }}</td>
-    <!-- Product Category Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ product.get_product_category_display }}</td>
-    <!-- Quantity Cell (Display `quantity_display`) -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ product.quantity_display }}</td>
-    <!-- UOM Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ product.uom }}</td>
-    <!-- Supplier Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ product.supplier.supplier_name }}</td>
-    <!-- Currency Code Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ product.currency_code }}</td>
-    <!-- Retail Price Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">${{ product.retail_price }}</td>
-    <!-- Discountable (All) Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ product.discountable_all|yesno:"Yes,No" }}</td>
-    <!-- Discountable (Members) Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ product.discountable_members|yesno:"Yes,No" }}</td>
-    <!-- Active Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ product.active|yesno:"Yes,No" }}</td>
-    <!-- Sellable Sets Cell -->
-    <td class="px-4 py-2 whitespace-nowrap">{{ product.sellable_sets }}</td>
-    <!-- Actions Cell -->
-    <td class="px-4 py-2 whitespace-nowrap flex space-x-2">
-        <!-- Edit Button -->
-        <button
-            type="button"
-            class="text-blue-600 hover:text-blue-800 focus:outline-none"
-            onclick="editProduct('{{ product.id }}')"
-            title="Edit Product"
-        >
-            <!-- Edit Icon -->
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 18a1 1 0 01-1-1v-4.586l10.293-10.293a1 1 0 011.414 0l2.586 2.586a1 1 0 010 1.414L9.414 17H5z" />
-            </svg>
-        </button>
-
-        <!-- Delete Button -->
-        <button
-            type="button"
-            class="text-red-600 hover:text-red-800 focus:outline-none"
-            onclick="deleteProduct('{{ product.id }}')"
-            title="Delete Product"
-        >
-            <!-- Delete Icon -->
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M6 3V4H4V6H16V4H14V3H6ZM6 6V15C6 16.1046 6.89543 17 8 17H12C13.1046 17 14 16.1046 14 15V6H6Z" />
-            </svg>
-        </button>
-    </td>
-</tr>
+    <tr class="border-b dark:border-gray-700">
+        <!-- Checkbox -->
+        <td class="p-4 whitespace-nowrap">
+            <div class="flex items-center">
+                <input type="checkbox" value="{{ product.id }}" class="product-checkbox w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                <label class="sr-only">Select product</label>
+            </div>
+        </td>
+        <!-- Image -->
+        <td class="px-4 py-3 whitespace-nowrap">
+            {% if product.photo_url %}
+                <img src="{{ product.photo_url }}" alt="{{ product.item_name }}" class="w-12 h-12 object-cover rounded">
+            {% else %}
+                <span class="text-gray-500">No Image</span>
+            {% endif %}
+        </td>
+        <!-- Item Name -->
+        <td class="px-4 py-3 whitespace-nowrap">{{ product.item_name }}</td>
+        <!-- Quantity -->
+        <td class="px-4 py-3 whitespace-nowrap">{{ product.quantity }}</td>
+        <!-- UOM -->
+        <td class="px-4 py-3 whitespace-nowrap">{{ product.uom }}</td>
+        <!-- Supplier -->
+        <td class="px-4 py-3 whitespace-nowrap">{{ product.supplier_name }}</td>
+        <!-- Currency -->
+        <td class="px-4 py-3 whitespace-nowrap">{{ product.currency_code }}</td>
+        <!-- Retail Price -->
+        <td class="px-4 py-3 whitespace-nowrap">{{ product.retail_price }}</td>
+        <!-- Discountable (All) -->
+        <td class="px-4 py-3 whitespace-nowrap">
+            {% if product.discountable_all %}
+                <span class="text-green-600">Yes</span>
+            {% else %}
+                <span class="text-red-600">No</span>
+            {% endif %}
+        </td>
+        <!-- Discountable (Members) -->
+        <td class="px-4 py-3 whitespace-nowrap">
+            {% if product.discountable_members %}
+                <span class="text-green-600">Yes</span>
+            {% else %}
+                <span class="text-red-600">No</span>
+            {% endif %}
+        </td>
+        <!-- Active -->
+        <td class="px-4 py-3 whitespace-nowrap">
+            {% if product.active %}
+                <span class="text-green-600">Active</span>
+            {% else %}
+                <span class="text-red-600">Inactive</span>
+            {% endif %}
+        </td>
+        <!-- Remaining Components -->
+        <td class="px-4 py-3 whitespace-nowrap">
+            {% if product.product_type == 'Article' %}
+                {{ product.remaining_component_stock }}
+            {% else %}
+                N/A
+            {% endif %}
+        </td>
+        <!-- Sellable Sets -->
+        <td class="px-4 py-3 whitespace-nowrap">
+            {% if product.product_type == 'Article' %}
+                {{ product.sellable_sets }}
+            {% else %}
+                N/A
+            {% endif %}
+        </td>
+        <!-- Actions -->
+        <td class="px-4 py-3 whitespace-nowrap flex space-x-2">
+            <button class="edit-button text-blue-600 hover:text-blue-900" data-product-id="{{ product.id }}">
+                Edit
+            </button>
+            <button class="delete-button text-red-600 hover:text-red-900" data-product-id="{{ product.id }}">
+                Delete
+            </button>
+            {% if product.product_type == 'Article' %}
+                <button class="view-components-button text-green-600 hover:text-green-900" data-product-id="{{ product.id }}">
+                    View Components
+                </button>
+            {% endif %}
+        </td>
+    </tr>
+    {% if product.product_type == 'Article' and product.linked_components %}
+        <tr id="linked-components-{{ product.id }}" class="hidden bg-gray-100 dark:bg-[#1a1a1a]">
+            <td colspan="14" class="px-4 py-3">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-200 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
+                                <th class="px-4 py-2">Component Name</th>
+                                <th class="px-4 py-2">Quantity Available</th>
+                                <th class="px-4 py-2">Units per Article</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for component in product.linked_components %}
+                                <tr class="border-b dark:border-gray-600">
+                                    <td class="px-4 py-2">{{ component.item_name }}</td>
+                                    <td class="px-4 py-2">{{ component.quantity }}</td>
+                                    <td class="px-4 py-2">{{ component.units_per_article }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </td>
+        </tr>
+    {% endif %}
 {% endfor %}
