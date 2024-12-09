@@ -451,11 +451,11 @@
         const containerSelect = document.getElementById('container'); // New Container Select
 
         const updateUOMOptions = () => {
-            const containerName = containerSelect.value;
-            const contentType = contentTypeSelect.value;
+            const containerName = containerSelect.value; // Get selected container
+            const contentType = contentTypeSelect.value; // Get selected content type
 
             if (containerName && contentType) {
-                // Use the correct URL and encode parameters
+                // Fetch UOM options dynamically based on container and content type
                 fetch(`${getUOMOptionsURL}?container_id=${encodeURIComponent(containerName)}&content_type=${encodeURIComponent(contentType)}`)
                     .then(response => {
                         if (!response.ok) {
@@ -465,6 +465,7 @@
                     })
                     .then(data => {
                         if (data.status === 'success') {
+                            // Populate UOM dropdown with received options
                             uomSelect.innerHTML = '<option value="">Select UOM</option>';
                             data.uom_options.forEach(uom => {
                                 const option = document.createElement('option');
@@ -472,20 +473,26 @@
                                 option.textContent = uom;
                                 uomSelect.appendChild(option);
                             });
-                            uomSelect.required = true;
+                            uomSelect.required = true; // Make UOM mandatory if options are available
                         } else {
+                            console.warn(data.message || 'No UOM options available.');
                             uomSelect.innerHTML = '<option value="">Select UOM</option>';
-                            uomSelect.required = false;
+                            uomSelect.required = false; // UOM optional if no options
                         }
                     })
                     .catch(error => {
                         console.error('Error fetching UOM options:', error);
+                        uomSelect.innerHTML = '<option value="">Select UOM</option>';
+                        uomSelect.required = false; // Clear UOM dropdown on error
                     });
             } else {
+                // Clear UOM dropdown if no container or content type is selected
                 uomSelect.innerHTML = '<option value="">Select UOM</option>';
                 uomSelect.required = false;
             }
         };
+
+
 
         const toggleLinkedArticle = (productType) => {
             if (productType === 'Component') {

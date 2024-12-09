@@ -26,9 +26,23 @@ class Container(models.Model):
         help_text="A list of content types this container can hold (e.g., ['Liquid', 'Cream'])."
     )
     allowed_uoms = models.JSONField(
-        default=dict,
-        help_text="A dictionary mapping content types to their allowed UOMs (e.g., {'Liquid': ['ml', 'liters']})."
-    )
+    default=lambda: {
+        # Bottle mappings
+        "Liquid": ["ml", "liters"],
+        "Cream": ["gram"],
+        "Syrup": ["gram", "ml"],
+        "Tablet": ["pieces"],
+        "Capsule": ["pieces"],
+        "Oil": ["ml", "drops"],
+
+        # Pack mappings
+        "Powder": ["gram"],
+        "Leaves": ["gram"],
+    },
+    help_text="A dictionary mapping content types to their allowed UOMs (e.g., {'Liquid': ['ml', 'liters']})."
+)
+
+
 
     def __str__(self):
         return self.name

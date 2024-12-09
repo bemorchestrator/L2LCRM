@@ -147,15 +147,43 @@ def get_uom_options(request):
     """Return UOM options for a content type."""
     container_id = request.GET.get('container_id')
     content_type = request.GET.get('content_type')
+
     if container_id and content_type:
         try:
             container = get_object_or_404(Container, id=container_id)
+            
+            # Get allowed UOMs for the content type
             uom_options = container.allowed_uoms.get(content_type, [])
+            
+            # Special handling for container-specific content types
+            if container.name == Container.BOTTLE:
+                if content_type == "Liquid":
+                    uom_options = ["ml", "liters"]
+                elif content_type == "Cream":
+                    uom_options = ["gram"]
+                elif content_type == "Syrup":
+                    uom_options = ["gram", "ml"]
+                elif content_type in ["Tablet", "Capsule"]:
+                    uom_options = ["pieces"]
+                elif content_type == "Oil":
+                    uom_options = ["ml", "drops"]
+            elif container.name == Container.PACK:
+                if content_type == "Powder":
+                    uom_options = ["gram"]
+                elif content_type == "Leaves":
+                    uom_options = ["gram"]
+
             return JsonResponse({'status': 'success', 'uom_options': uom_options})
+        except Container.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Container does not exist.'})
         except Exception as e:
             logger.error(f"Error fetching UOM options: {e}")
-            return JsonResponse({'status': 'error', 'message': 'Invalid container or content type'})
+            return JsonResponse({'status': 'error', 'message': 'An error occurred while fetching UOM options.'})
+    
+    # If container ID or content type is missing
     return JsonResponse({'status': 'error', 'message': 'Container ID or content type not provided.'})
+
+
 
 @login_required
 @require_GET

@@ -5,10 +5,6 @@ from django.core.exceptions import ValidationError
 
 
 class ProductForm(forms.ModelForm):
-    """
-    Form to create or update a product with supplier selection,
-    container selection, and validation for content type and UOM.
-    """
     uom = forms.ChoiceField(choices=[], required=False)  # Initialize with empty choices
 
     class Meta:
@@ -107,26 +103,40 @@ class ProductForm(forms.ModelForm):
         if self.instance and self.instance.product_type == Product.ARTICLE:
             self.fields['linked_article'].widget.attrs['disabled'] = True
 
-        # Define UOM choices based on container and content_type
+        # Initialize UOM mappings
         self.uom_mappings = {}
-        if self.instance and self.instance.container:
-            container = self.instance.container
-            self.uom_mappings = container.allowed_uoms
-        elif 'container' in self.data:
+        container = self.instance.container if self.instance else None
+
+        # Fetch the container from POST data if present
+        if 'container' in self.data:
             try:
                 container = Container.objects.get(pk=self.data['container'])
-                self.uom_mappings = container.allowed_uoms
             except Container.DoesNotExist:
-                pass
+                container = None
 
-        # Set initial UOM choices based on content_type and container
+        # Populate UOM mappings from container if valid
+        if container:
+            self.uom_mappings = container.allowed_uoms
+
+        # Get the content type from POST data or the instance
         content_type = self.data.get('content_type', self.instance.content_type if self.instance.pk else None)
-        if content_type in self.uom_mappings:
-            self.fields['uom'].choices = [(uom, uom) for uom in self.uom_mappings.get(content_type, [])]
+
+        # Dynamically set UOM choices based on container and content type
+        if content_type and container:
+            allowed_uoms = self.uom_mappings.get(content_type, [])
+
+            # Special handling for "Bottle" container with "Capsule" or "Tablet" content types
+            if container.name == Container.BOTTLE and content_type in ['Capsule', 'Tablet']:
+                allowed_uoms = ['Pieces']
+
+            self.fields['uom'].choices = [(uom, uom) for uom in allowed_uoms]
             self.fields['uom'].required = True
         else:
+            # Fallback: Clear UOM choices if container or content type is missing
             self.fields['uom'].choices = []
             self.fields['uom'].required = False
+
+
 
     def clean(self):
         cleaned_data = super().clean()
