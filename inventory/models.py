@@ -1,6 +1,9 @@
 from django.db import models
-from suppliers.models import Supplier  # Import Supplier from the suppliers app
+from suppliers.models import Supplier
 from django.core.exceptions import ValidationError
+
+def default_allowed_uoms():
+    return {}
 
 class Container(models.Model):
     BOTTLE = 'Bottle'
@@ -26,27 +29,44 @@ class Container(models.Model):
         help_text="A list of content types this container can hold (e.g., ['Liquid', 'Cream'])."
     )
     allowed_uoms = models.JSONField(
-    default=lambda: {
-        # Bottle mappings
-        "Liquid": ["ml", "liters"],
-        "Cream": ["gram"],
-        "Syrup": ["gram", "ml"],
-        "Tablet": ["pieces"],
-        "Capsule": ["pieces"],
-        "Oil": ["ml", "drops"],
+        default=dict,
+        help_text="A dictionary mapping content types to their allowed UOMs."
+    )
 
-        # Pack mappings
-        "Powder": ["gram"],
-        "Leaves": ["gram"],
-    },
-    help_text="A dictionary mapping content types to their allowed UOMs (e.g., {'Liquid': ['ml', 'liters']})."
-)
+    def save(self, *args, **kwargs):
+        if not self.content_types:
+            if self.name == self.BOTTLE:
+                self.content_types = ["Liquid", "Cream", "Syrup", "Tablet", "Capsule", "Oil"]
+            elif self.name == self.PACK:
+                self.content_types = ["Powder", "Leaves"]
+            elif self.name == self.BOX:
+                self.content_types = []
+            elif self.name == self.BAG:
+                self.content_types = []
 
-
+        if not self.allowed_uoms:
+            if self.name == self.BOTTLE:
+                self.allowed_uoms = {
+                    "Liquid": ["ml", "liters"],
+                    "Cream": ["gram"],
+                    "Syrup": ["gram", "ml"],
+                    "Tablet": ["pieces"],
+                    "Capsule": ["pieces"],
+                    "Oil": ["ml", "drops"]
+                }
+            elif self.name == self.PACK:
+                self.allowed_uoms = {
+                    "Powder": ["gram"],
+                    "Leaves": ["gram"]
+                }
+            elif self.name == self.BOX:
+                self.allowed_uoms = {}
+            elif self.name == self.BAG:
+                self.allowed_uoms = {}
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
-
 
 
 class Product(models.Model):
@@ -65,6 +85,7 @@ class Product(models.Model):
         ('Syrup', 'Syrup'),
         ('Cream', 'Cream'),
         ('Leaves', 'Leaves'),
+        ('Oil', 'Oil'),
         ('Other', 'Other'),
     ]
 
@@ -79,12 +100,14 @@ class Product(models.Model):
     )
     currency_code = models.CharField(max_length=3, null=True, blank=True)
     retail_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    uom = models.CharField(max_length=20, null=True, blank=True)  # Unit of Measurement
+    uom = models.CharField(max_length=20, null=True, blank=True)
     discountable_all = models.BooleanField(null=True, blank=True, default=False)
     discountable_members = models.BooleanField(null=True, blank=True, default=True)
     active = models.BooleanField(null=True, blank=True, default=False)
     photo = models.ImageField(upload_to='product_photos/', null=True, blank=True)
-    quantity = models.PositiveIntegerField(null=True, blank=True, default=0)
+    quantity = models.PositiveIntegerField(null=True, blank=True, default=0,
+        help_text="For Articles, this is the number of containers. For Components, this is the count of pieces/units."
+    )
     product_type = models.CharField(
         max_length=10,
         choices=PRODUCT_TYPE_CHOICES,
@@ -98,7 +121,7 @@ class Product(models.Model):
         blank=True,
         limit_choices_to={'product_type': ARTICLE},
         related_name='components',
-        help_text="Link this component to an article product."
+        help_text="Link this component to an Article product."
     )
     content_type = models.CharField(
         max_length=20,
@@ -115,38 +138,35 @@ class Product(models.Model):
         null=True, blank=True, default=1,
         help_text="Number of units of this component required to create one article."
     )
+    pieces_per_container = models.PositiveIntegerField(
+        null=True, blank=True, default=1,
+        help_text="Number of pieces per single container (for Articles). For Components, this is typically not used."
+    )
 
     def clean(self):
-        # Validate the container compatibility
         if self.container:
-            # Check if content type is allowed in the container
             if self.content_type not in self.container.content_types:
                 raise ValidationError({
                     'content_type': f"Content type '{self.content_type}' is not allowed in the container '{self.container.name}'."
                 })
-            # Check if the UOM is allowed for the content type in the container
             allowed_uoms = self.container.allowed_uoms.get(self.content_type, [])
-            if self.uom not in allowed_uoms:
+            if self.uom and self.uom not in allowed_uoms:
                 raise ValidationError({
                     'uom': f"UOM '{self.uom}' is not valid for content type '{self.content_type}' in container '{self.container.name}'. Allowed UOMs: {', '.join(allowed_uoms)}."
                 })
 
-        # Custom content type validation
         if self.content_type == 'Other' and not self.custom_content_type:
             raise ValidationError({
                 'custom_content_type': "This field is required when 'Other' is selected as content type."
             })
 
-        # Component-Article relationship validation
         if self.product_type == self.COMPONENT and not self.linked_article:
             raise ValidationError("A Component must be linked to an Article.")
         if self.product_type == self.ARTICLE and self.linked_article:
             raise ValidationError("An Article cannot be linked to another Article.")
 
-        # Validate integer quantities for specific content types
         if self.content_type in ['Tablet', 'Capsule'] and not isinstance(self.quantity, int):
             raise ValidationError({'quantity': "Quantity must be an integer for Capsules and Tablets."})
-
         super().clean()
 
     def get_total_component_stock(self):
@@ -155,16 +175,17 @@ class Product(models.Model):
         return None
 
     def calculate_sellable_sets(self):
-        """Calculate sellable sets for Articles based on available component quantities."""
         if self.product_type == self.ARTICLE:
             components = self.components.all()
             if not components.exists():
+                # No components: sellable sets = quantity (number of containers)
                 return self.quantity
             sellable_sets = float('inf')
             for component in components:
                 if component.quantity and component.units_per_article > 0:
                     possible_sets = component.quantity // component.units_per_article
-                    sellable_sets = min(sellable_sets, possible_sets)
+                    if possible_sets < sellable_sets:
+                        sellable_sets = possible_sets
                 else:
                     sellable_sets = 0
                     break
@@ -172,7 +193,6 @@ class Product(models.Model):
         return None
 
     def update_component_quantities(self, sold_articles):
-        """Update component quantities when articles are sold."""
         if self.product_type == self.ARTICLE:
             components = self.components.all()
             for component in components:
@@ -186,6 +206,9 @@ class Product(models.Model):
                             f"Not enough stock for component: {component.item_name}. "
                             f"Required: {required_units}, Available: {component.quantity}."
                         )
+
+    def get_total_containers_available(self):
+        return self.quantity
 
     def __str__(self):
         return f"{self.item_name} ({self.get_product_type_display()})"

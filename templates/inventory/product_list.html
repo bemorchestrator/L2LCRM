@@ -4,14 +4,12 @@
 <section>
     <div class="container mx-auto px-4">
         <div class="relative overflow-hidden bg-white shadow-md sm:rounded-lg dark:bg-[#1a1a1a]">
-            <!-- Header with stats and search -->
             <div class="flex flex-col px-4 py-3 space-y-3 lg:flex-row lg:items-center lg:justify-between lg:space-y-0 lg:space-x-4">
                 <div class="flex items-center flex-1 space-x-4">
                     <h5 class="text-lg font-semibold">
                         <span class="text-gray-500">All Products:</span>
                         <span class="dark:text-white">{{ page_obj.paginator.count }}</span>
                     </h5>
-                    <!-- Search Input -->
                     <div class="relative w-full max-w-sm">
                         <input type="text" id="searchProducts" placeholder="Search products..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -21,27 +19,22 @@
                         </div>
                     </div>
                 </div>
-                <!-- Add Product Button -->
                 <div class="flex-shrink-0">
                     <button id="openModalButton" class="btn btn-primary px-4 py-2 text-white bg-teal-500 rounded-lg hover:bg-green-600">
                         Add
                     </button>
                 </div>
             </div>
-
-            <!-- Product Table -->
             <div class="overflow-x-auto">
                 <table class="min-w-full text-sm text-left text-gray-500 dark:text-gray-400 bg-white">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-[#131313] dark:text-gray-400">
                         <tr>
-                            <!-- Checkbox Header -->
                             <th scope="col" class="p-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <input id="checkbox-all" type="checkbox" class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
                                     <label for="checkbox-all" class="sr-only">Select all products</label>
                                 </div>
                             </th>
-                            <!-- Image Header -->
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Image</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Item Name</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Quantity</th>
@@ -53,21 +46,19 @@
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Discountable (Members)</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Active</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Remaining Components</th>
-                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Sellable Sets</th> <!-- New Column -->
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Sellable Sets</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="productTableBody">
                         {% for product in products %}
                             <tr class="border-b dark:border-gray-700" id="product-row-{{ product.id }}">
-                                <!-- Checkbox -->
                                 <td class="p-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <input type="checkbox" value="{{ product.id }}" class="product-checkbox w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
                                         <label class="sr-only">Select product</label>
                                     </div>
                                 </td>
-                                <!-- Image -->
                                 <td class="px-4 py-3 whitespace-nowrap">
                                     {% if product.photo_url %}
                                         <img src="{{ product.photo_url }}" alt="{{ product.item_name }}" class="w-12 h-12 object-cover rounded">
@@ -75,19 +66,17 @@
                                         <span class="text-gray-500">No Image</span>
                                     {% endif %}
                                 </td>
-                                <!-- Item Name -->
                                 <td class="px-4 py-3 whitespace-nowrap">{{ product.item_name }}</td>
-                                <!-- Quantity -->
-                                <td class="px-4 py-3 whitespace-nowrap">{{ product.quantity }}</td>
-                                <!-- UOM -->
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    {{ product.quantity }}
+                                    {% if product.product_type == 'Article' and product.pieces_per_container %}
+                                        <small class="text-gray-500">({{ product.quantity }} containers)</small>
+                                    {% endif %}
+                                </td>
                                 <td class="px-4 py-3 whitespace-nowrap">{{ product.uom }}</td>
-                                <!-- Supplier -->
                                 <td class="px-4 py-3 whitespace-nowrap">{{ product.supplier_name }}</td>
-                                <!-- Currency -->
                                 <td class="px-4 py-3 whitespace-nowrap">{{ product.currency_code }}</td>
-                                <!-- Retail Price -->
                                 <td class="px-4 py-3 whitespace-nowrap">{{ product.retail_price }}</td>
-                                <!-- Discountable (All) -->
                                 <td class="px-4 py-3 whitespace-nowrap">
                                     {% if product.discountable_all %}
                                         <span class="text-green-600">Yes</span>
@@ -95,7 +84,6 @@
                                         <span class="text-red-600">No</span>
                                     {% endif %}
                                 </td>
-                                <!-- Discountable (Members) -->
                                 <td class="px-4 py-3 whitespace-nowrap">
                                     {% if product.discountable_members %}
                                         <span class="text-green-600">Yes</span>
@@ -103,7 +91,6 @@
                                         <span class="text-red-600">No</span>
                                     {% endif %}
                                 </td>
-                                <!-- Active -->
                                 <td class="px-4 py-3 whitespace-nowrap">
                                     {% if product.active %}
                                         <span class="text-green-600">Active</span>
@@ -111,7 +98,6 @@
                                         <span class="text-red-600">Inactive</span>
                                     {% endif %}
                                 </td>
-                                <!-- Remaining Components -->
                                 <td class="px-4 py-3 whitespace-nowrap">
                                     {% if product.product_type == 'Article' %}
                                         {{ product.remaining_component_stock }}
@@ -119,7 +105,6 @@
                                         N/A
                                     {% endif %}
                                 </td>
-                                <!-- Sellable Sets -->
                                 <td class="px-4 py-3 whitespace-nowrap">
                                     {% if product.product_type == 'Article' %}
                                         {{ product.sellable_sets }}
@@ -127,7 +112,6 @@
                                         N/A
                                     {% endif %}
                                 </td>
-                                <!-- Actions -->
                                 <td class="px-4 py-3 whitespace-nowrap flex space-x-2">
                                     <button class="edit-button text-blue-600 hover:text-blue-900" data-product-id="{{ product.id }}">
                                         Edit
@@ -150,7 +134,7 @@
                                                 <thead class="text-xs text-gray-700 uppercase bg-gray-200 dark:bg-gray-700 dark:text-gray-400">
                                                     <tr>
                                                         <th class="px-4 py-2">Component Name</th>
-                                                        <th class="px-4 py-2">Quantity Available</th>
+                                                        <th class="px-4 py-2">Quantity (pieces)</th>
                                                         <th class="px-4 py-2">Units per Article</th>
                                                     </tr>
                                                 </thead>
@@ -172,8 +156,6 @@
                     </tbody>
                 </table>
             </div>
-
-            <!-- Pagination Controls -->
             <div class="flex items-center justify-between px-4 py-3 bg-white dark:bg-[#1a1a1a] border-t border-gray-200 dark:border-gray-700 sm:px-6">
                 <div class="flex flex-1 justify-between sm:hidden">
                     {% if page_obj.has_previous %}
@@ -206,32 +188,14 @@
                             {% if page_obj.has_previous %}
                                 <a href="?page=1" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700" aria-label="First">
                                     <span class="sr-only">First</span>
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
-                                    </svg>
                                 </a>
                                 <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700" aria-label="Previous">
                                     <span class="sr-only">Previous</span>
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd" d="M12.293 16.707a1 1 0 010-1.414L15.586 12H4a1 1 0 110-2h11.586l-3.293-3.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                    </svg>
                                 </a>
                             {% else %}
-                                <span class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 cursor-not-allowed" aria-disabled="true" aria-label="First">
-                                    <span class="sr-only">First</span>
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
-                                    </svg>
-                                </span>
-                                <span class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 cursor-not-allowed" aria-disabled="true" aria-label="Previous">
-                                    <span class="sr-only">Previous</span>
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd" d="M12.293 16.707a1 1 0 010-1.414L15.586 12H4a1 1 0 110-2h11.586l-3.293-3.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                    </svg>
-                                </span>
+                                <span class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 cursor-not-allowed"></span>
+                                <span class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 cursor-not-allowed"></span>
                             {% endif %}
-
-                            <!-- Page Numbers -->
                             {% for num in page_obj.paginator.page_range %}
                                 {% if page_obj.number == num %}
                                     <span aria-current="page">
@@ -245,33 +209,12 @@
                                     </a>
                                 {% endif %}
                             {% endfor %}
-
                             {% if page_obj.has_next %}
-                                <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700" aria-label="Next">
-                                    <span class="sr-only">Next</span>
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 010-1.414L11.414 10 7.707 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                    </svg>
-                                </a>
-                                <a href="?page={{ page_obj.paginator.num_pages }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700" aria-label="Last">
-                                    <span class="sr-only">Last</span>
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
-                                    </svg>
-                                </a>
+                                <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700" aria-label="Next"></a>
+                                <a href="?page={{ page_obj.paginator.num_pages }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700" aria-label="Last"></a>
                             {% else %}
-                                <span class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 cursor-not-allowed" aria-disabled="true" aria-label="Next">
-                                    <span class="sr-only">Next</span>
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 010-1.414L11.414 10 7.707 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                    </svg>
-                                </span>
-                                <span class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 cursor-not-allowed rounded-r-md" aria-disabled="true" aria-label="Last">
-                                    <span class="sr-only">Last</span>
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
-                                    </svg>
-                                </span>
+                                <span class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 cursor-not-allowed"></span>
+                                <span class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 cursor-not-allowed rounded-r-md"></span>
                             {% endif %}
                         </nav>
                     </div>
@@ -281,9 +224,7 @@
     </div>
 </section>
 
-<!-- Add/Edit Product Modal -->
 <div id="addProductModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-    <!-- Modal Content -->
     <div class="bg-white dark:bg-[#131313] rounded-lg shadow-lg w-full max-w-2xl mx-auto max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center px-4 py-3 border-b dark:border-gray-700">
             <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200" id="modalTitle">
@@ -297,11 +238,9 @@
         </div>
         <form method="POST" enctype="multipart/form-data" id="productForm" action="{% url 'add_product' %}">
             {% csrf_token %}
-            <!-- Hidden input for product ID (used for editing) -->
             <input type="hidden" name="product_id" id="product_id" value="">
             <div class="px-4 py-5">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Product Type -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product Type</label>
                         <select id="product_type" name="product_type" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
@@ -310,25 +249,19 @@
                             <option value="Component">Component</option>
                         </select>
                     </div>
-                    
-                    <!-- Linked Article (Visible only if Product Type is Component) -->
                     <div id="linked_article_container" class="hidden">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Linked Article</label>
-                        <select name="linked_article" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                        <select name="linked_article" id="linked_article" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
                             <option value="">Select Article</option>
                             {% for article in articles %}
                                 <option value="{{ article.id }}">{{ article.item_name }}</option>
                             {% endfor %}
                         </select>
                     </div>
-
-                    <!-- Item Name -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Item Name</label>
                         <input type="text" name="item_name" id="item_name" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
                     </div>
-
-                    <!-- Supplier -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Supplier</label>
                         <select name="supplier" id="supplier" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
@@ -338,8 +271,6 @@
                             {% endfor %}
                         </select>
                     </div>
-
-                    <!-- Container -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Container</label>
                         <select name="container" id="container" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
@@ -349,21 +280,14 @@
                             {% endfor %}
                         </select>
                     </div>
-
-
-                    <!-- Currency Code -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Currency Code</label>
                         <input type="text" name="currency_code" id="currency_code" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="e.g., USD" required>
                     </div>
-
-                    <!-- Retail Price -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Retail Price</label>
                         <input type="number" name="retail_price" id="retail_price" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" step="0.01" required>
                     </div>
-
-                    <!-- Content Type -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Content Type</label>
                         <select id="content_type" name="content_type" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
@@ -373,37 +297,52 @@
                             <option value="Liquid">Liquid</option>
                             <option value="Cream">Cream</option>
                             <option value="Leaves">Leaves</option>
+                            <option value="Syrup">Syrup</option>
+                            <option value="Oil">Oil</option>
                             <option value="Other">Other</option>
                         </select>
                     </div>
-
-                    <!-- UOM -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">UOM</label>
                         <select id="uom" name="uom" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
                             <option value="">Select UOM</option>
-                            {% for uom in uomMappings %}
-                                <option value="{{ uom }}">{{ uom }}</option>
-                            {% endfor %}
                         </select>
                     </div>
-
-                    <!-- Custom Content Type -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Custom Content Type</label>
                         <input type="text" name="custom_content_type" id="custom_content_type" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
                     </div>
-
-                    <!-- Photo -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Photo</label>
                         <input type="file" name="photo" id="photo" class="block w-full text-gray-900 bg-gray-100 rounded-md shadow-sm dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
                     </div>
-
-                    <!-- Quantity -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Quantity</label>
-                        <input type="number" name="quantity" id="quantity" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                        <input type="number" name="quantity" id="quantity" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Article: #containers, Component: #pieces">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Pieces per Container (Articles)</label>
+                        <input type="number" name="pieces_per_container" id="pieces_per_container" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="For Articles only">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Containers (if Article)</label>
+                        <input type="number" name="containers" id="containers" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Number of containers for articles">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Units per Article (if Component)</label>
+                        <input type="number" name="units_per_article" id="units_per_article" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" name="discountable_all" id="discountable_all" class="form-check-input mr-2">
+                        <label for="discountable_all" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Discountable (All)</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" name="discountable_members" id="discountable_members" class="form-check-input mr-2" checked>
+                        <label for="discountable_members" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Discountable (Members)</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" name="active" id="active" class="form-check-input mr-2">
+                        <label for="active" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Active</label>
                     </div>
                 </div>
             </div>
@@ -421,104 +360,94 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Define URL variables using Django's template tags -->
 <script>
-    // URLs for AJAX requests
     const getUOMOptionsURL = "{% url 'get_uom_options' %}";
     const editProductURLTemplate = "{% url 'edit_product' 0 %}".replace('0', 'PRODUCT_ID_PLACEHOLDER');
     const updateProductURLTemplate = "{% url 'update_product' 0 %}".replace('0', 'PRODUCT_ID_PLACEHOLDER');
     const deleteProductURLTemplate = "{% url 'delete_product' 0 %}".replace('0', 'PRODUCT_ID_PLACEHOLDER');
     const searchProductsURL = "{% url 'search_products' %}";
+    const getArticleDataURL = "{% url 'get_article_data' %}";
     const csrfToken = "{{ csrf_token }}";
 </script>
 
 <script>
-    const uomMappings = {
-        'Tablet': ['Pieces'],
-        'Capsule': ['Pieces'],
-        'Powder': ['Grams', 'Kilograms'],
-        'Liquid': ['ml', 'Liters'],
-        'Cream': ['Grams'],
-        'Leaves': ['Grams'],
-        'Other': ['Custom']
-    };
-
     document.addEventListener('DOMContentLoaded', () => {
         const contentTypeSelect = document.getElementById('content_type');
         const uomSelect = document.getElementById('uom');
         const productTypeSelect = document.getElementById('product_type');
         const linkedArticleContainer = document.getElementById('linked_article_container');
-        const containerSelect = document.getElementById('container'); // New Container Select
+        const containerSelect = document.getElementById('container');
+        const linkedArticleSelect = document.getElementById('linked_article');
+        const unitsPerArticleInput = document.getElementById('units_per_article');
 
         const updateUOMOptions = () => {
-            const containerName = containerSelect.value; // Get selected container
-            const contentType = contentTypeSelect.value; // Get selected content type
+            const containerId = containerSelect.value;
+            const contentType = contentTypeSelect.value;
 
-            if (containerName && contentType) {
-                // Fetch UOM options dynamically based on container and content type
-                fetch(`${getUOMOptionsURL}?container_id=${encodeURIComponent(containerName)}&content_type=${encodeURIComponent(contentType)}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
+            if (containerId && contentType) {
+                fetch(`${getUOMOptionsURL}?container_id=${encodeURIComponent(containerId)}&content_type=${encodeURIComponent(contentType)}`)
+                    .then(response => response.json())
                     .then(data => {
+                        uomSelect.innerHTML = '<option value="">Select UOM</option>';
                         if (data.status === 'success') {
-                            // Populate UOM dropdown with received options
-                            uomSelect.innerHTML = '<option value="">Select UOM</option>';
                             data.uom_options.forEach(uom => {
                                 const option = document.createElement('option');
                                 option.value = uom;
                                 option.textContent = uom;
                                 uomSelect.appendChild(option);
                             });
-                            uomSelect.required = true; // Make UOM mandatory if options are available
+                            uomSelect.required = true;
                         } else {
-                            console.warn(data.message || 'No UOM options available.');
                             uomSelect.innerHTML = '<option value="">Select UOM</option>';
-                            uomSelect.required = false; // UOM optional if no options
+                            uomSelect.required = false;
                         }
                     })
                     .catch(error => {
                         console.error('Error fetching UOM options:', error);
                         uomSelect.innerHTML = '<option value="">Select UOM</option>';
-                        uomSelect.required = false; // Clear UOM dropdown on error
+                        uomSelect.required = false;
                     });
             } else {
-                // Clear UOM dropdown if no container or content type is selected
                 uomSelect.innerHTML = '<option value="">Select UOM</option>';
                 uomSelect.required = false;
             }
         };
 
-
-
         const toggleLinkedArticle = (productType) => {
             if (productType === 'Component') {
                 linkedArticleContainer.classList.remove('hidden');
-                // Make it required
-                document.querySelector('select[name="linked_article"]').setAttribute('required', 'required');
+                linkedArticleSelect.setAttribute('required', 'required');
             } else {
                 linkedArticleContainer.classList.add('hidden');
-                document.querySelector('select[name="linked_article"]').removeAttribute('required');
+                linkedArticleSelect.removeAttribute('required');
             }
         };
 
-        // Initialize UOM options based on current container and content type
-        updateUOMOptions();
-
-        // Event listeners for container and content type changes
-        containerSelect.addEventListener('change', updateUOMOptions);
-        contentTypeSelect.addEventListener('change', updateUOMOptions);
         productTypeSelect.addEventListener('change', function () {
             toggleLinkedArticle(this.value);
         });
 
-        // Initialize linked_article visibility based on current product type
+        containerSelect.addEventListener('change', updateUOMOptions);
+        contentTypeSelect.addEventListener('change', updateUOMOptions);
+        updateUOMOptions();
         toggleLinkedArticle(productTypeSelect.value);
 
-        // Handle View Components Button Click
+        // For Components: When a linked article is chosen, fetch the article data and set units_per_article
+        linkedArticleSelect.addEventListener('change', function() {
+            const articleId = this.value;
+            if (productTypeSelect.value === 'Component' && articleId) {
+                fetch(`${getArticleDataURL}?article_id=${encodeURIComponent(articleId)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Automatically set units_per_article to article's pieces_per_container
+                        unitsPerArticleInput.value = data.article_data.pieces_per_container;
+                    }
+                })
+                .catch(err => console.error('Error fetching article data:', err));
+            }
+        });
+
         document.querySelectorAll('.view-components-button').forEach(button => {
             button.addEventListener('click', function () {
                 const productId = this.getAttribute('data-product-id');
@@ -534,7 +463,6 @@
 </script>
 
 <script>
-    // Get elements
     const modal = document.getElementById('addProductModal');
     const openModalButton = document.getElementById('openModalButton');
     const closeModalButton = document.getElementById('closeModalButton');
@@ -543,54 +471,42 @@
     const modalTitle = document.getElementById('modalTitle');
     const submitButton = document.getElementById('submitButton');
     const productIdInput = document.getElementById('product_id');
+    const productTypeSelect = document.getElementById('product_type');
+    const linkedArticleContainer = document.getElementById('linked_article_container');
+    const uomSelect = document.getElementById('uom');
 
-    // Function to open modal
     function openModal() {
         modal.classList.remove('hidden');
-        // Reset form to add mode
         modalTitle.textContent = 'Add New Product';
         submitButton.textContent = 'Add Product';
         productForm.action = "{% url 'add_product' %}";
         productIdInput.value = '';
         productForm.reset();
-        // Hide linked_article_container if necessary
-        const linkedArticleContainer = document.getElementById('linked_article_container');
         linkedArticleContainer.classList.add('hidden');
-        // Reset UOM options
-        const uomSelect = document.getElementById('uom');
         uomSelect.innerHTML = '<option value="">Select UOM</option>';
     }
 
-    // Function to close modal
     function closeModal() {
         modal.classList.add('hidden');
         productForm.reset();
-        // Reset form to add mode
         modalTitle.textContent = 'Add New Product';
         submitButton.textContent = 'Add Product';
         productForm.action = "{% url 'add_product' %}";
         productIdInput.value = '';
-        // Hide linked_article_container if necessary
-        const linkedArticleContainer = document.getElementById('linked_article_container');
         linkedArticleContainer.classList.add('hidden');
-        // Reset UOM options
-        const uomSelect = document.getElementById('uom');
         uomSelect.innerHTML = '<option value="">Select UOM</option>';
     }
 
-    // Event listeners for opening and closing modal
     openModalButton.addEventListener('click', openModal);
     closeModalButton.addEventListener('click', closeModal);
     cancelButton.addEventListener('click', closeModal);
 
-    // Close modal when clicking outside the modal content
     modal.addEventListener('click', function(e) {
         if (e.target === modal) {
             closeModal();
         }
     });
 
-    // Handle Edit Button Click
     document.querySelectorAll('.edit-button').forEach(button => {
         button.addEventListener('click', function () {
             const productId = this.getAttribute('data-product-id');
@@ -604,31 +520,50 @@
             .then(data => {
                 if (data.status === 'success') {
                     const product = data.product;
-                    // Fill the form with product data
-                    document.getElementById('product_type').value = product.product_type;
-                    // Trigger change event to update UOM and linked article visibility
-                    document.getElementById('product_type').dispatchEvent(new Event('change'));
+                    productTypeSelect.value = product.product_type;
+                    productTypeSelect.dispatchEvent(new Event('change'));
                     document.getElementById('item_name').value = product.item_name;
                     document.getElementById('supplier').value = product.supplier_id;
-                    document.getElementById('container').value = product.container_id; // Set the container value
+                    document.getElementById('container').value = product.container_id;
                     document.getElementById('currency_code').value = product.currency_code;
                     document.getElementById('retail_price').value = product.retail_price;
                     document.getElementById('content_type').value = product.content_type;
-                    // After setting container and content type, UOM options should update via event listeners
                     document.getElementById('uom').value = product.uom;
                     document.getElementById('custom_content_type').value = product.custom_content_type;
                     document.getElementById('quantity').value = product.quantity;
+                    document.getElementById('pieces_per_container').value = product.pieces_per_container;
+
                     if (product.product_type === 'Component') {
                         document.querySelector('select[name="linked_article"]').value = product.linked_article_id;
+                        linkedArticleContainer.classList.remove('hidden');
+                        const articleId = product.linked_article_id;
+                        if (articleId) {
+                            // Fetch article data and set units_per_article
+                            fetch(`${getArticleDataURL}?article_id=${encodeURIComponent(articleId)}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.status === 'success') {
+                                    // Set units_per_article from pieces_per_container
+                                    document.getElementById('units_per_article').value = data.article_data.pieces_per_container;
+                                }
+                            })
+                            .catch(err => {
+                                console.error('Error fetching article data:', err);
+                            });
+                        }
+                    } else {
+                        linkedArticleContainer.classList.add('hidden');
                     }
-                    // Set the form action to update URL
+
+                    document.getElementById('units_per_article').value = product.units_per_article ? product.units_per_article : '';
+                    document.getElementById('discountable_all').checked = product.discountable_all ? true : false;
+                    document.getElementById('discountable_members').checked = product.discountable_members ? true : false;
+                    document.getElementById('active').checked = product.active ? true : false;
+
                     productForm.action = updateProductURLTemplate.replace('PRODUCT_ID_PLACEHOLDER', productId);
-                    // Set the hidden product_id input
                     productIdInput.value = productId;
-                    // Update modal title and submit button text
                     modalTitle.textContent = 'Edit Product';
                     submitButton.textContent = 'Save Changes';
-                    // Open the modal
                     modal.classList.remove('hidden');
                 } else {
                     alert(data.message);
@@ -641,7 +576,6 @@
         });
     });
 
-    // Handle Delete Button Click
     document.querySelectorAll('.delete-button').forEach(button => {
         button.addEventListener('click', function () {
             const productId = this.getAttribute('data-product-id');
@@ -659,12 +593,10 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        // Remove the product row from the table
                         const row = document.getElementById(`product-row-${productId}`);
                         if (row) {
                             row.remove();
                         }
-                        // Also remove the linked components row if visible
                         const componentsRow = document.getElementById(`linked-components-${productId}`);
                         if (componentsRow) {
                             componentsRow.remove();
@@ -682,7 +614,6 @@
         });
     });
 
-    // Handle Search Input (Optional: Implement autocomplete or live search)
     const searchInput = document.getElementById('searchProducts');
     searchInput.addEventListener('input', function () {
         const query = this.value.trim();
@@ -693,16 +624,18 @@
         })
         .then(response => response.json())
         .then(data => {
+            const tbody = document.getElementById('productTableBody');
             if (data.status === 'success') {
-                const tbody = document.getElementById('productTableBody');
-                tbody.innerHTML = ''; // Clear existing rows
+                tbody.innerHTML = '';
+                if (data.products.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="14" class="px-4 py-3 text-center">No products found.</td></tr>';
+                    return;
+                }
                 data.products.forEach(product => {
-                    // Construct table rows dynamically
                     const tr = document.createElement('tr');
                     tr.classList.add('border-b', 'dark:border-gray-700');
                     tr.id = `product-row-${product.id}`;
 
-                    // Checkbox Cell
                     const checkboxTd = document.createElement('td');
                     checkboxTd.classList.add('p-4', 'whitespace-nowrap');
                     checkboxTd.innerHTML = `
@@ -713,7 +646,6 @@
                     `;
                     tr.appendChild(checkboxTd);
 
-                    // Image Cell
                     const imageTd = document.createElement('td');
                     imageTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
                     if (product.photo_url) {
@@ -723,73 +655,68 @@
                     }
                     tr.appendChild(imageTd);
 
-                    // Item Name Cell
                     const itemNameTd = document.createElement('td');
                     itemNameTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
                     itemNameTd.textContent = product.item_name;
                     tr.appendChild(itemNameTd);
 
-                    // Quantity Cell
                     const quantityTd = document.createElement('td');
                     quantityTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
                     quantityTd.textContent = product.quantity;
+                    if (product.product_type === 'Article' && product.pieces_per_container) {
+                        const small = document.createElement('small');
+                        small.classList.add('text-gray-500');
+                        small.textContent = ` (${product.quantity} containers)`;
+                        quantityTd.appendChild(document.createTextNode(' '));
+                        quantityTd.appendChild(small);
+                    }
                     tr.appendChild(quantityTd);
 
-                    // UOM Cell
                     const uomTd = document.createElement('td');
                     uomTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
                     uomTd.textContent = product.uom;
                     tr.appendChild(uomTd);
 
-                    // Supplier Cell
                     const supplierTd = document.createElement('td');
                     supplierTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
                     supplierTd.textContent = product.supplier_name;
                     tr.appendChild(supplierTd);
 
-                    // Currency Code Cell
                     const currencyTd = document.createElement('td');
                     currencyTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
                     currencyTd.textContent = product.currency_code;
                     tr.appendChild(currencyTd);
 
-                    // Retail Price Cell
                     const retailPriceTd = document.createElement('td');
                     retailPriceTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
                     retailPriceTd.textContent = product.retail_price;
                     tr.appendChild(retailPriceTd);
 
-                    // Discountable (All) Cell
                     const discountAllTd = document.createElement('td');
                     discountAllTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
                     discountAllTd.innerHTML = product.discountable_all ? `<span class="text-green-600">Yes</span>` : `<span class="text-red-600">No</span>`;
                     tr.appendChild(discountAllTd);
 
-                    // Discountable (Members) Cell
                     const discountMembersTd = document.createElement('td');
                     discountMembersTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
                     discountMembersTd.innerHTML = product.discountable_members ? `<span class="text-green-600">Yes</span>` : `<span class="text-red-600">No</span>`;
                     tr.appendChild(discountMembersTd);
 
-                    // Active Cell
                     const activeTd = document.createElement('td');
                     activeTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
                     activeTd.innerHTML = product.active ? `<span class="text-green-600">Active</span>` : `<span class="text-red-600">Inactive</span>`;
                     tr.appendChild(activeTd);
 
-                    // Remaining Components Cell
                     const remainingComponentsTd = document.createElement('td');
                     remainingComponentsTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
                     remainingComponentsTd.textContent = product.remaining_component_stock;
                     tr.appendChild(remainingComponentsTd);
 
-                    // Sellable Sets Cell
                     const sellableSetsTd = document.createElement('td');
                     sellableSetsTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
                     sellableSetsTd.textContent = product.sellable_sets;
                     tr.appendChild(sellableSetsTd);
 
-                    // Actions Cell
                     const actionsTd = document.createElement('td');
                     actionsTd.classList.add('px-4', 'py-3', 'whitespace-nowrap', 'flex', 'space-x-2');
                     actionsTd.innerHTML = `
@@ -807,7 +734,6 @@
 
                     tbody.appendChild(tr);
 
-                    // If product has linked components, add a hidden row
                     if (product.product_type === 'Article' && product.linked_components.length > 0) {
                         const componentsTr = document.createElement('tr');
                         componentsTr.id = `linked-components-${product.id}`;
@@ -819,7 +745,7 @@
                                         <thead class="text-xs text-gray-700 uppercase bg-gray-200 dark:bg-gray-700 dark:text-gray-400">
                                             <tr>
                                                 <th class="px-4 py-2">Component Name</th>
-                                                <th class="px-4 py-2">Quantity Available</th>
+                                                <th class="px-4 py-2">Quantity (pieces)</th>
                                                 <th class="px-4 py-2">Units per Article</th>
                                             </tr>
                                         </thead>
@@ -840,8 +766,6 @@
                     }
                 });
             } else {
-                // If not successful, you might want to clear the table or show a message
-                const tbody = document.getElementById('productTableBody');
                 tbody.innerHTML = '<tr><td colspan="14" class="px-4 py-3 text-center">No products found.</td></tr>';
             }
         })

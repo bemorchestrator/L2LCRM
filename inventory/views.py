@@ -13,7 +13,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 def _get_product_data(product):
-    """Helper to format product data."""
     linked_components = []
     if product.product_type == Product.ARTICLE:
         components = product.components.all()
@@ -41,27 +40,25 @@ def _get_product_data(product):
         'content_type': product.content_type,
         'custom_content_type': product.custom_content_type or '',
         'linked_article_id': product.linked_article.id if product.linked_article else '',
+        'linked_article_name': product.linked_article.item_name if product.linked_article else '',
         'remaining_component_stock': product.get_total_component_stock() if product.product_type == Product.ARTICLE else 'N/A',
         'sellable_sets': product.calculate_sellable_sets() if product.product_type == Product.ARTICLE else 'N/A',
-        'linked_components': linked_components,  # Added linked components
+        'linked_components': linked_components,
         'container_id': product.container.id if product.container else '',
         'container_name': product.container.name if product.container else '',
+        'pieces_per_container': product.pieces_per_container,
+        'units_per_article': product.units_per_article,
     }
 
 @login_required
 def product_list(request):
-    """List products with pagination."""
     products = Product.objects.all().select_related('supplier', 'linked_article', 'container').prefetch_related(
         Prefetch('components', queryset=Product.objects.filter(product_type=Product.COMPONENT))
     ).order_by('-id')
 
     paginator = Paginator(products, 15)
     page_obj = paginator.get_page(request.GET.get('page'))
-
-    # Prepare product data with additional fields
     product_data = [_get_product_data(product) for product in page_obj]
-
-    # Get container choices directly from the model
     container_choices = Container.objects.all()
 
     return render(request, 'inventory/product_list.html', {
@@ -69,39 +66,32 @@ def product_list(request):
         'form': ProductForm(),
         'suppliers': list(Supplier.objects.filter(active=True).values('id', 'supplier_name')),
         'articles': list(Product.objects.filter(product_type=Product.ARTICLE).values('id', 'item_name')),
-        'containers': container_choices,  # Pass container choices as queryset
-        'products': product_data,  # Pass the prepared product data
+        'containers': container_choices,
+        'products': product_data,
     })
 
 @login_required
 @require_POST
 def add_product(request):
-    """Handle adding a new product."""
     form = ProductForm(request.POST, request.FILES)
     if form.is_valid():
         product = form.save()
         messages.success(request, 'Product added successfully!')
-
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            # Prepare product data for JSON response
             product_data = _get_product_data(product)
             return JsonResponse({'status': 'success', 'product': product_data})
         else:
-            # For standard POST requests, redirect to product list
             return redirect('product_list')
     else:
-        logger.error('Form is invalid: %s', form.errors)  # Log form errors
+        logger.error('Form is invalid: %s', form.errors)
         messages.error(request, 'There was an error adding the product.')
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            # Return form errors as JSON
             return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
         else:
-            # For standard POST requests, redirect back with errors
             return redirect('product_list')
 
 @login_required
 def edit_product(request, product_id):
-    """Fetch product data for editing."""
     product = get_object_or_404(Product, id=product_id)
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({'status': 'success', 'product': _get_product_data(product)})
@@ -109,32 +99,39 @@ def edit_product(request, product_id):
 
 @login_required
 def update_product(request, product_id):
-    """Update product details."""
     product = get_object_or_404(Product, id=product_id)
     form = ProductForm(request.POST, request.FILES, instance=product)
     if form.is_valid():
-        form.save()
-        if product.product_type == Product.ARTICLE:
-            product.quantity = product.calculate_sellable_sets()
-            product.save()
+        product = form.save()
         related_articles = []
         if product.product_type == Product.COMPONENT and product.linked_article:
             sellable_sets = product.linked_article.calculate_sellable_sets()
-            related_articles.append({'id': product.linked_article.id, 'sellable_sets': sellable_sets})
-        return JsonResponse({'status': 'success', 'related_articles': related_articles})
-    return JsonResponse({'status': 'error', 'message': 'Form validation failed.', 'errors': form.errors})
+            related_articles.append({
+                'id': product.linked_article.id,
+                'sellable_sets': sellable_sets
+            })
+
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Product updated successfully!',
+            'related_articles': related_articles
+        })
+
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Form validation failed. Please correct the errors.',
+        'errors': form.errors
+    }, status=400)
 
 @login_required
 @require_POST
 def delete_product(request, product_id):
-    """Delete a single product."""
     get_object_or_404(Product, id=product_id).delete()
     return JsonResponse({'status': 'success'})
 
 @login_required
 @require_POST
 def bulk_delete_products(request):
-    """Bulk delete products."""
     product_ids = request.POST.getlist('product_ids', [])
     if product_ids:
         Product.objects.filter(id__in=product_ids).delete()
@@ -144,51 +141,25 @@ def bulk_delete_products(request):
 @login_required
 @require_GET
 def get_uom_options(request):
-    """Return UOM options for a content type."""
     container_id = request.GET.get('container_id')
     content_type = request.GET.get('content_type')
 
     if container_id and content_type:
         try:
             container = get_object_or_404(Container, id=container_id)
-            
-            # Get allowed UOMs for the content type
             uom_options = container.allowed_uoms.get(content_type, [])
-            
-            # Special handling for container-specific content types
-            if container.name == Container.BOTTLE:
-                if content_type == "Liquid":
-                    uom_options = ["ml", "liters"]
-                elif content_type == "Cream":
-                    uom_options = ["gram"]
-                elif content_type == "Syrup":
-                    uom_options = ["gram", "ml"]
-                elif content_type in ["Tablet", "Capsule"]:
-                    uom_options = ["pieces"]
-                elif content_type == "Oil":
-                    uom_options = ["ml", "drops"]
-            elif container.name == Container.PACK:
-                if content_type == "Powder":
-                    uom_options = ["gram"]
-                elif content_type == "Leaves":
-                    uom_options = ["gram"]
-
             return JsonResponse({'status': 'success', 'uom_options': uom_options})
         except Container.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Container does not exist.'})
         except Exception as e:
             logger.error(f"Error fetching UOM options: {e}")
             return JsonResponse({'status': 'error', 'message': 'An error occurred while fetching UOM options.'})
-    
-    # If container ID or content type is missing
+
     return JsonResponse({'status': 'error', 'message': 'Container ID or content type not provided.'})
-
-
 
 @login_required
 @require_GET
 def get_sellable_sets(request):
-    """Get sellable sets for an article."""
     article_id = request.GET.get('article_id')
     if article_id:
         article = get_object_or_404(Product, id=article_id, product_type=Product.ARTICLE)
@@ -196,22 +167,32 @@ def get_sellable_sets(request):
     return JsonResponse({'status': 'error', 'message': 'Article ID not provided'})
 
 @login_required
+@require_GET
+def get_article_data(request):
+    article_id = request.GET.get('article_id')
+    if article_id:
+        article = get_object_or_404(Product, id=article_id, product_type=Product.ARTICLE)
+        data = {
+            'quantity': article.quantity,
+            'pieces_per_container': article.pieces_per_container
+        }
+        return JsonResponse({'status': 'success', 'article_data': data})
+    return JsonResponse({'status': 'error', 'message': 'Article ID not provided.'})
+
+@login_required
 def article_list(request):
-    """List articles."""
     articles = Product.objects.filter(product_type=Product.ARTICLE).select_related('supplier', 'container').order_by('-id')
     paginator = Paginator(articles, 15)
     return render(request, 'inventory/article_list.html', {'page_obj': paginator.get_page(request.GET.get('page'))})
 
 @login_required
 def component_list(request):
-    """List components."""
     components = Product.objects.filter(product_type=Product.COMPONENT).select_related('supplier', 'container').order_by('-id')
     paginator = Paginator(components, 15)
     return render(request, 'inventory/component_list.html', {'page_obj': paginator.get_page(request.GET.get('page'))})
 
 @login_required
 def search_products(request):
-    """Search products with autocomplete."""
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         query = request.GET.get('q', '').strip()
         products = Product.objects.filter(item_name__icontains=query).select_related('supplier', 'container').order_by('-id') if query else Product.objects.all().select_related('supplier', 'container').order_by('-id')
