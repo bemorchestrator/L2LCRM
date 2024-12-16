@@ -56,6 +56,6 @@ TransactionItemFormSet = inlineformset_factory(
     Transaction,
     TransactionItem,
     form=TransactionItemForm,
-    extra=1,
+    extra=0,
     can_delete=True
 )

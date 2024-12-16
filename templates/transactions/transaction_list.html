@@ -349,18 +349,14 @@
             document.getElementById('address').value = "";
             document.getElementById('tel').value = "";
 
-            // Remove any existing item blocks, but keep the management form markup
             const itemsWrapper = document.getElementById('transactionItemsWrapper');
             itemsWrapper.querySelectorAll('.p-3.border.rounded.mb-3').forEach(div => div.remove());
-
-            // Re-inject the management form (empty) so we start from scratch
             itemsWrapper.innerHTML = `
                 {{ formset.management_form }}
             `.trim();
 
-            // If you want exactly one default empty form row upon opening, add it here or rely on extra=1
-            // The inline formset's 'extra=1' normally provides 1 empty row, but once we reset the form above,
-            // we re-initialize it in a blank state, so let's rely on the "Add Another Item" button or custom logic.
+            // If you want a default empty row upon opening, you can create one here,
+            // or rely on the "Add Another Item" button if the user wants to start from zero.
 
             updateGrandTotal();
         }
@@ -882,7 +878,6 @@
             }
         });
         observer.observe(transactionItemsWrapper, { childList: true });
-
     })();
 </script>
 {% endblock %}

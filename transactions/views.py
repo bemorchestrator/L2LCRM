@@ -19,11 +19,9 @@ def transaction_list(request):
     paginator = Paginator(transactions, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-
-    # Use an empty queryset for the formset to ensure a fresh item list when adding a new transaction
     form = TransactionForm()
+    # For the "Add Transaction" modal on this page, we create a blank formset with no items
     formset = TransactionItemFormSet(queryset=TransactionItem.objects.none())
-
     return render(request, 'transactions/transaction_list.html', {
         'page_obj': page_obj,
         'form': form,
@@ -156,6 +154,7 @@ def edit_transaction(request, transaction_id):
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             form = TransactionForm(instance=transaction_obj)
             formset = TransactionItemFormSet(instance=transaction_obj)
+            # Render partial HTML that includes the management form
             rendered_formset = render(request, 'transactions/_transaction_formset.html', {
                 'formset': formset
             })
