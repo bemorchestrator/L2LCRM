@@ -316,19 +316,19 @@
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Photo</label>
                         <input type="file" name="photo" id="photo" class="block w-full text-gray-900 bg-gray-100 rounded-md shadow-sm dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
                     </div>
-                    <div>
+                    <div id="quantity_field" class="">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Quantity</label>
                         <input type="number" name="quantity" id="quantity" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Article: #containers, Component: #pieces">
                     </div>
-                    <div>
+                    <div id="pieces_per_container_field" class="">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Pieces per Container (Articles)</label>
                         <input type="number" name="pieces_per_container" id="pieces_per_container" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="For Articles only">
                     </div>
-                    <div>
+                    <div id="containers_field" class="">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Containers (if Article)</label>
                         <input type="number" name="containers" id="containers" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Number of containers for articles">
                     </div>
-                    <div>
+                    <div id="units_per_article_field" class="">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Units per Article (if Component)</label>
                         <input type="number" name="units_per_article" id="units_per_article" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
                     </div>
@@ -380,10 +380,40 @@
         const linkedArticleSelect = document.getElementById('linked_article');
         const unitsPerArticleInput = document.getElementById('units_per_article');
 
-        const updateUOMOptions = () => {
+        const quantityField = document.getElementById('quantity_field');
+        const piecesPerContainerField = document.getElementById('pieces_per_container_field');
+        const containersField = document.getElementById('containers_field');
+        const unitsPerArticleField = document.getElementById('units_per_article_field');
+        const quantityInput = document.getElementById('quantity');
+
+        let selectedArticleQuantity = 0;  // Will store article.quantity for component calculations
+
+        function updateFormFieldsVisibility(productType) {
+            if (productType === 'Article') {
+                linkedArticleContainer.classList.add('hidden');
+                linkedArticleSelect.removeAttribute('required');
+                piecesPerContainerField.classList.remove('hidden');
+                containersField.classList.remove('hidden');
+                unitsPerArticleField.classList.add('hidden');
+                // For article, quantity is manually entered (# of containers). 
+            } else if (productType === 'Component') {
+                linkedArticleContainer.classList.remove('hidden');
+                linkedArticleSelect.setAttribute('required', 'required');
+                piecesPerContainerField.classList.add('hidden');
+                containersField.classList.add('hidden');
+                unitsPerArticleField.classList.remove('hidden');
+                // For component, quantity will be auto-calculated from article quantity * units_per_article
+            } else {
+                linkedArticleContainer.classList.add('hidden');
+                piecesPerContainerField.classList.add('hidden');
+                containersField.classList.add('hidden');
+                unitsPerArticleField.classList.add('hidden');
+            }
+        }
+
+        function updateUOMOptions() {
             const containerId = containerSelect.value;
             const contentType = contentTypeSelect.value;
-
             if (containerId && contentType) {
                 fetch(`${getUOMOptionsURL}?container_id=${encodeURIComponent(containerId)}&content_type=${encodeURIComponent(contentType)}`)
                     .then(response => response.json())
@@ -411,43 +441,56 @@
                 uomSelect.innerHTML = '<option value="">Select UOM</option>';
                 uomSelect.required = false;
             }
-        };
+        }
 
-        const toggleLinkedArticle = (productType) => {
-            if (productType === 'Component') {
-                linkedArticleContainer.classList.remove('hidden');
-                linkedArticleSelect.setAttribute('required', 'required');
-            } else {
-                linkedArticleContainer.classList.add('hidden');
-                linkedArticleSelect.removeAttribute('required');
+        // Trigger auto-calculation of quantity if product_type is 'Component'
+        function calculateComponentQuantity() {
+            if (productTypeSelect.value === 'Component') {
+                const unitsPerArticleVal = parseInt(unitsPerArticleInput.value || 0);
+                // selectedArticleQuantity is the 'quantity' (number of containers) from the chosen Article
+                const computed = selectedArticleQuantity * unitsPerArticleVal;
+                quantityInput.value = computed > 0 ? computed : 0;
             }
-        };
+        }
 
         productTypeSelect.addEventListener('change', function () {
-            toggleLinkedArticle(this.value);
+            updateFormFieldsVisibility(this.value);
+            if (this.value !== 'Component') {
+                // Clear out selectedArticleQuantity and quantity
+                selectedArticleQuantity = 0;
+                quantityInput.value = '';
+            }
         });
 
         containerSelect.addEventListener('change', updateUOMOptions);
         contentTypeSelect.addEventListener('change', updateUOMOptions);
         updateUOMOptions();
-        toggleLinkedArticle(productTypeSelect.value);
+        updateFormFieldsVisibility(productTypeSelect.value);
 
-        // For Components: When a linked article is chosen, fetch the article data and set units_per_article
+        // On linked_article change, fetch its quantity from the server
         linkedArticleSelect.addEventListener('change', function() {
             const articleId = this.value;
+            selectedArticleQuantity = 0;
             if (productTypeSelect.value === 'Component' && articleId) {
                 fetch(`${getArticleDataURL}?article_id=${encodeURIComponent(articleId)}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        // Automatically set units_per_article to article's pieces_per_container
-                        unitsPerArticleInput.value = data.article_data.pieces_per_container;
+                        selectedArticleQuantity = parseInt(data.article_data.quantity || 0);
+                        unitsPerArticleInput.value = data.article_data.pieces_per_container || 0;
+                        calculateComponentQuantity();
                     }
                 })
                 .catch(err => console.error('Error fetching article data:', err));
             }
         });
 
+        // If user edits units_per_article, recalc quantity if product_type=Component
+        unitsPerArticleInput.addEventListener('input', function() {
+            calculateComponentQuantity();
+        });
+
+        // Toggle linked components row
         document.querySelectorAll('.view-components-button').forEach(button => {
             button.addEventListener('click', function () {
                 const productId = this.getAttribute('data-product-id');
@@ -471,9 +514,12 @@
     const modalTitle = document.getElementById('modalTitle');
     const submitButton = document.getElementById('submitButton');
     const productIdInput = document.getElementById('product_id');
-    const productTypeSelect = document.getElementById('product_type');
     const linkedArticleContainer = document.getElementById('linked_article_container');
     const uomSelect = document.getElementById('uom');
+    const piecesPerContainerField = document.getElementById('pieces_per_container_field');
+    const unitsPerArticleField = document.getElementById('units_per_article_field');
+    const containersField = document.getElementById('containers_field');
+    const quantityInput = document.getElementById('quantity');
 
     function openModal() {
         modal.classList.remove('hidden');
@@ -484,6 +530,10 @@
         productForm.reset();
         linkedArticleContainer.classList.add('hidden');
         uomSelect.innerHTML = '<option value="">Select UOM</option>';
+        piecesPerContainerField.classList.add('hidden');
+        unitsPerArticleField.classList.add('hidden');
+        containersField.classList.add('hidden');
+        quantityInput.value = '';
     }
 
     function closeModal() {
@@ -495,6 +545,10 @@
         productIdInput.value = '';
         linkedArticleContainer.classList.add('hidden');
         uomSelect.innerHTML = '<option value="">Select UOM</option>';
+        piecesPerContainerField.classList.add('hidden');
+        unitsPerArticleField.classList.add('hidden');
+        containersField.classList.add('hidden');
+        quantityInput.value = '';
     }
 
     openModalButton.addEventListener('click', openModal);
@@ -512,16 +566,14 @@
             const productId = this.getAttribute('data-product-id');
             const editProductURL = editProductURLTemplate.replace('PRODUCT_ID_PLACEHOLDER', productId);
             fetch(editProductURL, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
             })
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
                     const product = data.product;
-                    productTypeSelect.value = product.product_type;
-                    productTypeSelect.dispatchEvent(new Event('change'));
+                    document.getElementById('product_type').value = product.product_type;
+                    document.getElementById('product_type').dispatchEvent(new Event('change'));
                     document.getElementById('item_name').value = product.item_name;
                     document.getElementById('supplier').value = product.supplier_id;
                     document.getElementById('container').value = product.container_id;
@@ -532,24 +584,26 @@
                     document.getElementById('custom_content_type').value = product.custom_content_type;
                     document.getElementById('quantity').value = product.quantity;
                     document.getElementById('pieces_per_container').value = product.pieces_per_container;
-
+                    document.getElementById('containers').value = '';
+                    
                     if (product.product_type === 'Component') {
-                        document.querySelector('select[name="linked_article"]').value = product.linked_article_id;
+                        document.getElementById('linked_article').value = product.linked_article_id;
                         linkedArticleContainer.classList.remove('hidden');
                         const articleId = product.linked_article_id;
                         if (articleId) {
-                            // Fetch article data and set units_per_article
                             fetch(`${getArticleDataURL}?article_id=${encodeURIComponent(articleId)}`)
                             .then(res => res.json())
-                            .then(data => {
-                                if (data.status === 'success') {
-                                    // Set units_per_article from pieces_per_container
-                                    document.getElementById('units_per_article').value = data.article_data.pieces_per_container;
+                            .then(dt => {
+                                if (dt.status === 'success') {
+                                    // dt.article_data.quantity is the article's # of containers
+                                    // dt.article_data.pieces_per_container might be used or not, depends on your logic
+                                    document.getElementById('units_per_article').value = product.units_per_article || dt.article_data.pieces_per_container || 0;
+                                    // Optionally auto-calc quantity again if needed
+                                    const computed = parseInt(dt.article_data.quantity || 0) * parseInt(document.getElementById('units_per_article').value || 0);
+                                    document.getElementById('quantity').value = computed;
                                 }
                             })
-                            .catch(err => {
-                                console.error('Error fetching article data:', err);
-                            });
+                            .catch(err => console.error('Error fetching article data:', err));
                         }
                     } else {
                         linkedArticleContainer.classList.add('hidden');
@@ -618,9 +672,7 @@
     searchInput.addEventListener('input', function () {
         const query = this.value.trim();
         fetch(`${searchProductsURL}?q=${encodeURIComponent(query)}`, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
         })
         .then(response => response.json())
         .then(data => {
@@ -637,7 +689,7 @@
                     tr.id = `product-row-${product.id}`;
 
                     const checkboxTd = document.createElement('td');
-                    checkboxTd.classList.add('p-4', 'whitespace-nowrap');
+                    checkboxTd.classList.add('p-4','whitespace-nowrap');
                     checkboxTd.innerHTML = `
                         <div class="flex items-center">
                             <input type="checkbox" value="${product.id}" class="product-checkbox w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
@@ -647,7 +699,7 @@
                     tr.appendChild(checkboxTd);
 
                     const imageTd = document.createElement('td');
-                    imageTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    imageTd.classList.add('px-4','py-3','whitespace-nowrap');
                     if (product.photo_url) {
                         imageTd.innerHTML = `<img src="${product.photo_url}" alt="${product.item_name}" class="w-12 h-12 object-cover rounded">`;
                     } else {
@@ -656,12 +708,12 @@
                     tr.appendChild(imageTd);
 
                     const itemNameTd = document.createElement('td');
-                    itemNameTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    itemNameTd.classList.add('px-4','py-3','whitespace-nowrap');
                     itemNameTd.textContent = product.item_name;
                     tr.appendChild(itemNameTd);
 
                     const quantityTd = document.createElement('td');
-                    quantityTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    quantityTd.classList.add('px-4','py-3','whitespace-nowrap');
                     quantityTd.textContent = product.quantity;
                     if (product.product_type === 'Article' && product.pieces_per_container) {
                         const small = document.createElement('small');
@@ -673,52 +725,52 @@
                     tr.appendChild(quantityTd);
 
                     const uomTd = document.createElement('td');
-                    uomTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    uomTd.classList.add('px-4','py-3','whitespace-nowrap');
                     uomTd.textContent = product.uom;
                     tr.appendChild(uomTd);
 
                     const supplierTd = document.createElement('td');
-                    supplierTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    supplierTd.classList.add('px-4','py-3','whitespace-nowrap');
                     supplierTd.textContent = product.supplier_name;
                     tr.appendChild(supplierTd);
 
                     const currencyTd = document.createElement('td');
-                    currencyTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    currencyTd.classList.add('px-4','py-3','whitespace-nowrap');
                     currencyTd.textContent = product.currency_code;
                     tr.appendChild(currencyTd);
 
                     const retailPriceTd = document.createElement('td');
-                    retailPriceTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    retailPriceTd.classList.add('px-4','py-3','whitespace-nowrap');
                     retailPriceTd.textContent = product.retail_price;
                     tr.appendChild(retailPriceTd);
 
                     const discountAllTd = document.createElement('td');
-                    discountAllTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    discountAllTd.classList.add('px-4','py-3','whitespace-nowrap');
                     discountAllTd.innerHTML = product.discountable_all ? `<span class="text-green-600">Yes</span>` : `<span class="text-red-600">No</span>`;
                     tr.appendChild(discountAllTd);
 
                     const discountMembersTd = document.createElement('td');
-                    discountMembersTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    discountMembersTd.classList.add('px-4','py-3','whitespace-nowrap');
                     discountMembersTd.innerHTML = product.discountable_members ? `<span class="text-green-600">Yes</span>` : `<span class="text-red-600">No</span>`;
                     tr.appendChild(discountMembersTd);
 
                     const activeTd = document.createElement('td');
-                    activeTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    activeTd.classList.add('px-4','py-3','whitespace-nowrap');
                     activeTd.innerHTML = product.active ? `<span class="text-green-600">Active</span>` : `<span class="text-red-600">Inactive</span>`;
                     tr.appendChild(activeTd);
 
                     const remainingComponentsTd = document.createElement('td');
-                    remainingComponentsTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    remainingComponentsTd.classList.add('px-4','py-3','whitespace-nowrap');
                     remainingComponentsTd.textContent = product.remaining_component_stock;
                     tr.appendChild(remainingComponentsTd);
 
                     const sellableSetsTd = document.createElement('td');
-                    sellableSetsTd.classList.add('px-4', 'py-3', 'whitespace-nowrap');
+                    sellableSetsTd.classList.add('px-4','py-3','whitespace-nowrap');
                     sellableSetsTd.textContent = product.sellable_sets;
                     tr.appendChild(sellableSetsTd);
 
                     const actionsTd = document.createElement('td');
-                    actionsTd.classList.add('px-4', 'py-3', 'whitespace-nowrap', 'flex', 'space-x-2');
+                    actionsTd.classList.add('px-4','py-3','whitespace-nowrap','flex','space-x-2');
                     actionsTd.innerHTML = `
                         <button class="edit-button text-blue-600 hover:text-blue-900" data-product-id="${product.id}">
                             Edit
@@ -731,13 +783,12 @@
                         </button>` : ''}
                     `;
                     tr.appendChild(actionsTd);
-
                     tbody.appendChild(tr);
 
                     if (product.product_type === 'Article' && product.linked_components.length > 0) {
                         const componentsTr = document.createElement('tr');
                         componentsTr.id = `linked-components-${product.id}`;
-                        componentsTr.classList.add('hidden', 'bg-gray-100', 'dark:bg-[#1a1a1a]');
+                        componentsTr.classList.add('hidden','bg-gray-100','dark:bg-[#1a1a1a]');
                         componentsTr.innerHTML = `
                             <td colspan="14" class="px-4 py-3">
                                 <div class="overflow-x-auto">

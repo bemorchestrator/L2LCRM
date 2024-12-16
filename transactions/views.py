@@ -1,67 +1,123 @@
-# transactions/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import Transaction
-from .forms import TransactionForm
+from .models import Transaction, TransactionItem
+from .forms import TransactionForm, TransactionItemFormSet
 from patients.models import Patients
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.db import transaction as db_transaction
+from inventory.models import Product
 
 @login_required
 def transaction_list(request):
-    """
-    View to display the list of transactions with pagination.
-    """
     transactions = Transaction.objects.select_related('patient').all().order_by('-date')
-    paginator = Paginator(transactions, 10)  # Show 10 transactions per page
+    paginator = Paginator(transactions, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
-    # Pass the form to the template
     form = TransactionForm()
-    
-    return render(request, 'transactions/transaction_list.html', {'page_obj': page_obj, 'form': form})
+    formset = TransactionItemFormSet()
+    return render(request, 'transactions/transaction_list.html', {
+        'page_obj': page_obj,
+        'form': form,
+        'formset': formset
+    })
 
 @login_required
 @require_POST
 def add_transaction(request):
-    """
-    View to handle adding a new transaction via AJAX.
-    """
-    form = TransactionForm(request.POST)
-    if form.is_valid():
-        transaction = form.save()
-        # Prepare the data to send back to the client
-        transaction_data = {
-            'id': transaction.id,
-            'transaction_no': transaction.transaction_no,
-            'patient': str(transaction.patient),
-            'date': transaction.date.strftime('%Y-%m-%d'),
-            'issuer': transaction.issuer,
-            'tel': transaction.tel,
-            'email': transaction.email,
-            'address': transaction.address,
-        }
-        return JsonResponse({'status': 'success', 'transaction': transaction_data, 'message': 'Transaction has been successfully added.'})
+    if request.method == 'POST':
+        form = TransactionForm(request.POST)
+        formset = TransactionItemFormSet(request.POST)
+        if form.is_valid() and formset.is_valid():
+            with db_transaction.atomic():
+                transaction = form.save()
+                items = formset.save(commit=False)
+                for item in items:
+                    item.transaction = transaction
+                    item.save()
+            messages.success(request, "Transaction and items added successfully.")
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Transaction and items added successfully.',
+                'transaction': {
+                    'id': transaction.id,
+                    'transaction_no': transaction.transaction_no,
+                    'patient': str(transaction.patient),
+                    'date': transaction.date.strftime('%Y-%m-%d'),
+                    'issuer': transaction.issuer,
+                    'tel': transaction.tel,
+                    'email': transaction.email,
+                    'address': transaction.address,
+                }
+            })
+        else:
+            return JsonResponse({'status': 'error', 'errors': form.errors.as_json(), 'message': 'Validation failed.'})
     else:
-        return JsonResponse({'status': 'error', 'errors': form.errors.as_json(), 'message': 'There was an error adding the transaction.'})
+        form = TransactionForm()
+        formset = TransactionItemFormSet()
+    return render(request, 'transactions/add_transaction.html', {'form': form, 'formset': formset})
 
 @login_required
 def transaction_detail(request, transaction_id):
-    """
-    View to display the details of a specific transaction.
-    """
     transaction = get_object_or_404(Transaction, id=transaction_id)
-    return render(request, 'transactions/transaction_detail.html', {'transaction': transaction})
+    items = transaction.items.all()
+    return render(request, 'transactions/transaction_detail.html', {'transaction': transaction, 'items': items})
+
+@login_required
+def edit_transaction(request, transaction_id):
+    transaction_obj = get_object_or_404(Transaction, id=transaction_id)
+    if request.method == 'POST':
+        form = TransactionForm(request.POST, instance=transaction_obj)
+        formset = TransactionItemFormSet(request.POST, instance=transaction_obj)
+        if form.is_valid() and formset.is_valid():
+            with db_transaction.atomic():
+                form.save()
+                formset.save()
+            messages.success(request, "Transaction and items updated successfully.")
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Transaction and items updated successfully.',
+                    'transaction': {
+                        'id': transaction_obj.id,
+                        'transaction_no': transaction_obj.transaction_no,
+                        'patient': str(transaction_obj.patient),
+                        'date': transaction_obj.date.strftime('%Y-%m-%d'),
+                        'issuer': transaction_obj.issuer,
+                        'tel': transaction_obj.tel,
+                        'email': transaction_obj.email,
+                        'address': transaction_obj.address,
+                    }
+                })
+            else:
+                return redirect('transaction_list')
+        else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'error', 'errors': form.errors.as_json(), 'message': 'Validation failed.'})
+            else:
+                messages.error(request, "Please correct the errors below.")
+    else:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            data = {
+                'id': transaction_obj.id,
+                'transaction_no': transaction_obj.transaction_no,
+                'patient': transaction_obj.patient.id,
+                'date': transaction_obj.date.strftime('%Y-%m-%d'),
+                'issuer': transaction_obj.issuer,
+                'tel': transaction_obj.tel,
+                'email': transaction_obj.email,
+                'address': transaction_obj.address,
+            }
+            return JsonResponse({'status': 'success', 'transaction': data})
+        form = TransactionForm(instance=transaction_obj)
+        formset = TransactionItemFormSet(instance=transaction_obj)
+    return render(request, 'transactions/edit_transaction.html', {'form': form, 'formset': formset})
 
 @login_required
 def invoice_view(request, transaction_id):
-    """
-    View to generate and display an invoice for a specific transaction.
-    """
     transaction = get_object_or_404(Transaction, id=transaction_id)
     context = {
         'transaction': transaction,
@@ -71,101 +127,79 @@ def invoice_view(request, transaction_id):
 
 @login_required
 def search_transactions(request):
-    """
-    View to search for transactions based on patient name or transaction number via AJAX.
-    """
     query = request.GET.get('q', '').strip()
-    transactions = (
-        Transaction.objects.select_related('patient').filter(
+    if query:
+        transactions = Transaction.objects.select_related('patient').filter(
             Q(name__icontains=query) | Q(transaction_no__icontains=query)
         ).order_by('-date')
-        if query else Transaction.objects.select_related('patient').all().order_by('-date')
-    )
-
-    # Pagination
+    else:
+        transactions = Transaction.objects.select_related('patient').all().order_by('-date')
     paginator = Paginator(transactions, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-
-    # Render the partial template for transactions
     rendered_transactions = render(request, 'transactions/_transaction_rows.html', {'transactions': page_obj})
-
     return JsonResponse({'status': 'success', 'html': rendered_transactions.content.decode('utf-8')})
 
 @login_required
 @require_POST
 def delete_transaction(request, transaction_id):
-    """
-    View to delete a specific transaction via AJAX.
-    """
     transaction = get_object_or_404(Transaction, id=transaction_id)
     transaction.delete()
-    return JsonResponse({'status': 'success', 'message': 'Transaction has been deleted.'})
+    messages.success(request, "Transaction deleted successfully.")
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'status': 'success', 'message': 'Transaction deleted successfully.'})
+    else:
+        return redirect('transaction_list')
 
 @login_required
 @require_POST
 def bulk_delete_transactions(request):
-    """
-    View to bulk delete transactions via AJAX.
-    """
     transaction_ids = request.POST.getlist('transaction_ids[]')
     if transaction_ids:
         transactions = Transaction.objects.filter(id__in=transaction_ids)
         count = transactions.count()
         transactions.delete()
-        return JsonResponse({'status': 'success', 'message': f'{count} transaction(s) have been deleted.'})
-    else:
-        return JsonResponse({'status': 'error', 'message': 'No transactions selected for deletion.'})
-
-@login_required
-def edit_transaction(request, transaction_id):
-    """
-    View to handle editing a transaction via AJAX.
-    """
-    transaction = get_object_or_404(Transaction, id=transaction_id)
-    if request.method == 'POST':
-        form = TransactionForm(request.POST, instance=transaction)
-        if form.is_valid():
-            transaction = form.save()
-            # Update the auto-filled fields
-            transaction.name = f"{transaction.patient.first_name} {transaction.patient.last_name}"
-            transaction.email = transaction.patient.email
-            transaction.address = transaction.patient.address
-            transaction.tel = transaction.patient.phone  # Ensure tel is updated
-            transaction.save()
-            transaction_data = {
-                'id': transaction.id,
-                'transaction_no': transaction.transaction_no,  # Ensure transaction_no is included
-                'patient': str(transaction.patient),
-                'date': transaction.date.strftime('%Y-%m-%d'),
-                'issuer': transaction.issuer,
-                'tel': transaction.tel,
-                'email': transaction.email,
-                'address': transaction.address,
-            }
-            return JsonResponse({'status': 'success', 'transaction': transaction_data, 'message': 'Transaction has been successfully updated.'})
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'success', 'message': f"{count} transaction(s) deleted successfully."})
         else:
-            return JsonResponse({'status': 'error', 'errors': form.errors.as_json(), 'message': 'There was an error updating the transaction.'})
+            messages.success(request, f"{count} transaction(s) deleted successfully.")
+            return redirect('transaction_list')
     else:
-        # If GET request, return transaction data
-        transaction_data = {
-            'id': transaction.id,
-            'patient': transaction.patient.id,
-            'issuer': transaction.issuer,
-            'transaction_no': transaction.transaction_no,  # Include transaction_no for edit
-            # 'tel' is auto-populated; no need to include here
-        }
-        return JsonResponse({'status': 'success', 'transaction': transaction_data})
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'error', 'message': "No transactions selected for deletion."})
+        else:
+            messages.error(request, "No transactions selected for deletion.")
+            return redirect('transaction_list')
 
 @login_required
 def get_patient_details(request, patient_id):
-    """
-    View to fetch patient details based on patient ID via AJAX.
-    """
     patient = get_object_or_404(Patients, id=patient_id)
     data = {
         'email': patient.email,
         'address': patient.address,
-        'phone': patient.phone,  # Include phone number
+        'phone': patient.phone,
     }
     return JsonResponse({'status': 'success', 'data': data})
+
+@login_required
+def get_transaction_items(request, transaction_id):
+    transaction = get_object_or_404(Transaction, id=transaction_id)
+    items = transaction.items.select_related('product').all()
+    items_data = []
+    for item in items:
+        items_data.append({
+            'item_type': item.item_type,
+            'product': item.product.item_name if item.product else 'N/A',
+            'quantity': item.quantity,
+        })
+    return JsonResponse({'status': 'success', 'items': items_data})
+
+@login_required
+def get_product_details(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    return JsonResponse({
+        'status': 'success',
+        'data': {
+            'retail_price': str(product.retail_price if product.retail_price else '0.00')
+        }
+    })
