@@ -2,6 +2,7 @@ from django.db import models
 from django.forms import ValidationError
 from patients.models import Patients
 from inventory.models import Product
+from decimal import Decimal
 
 class Transaction(models.Model):
     patient = models.ForeignKey(Patients, on_delete=models.CASCADE, related_name='transactions')
@@ -28,6 +29,12 @@ class Transaction(models.Model):
             self.tel = self.patient.phone
         super(Transaction, self).save(*args, **kwargs)
 
+    def get_total_amount(self):
+        total = Decimal('0.00')
+        for item in self.items.all():
+            total += item.price * item.quantity
+        return total
+
     def __str__(self):
         return f"Transaction {self.transaction_no} for {self.patient}"
 
@@ -43,6 +50,7 @@ class TransactionItem(models.Model):
     item_type = models.CharField(max_length=10, choices=ITEM_TYPE_CHOICES)
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
     quantity = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def save(self, *args, **kwargs):
         super(TransactionItem, self).save(*args, **kwargs)
@@ -56,7 +64,8 @@ class TransactionItem(models.Model):
             self.product.quantity -= self.quantity
             if self.product.quantity < 0:
                 raise ValidationError(
-                    f"Not enough stock for {self.product.item_name}. Available: {self.product.quantity + self.quantity}, Required: {self.quantity}."
+                    f"Not enough stock for {self.product.item_name}. "
+                    f"Available: {self.product.quantity + self.quantity}, Required: {self.quantity}."
                 )
             self.product.save()
 

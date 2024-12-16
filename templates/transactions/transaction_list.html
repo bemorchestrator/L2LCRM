@@ -20,12 +20,22 @@
                     </div>
                 </div>
                 <div class="flex flex-row flex-shrink-0 space-x-3 md:flex-row md:items-center lg:justify-end">
-                    <button type="button" class="flex items-center justify-center w-10 h-10 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 rounded-full focus:outline-none dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-800" id="bulkDeleteButton" title="Delete Selected Transactions">
+                    <button 
+                        type="button" 
+                        class="flex items-center justify-center w-10 h-10 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 rounded-full focus:outline-none dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-800" 
+                        id="bulkDeleteButton"
+                        title="Delete Selected Transactions"
+                    >
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M6 3V4H4V6H16V4H14V3H6ZM6 6V15C6 16.1046 6.89543 17 8 17H12C13.1046 17 14 16.1046 14 15V6H6Z" />
                         </svg>
                     </button>
-                    <button type="button" class="flex items-center justify-center w-10 h-10 text-white bg-[#4CAF50] hover:bg-green-700 focus:ring-4 focus:ring-green-300 rounded-full focus:outline-none dark:bg-green-500 dark:hover:bg-green-600 dark:focus:ring-green-800" id="openModalButton" title="Add New Transaction">
+                    <button 
+                        type="button" 
+                        class="flex items-center justify-center w-10 h-10 text-white bg-[#4CAF50] hover:bg-green-700 focus:ring-4 focus:ring-green-300 rounded-full focus:outline-none dark:bg-green-500 dark:hover:bg-green-600 dark:focus:ring-green-800" 
+                        id="openModalButton"
+                        title="Add New Transaction"
+                    >
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0V11H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
                         </svg>
@@ -145,7 +155,7 @@
                                 <span class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 cursor-not-allowed rounded-r-md" aria-disabled="true" aria-label="Last">
                                     <span class="sr-only">Last</span>
                                     <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/>
+                                        <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 010-1.414L11.414 10 7.707 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
                                     </svg>
                                 </span>
                             {% endif %}
@@ -157,6 +167,7 @@
     </div>
 </section>
 
+<!-- Modal -->
 <div id="modal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-50 z-50">
     <div class="bg-white dark:bg-[#131313] rounded-lg shadow-lg w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center px-4 py-3 border-b dark:border-gray-700">
@@ -171,6 +182,7 @@
             {% csrf_token %}
             <div class="px-4 py-5">
                 <div class="space-y-4">
+                    <!-- Patient -->
                     <div>
                         <label for="id_patient" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Patient</label>
                         <select id="id_patient" name="patient" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white">
@@ -183,10 +195,12 @@
                             <p class="text-red-500 text-xs mt-1">{{ form.patient.errors }}</p>
                         {% endif %}
                     </div>
+                    <!-- Transaction Number -->
                     <div>
                         <label for="transaction_no" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Transaction Number</label>
                         <input type="text" id="transaction_no" name="transaction_no" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 bg-gray-100 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white" readonly>
                     </div>
+                    <!-- Issuer -->
                     <div>
                         <label for="{{ form.issuer.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form.issuer.label }}</label>
                         <input type="text" id="{{ form.issuer.id_for_label }}" name="{{ form.issuer.name }}" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white" value="{{ form.issuer.value }}">
@@ -194,6 +208,7 @@
                             <p class="text-red-500 text-xs mt-1">{{ form.issuer.errors }}</p>
                         {% endif %}
                     </div>
+                    <!-- Telephone Number -->
                     <div>
                         <label for="tel" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Telephone Number</label>
                         <input type="text" id="tel" name="tel" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 bg-gray-100 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white" readonly>
@@ -201,23 +216,24 @@
                             <p class="text-red-500 text-xs mt-1">{{ form.tel.errors }}</p>
                         {% endif %}
                     </div>
+                    <!-- Email -->
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                         <input type="email" id="email" name="email" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 bg-gray-100 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white" readonly>
                     </div>
+                    <!-- Address -->
                     <div>
                         <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Address</label>
                         <textarea id="address" name="address" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 bg-gray-100 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white" rows="3" readonly></textarea>
                     </div>
                     <hr class="my-4 border-gray-300 dark:border-gray-600">
+                    <!-- Transaction Items -->
                     <div id="transactionItemsWrapper">
                         {{ formset.management_form }}
                         {% for form_i in formset.forms %}
-                            <div class="p-3 border rounded mb-3 relative" style="background-color: #f9f9f9;">
-                                <div>
-                                    {{ form_i.id }}
-                                </div>
-                                <div class="grid grid-cols-4 gap-4">
+                            <div class="p-3 border rounded mb-3 relative bg-gray-50 dark:bg-gray-800 dark:text-gray-100">
+                                {{ form_i.id }}
+                                <div class="grid grid-cols-5 gap-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form_i.item_type.label }}</label>
                                         {{ form_i.item_type }}
@@ -231,20 +247,35 @@
                                         {{ form_i.quantity }}
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Price</label>
-                                        <input type="text" class="price-field mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 bg-gray-100 rounded-md" readonly>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Unit Price</label>
+                                        {{ form_i.price }}
+                                    </div>
+                                    <div class="flex items-center justify-end">
+                                        <button type="button" class="remove-item inline-flex items-center mt-6 text-red-500 hover:text-red-700 focus:outline-none">
+                                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M6 3V4H4V6H16V4H14V3H6ZM6 6V15C6 16.1046 6.89543 17 8 17H12C13.1046 17 14 16.1046 14 15V6H6Z"/>
+                                            </svg>
+                                            Remove
+                                        </button>
                                     </div>
                                 </div>
-                                {{ form_i.DELETE }}
                             </div>
                         {% endfor %}
                     </div>
                     <button type="button" id="addItemButton" class="mt-3 px-4 py-2 bg-blue-500 text-white rounded-lg">Add Another Item</button>
+                    <div class="flex justify-end items-center mt-4 text-gray-700 dark:text-gray-300">
+                        <span class="mr-3 font-semibold">Grand Total:</span>
+                        <span id="grandTotal" class="text-lg font-bold">$0.00</span>
+                    </div>
                 </div>
             </div>
             <div class="px-4 py-3 border-t dark:border-gray-700 flex justify-end">
-                <button type="button" id="closeModalButtonFooter" class="mr-3 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Cancel</button>
-                <button type="submit" id="submitButton" class="px-4 py-2 bg-[#4CAF50] text-white rounded-lg hover:bg-[#45a049] dark:bg-[#4CAF50] dark:hover:bg-[#45a049]">Save Transaction</button>
+                <button type="button" id="closeModalButtonFooter" class="mr-3 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
+                    Cancel
+                </button>
+                <button type="submit" id="submitButton" class="px-4 py-2 bg-[#4CAF50] text-white rounded-lg hover:bg-[#45a049] dark:bg-[#4CAF50] dark:hover:bg-[#45a049]">
+                    Save Transaction
+                </button>
             </div>
         </form>
     </div>
@@ -252,110 +283,210 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let cookie of cookies) {
-                cookie = cookie.trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
+    (function() {
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
                 }
             }
+            return cookieValue;
         }
-        return cookieValue;
-    }
-    const csrfToken = getCookie('csrftoken');
-    const openModalButton = document.getElementById('openModalButton');
-    const modal = document.getElementById('modal');
-    const closeModalButtons = document.querySelectorAll('#closeModalButton, #closeModalButtonFooter');
-    const transactionForm = document.getElementById('transactionForm');
-    const modalTitle = document.getElementById('modalTitle');
-    const submitButton = document.getElementById('submitButton');
-    let isEditMode = false;
-    let editTransactionId = null;
+        const csrfToken = getCookie('csrftoken');
+        const openModalButton = document.getElementById('openModalButton');
+        const modal = document.getElementById('modal');
+        const closeModalButtons = document.querySelectorAll('#closeModalButton, #closeModalButtonFooter');
+        const transactionForm = document.getElementById('transactionForm');
+        const modalTitle = document.getElementById('modalTitle');
+        const submitButton = document.getElementById('submitButton');
+        let isEditMode = false;
+        let editTransactionId = null;
 
-    function debounce(func, delay) {
-        let debounceTimer;
-        return function() {
-            const context = this;
-            const args = arguments;
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => func.apply(context, args), delay);
-        };
-    }
-
-    if (openModalButton) {
-        openModalButton.addEventListener('click', () => {
-            resetForm();
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        });
-    }
-    closeModalButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            resetForm();
-        });
-    });
-    window.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            resetForm();
+        function debounce(func, delay) {
+            let debounceTimer;
+            return function() {
+                const context = this;
+                const args = arguments;
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => func.apply(context, args), delay);
+            };
         }
-    });
-    function resetForm() {
-        isEditMode = false;
-        editTransactionId = null;
-        transactionForm.reset();
-        transactionForm.action = "{% url 'add_transaction' %}";
-        modalTitle.textContent = "Add New Transaction";
-        submitButton.textContent = "Save Transaction";
-        document.getElementById('transaction_no').value = "";
-        document.getElementById('email').value = "";
-        document.getElementById('address').value = "";
-        document.getElementById('tel').value = "";
-    }
 
-    const checkboxAll = document.getElementById('checkbox-all');
-    if (checkboxAll) {
-        checkboxAll.addEventListener('change', function() {
-            let checkboxes = document.querySelectorAll('input[name="transaction_ids"]');
-            checkboxes.forEach((checkbox) => {
-                checkbox.checked = this.checked;
+        // Open Modal
+        if (openModalButton) {
+            openModalButton.addEventListener('click', () => {
+                resetForm();
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                updateGrandTotal();
+            });
+        }
+
+        // Close Modal
+        closeModalButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                resetForm();
             });
         });
-    }
-    const bulkDeleteButton = document.getElementById('bulkDeleteButton');
-    if (bulkDeleteButton) {
-        bulkDeleteButton.addEventListener('click', function() {
-            let checkboxes = document.querySelectorAll('input[name="transaction_ids"]:checked');
-            if (checkboxes.length === 0) {
-                Swal.fire('No transactions selected','Please select at least one transaction to delete.','warning');
-                return;
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                resetForm();
             }
-            let transactionIds = [];
-            checkboxes.forEach((checkbox) => {
-                transactionIds.push(checkbox.value);
+        });
+
+        // Reset Form
+        function resetForm() {
+            isEditMode = false;
+            editTransactionId = null;
+            transactionForm.reset();
+            transactionForm.action = "{% url 'add_transaction' %}";
+            modalTitle.textContent = "Add New Transaction";
+            submitButton.textContent = "Save Transaction";
+            document.getElementById('transaction_no').value = "";
+            document.getElementById('email').value = "";
+            document.getElementById('address').value = "";
+            document.getElementById('tel').value = "";
+            // Reset all DELETE checkboxes and show all items
+            document.querySelectorAll('input[name$="-DELETE"]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('#transactionItemsWrapper .p-3.border.rounded.mb-3').forEach(item => item.style.display = 'block');
+            updateGrandTotal();
+        }
+
+        // Update Grand Total
+        function updateGrandTotal() {
+            let sum = 0.00;
+            document.querySelectorAll('#transactionItemsWrapper .p-3.border.rounded.mb-3').forEach(row => {
+                const qtyField = row.querySelector('input[name$="-quantity"]');
+                const priceField = row.querySelector('input[name$="-price"]');
+                const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+                if (qtyField && priceField && (!deleteCheckbox || !deleteCheckbox.checked)) {
+                    const qty = parseFloat(qtyField.value) || 0;
+                    const price = parseFloat(priceField.value) || 0;
+                    sum += qty * price;
+                }
             });
+            document.getElementById('grandTotal').textContent = '$' + sum.toFixed(2);
+        }
+
+        // Update TOTAL_FORMS
+        function updateTotalForms(delta) {
+            const totalFormsInput = document.querySelector('input[name="form-TOTAL_FORMS"]');
+            let total = parseInt(totalFormsInput.value);
+            total += delta;
+            totalFormsInput.value = total;
+        }
+
+        // Handle Remove Item
+        function handleRemoveItem(event) {
+            if (!event.target.closest('.remove-item')) return;
+
+            const removeButton = event.target.closest('.remove-item');
+            const itemDiv = removeButton.closest('.p-3.border.rounded.mb-3');
+
+            // Check if the form has a DELETE checkbox (existing form)
+            const deleteCheckbox = itemDiv.querySelector('input[name$="-DELETE"]');
+            if (deleteCheckbox) {
+                // For existing forms, mark them for deletion and hide the item
+                deleteCheckbox.checked = true;
+                itemDiv.style.display = 'none';
+            } else {
+                // For new forms, remove the item from the DOM and update TOTAL_FORMS
+                itemDiv.remove();
+                updateTotalForms(-1);
+            }
+            updateGrandTotal();
+        }
+
+        // Event delegation for Remove buttons
+        const transactionItemsWrapper = document.getElementById('transactionItemsWrapper');
+        if (transactionItemsWrapper) {
+            transactionItemsWrapper.addEventListener('click', handleRemoveItem);
+        }
+
+        // Bulk Delete Button
+        const bulkDeleteButton = document.getElementById('bulkDeleteButton');
+        if (bulkDeleteButton) {
+            bulkDeleteButton.addEventListener('click', function() {
+                const checkboxes = document.querySelectorAll('input[name="transaction_ids"]:checked');
+                if (checkboxes.length === 0) {
+                    Swal.fire('No transactions selected','Please select at least one transaction to delete.','warning');
+                    return;
+                }
+                let transactionIds = [];
+                checkboxes.forEach((checkbox) => {
+                    transactionIds.push(checkbox.value);
+                });
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'You will not be able to recover these transactions!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete them!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        let formData = new FormData();
+                        transactionIds.forEach((id) => {
+                            formData.append('transaction_ids[]', id);
+                        });
+                        fetch("{% url 'bulk_delete_transactions' %}", {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': csrfToken,
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            credentials: 'same-origin',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                Swal.fire('Deleted!', data.message, 'success');
+                                transactionIds.forEach((transactionId) => {
+                                    const row = document.getElementById('transaction-row-' + transactionId);
+                                    if (row) {
+                                        row.remove();
+                                    }
+                                });
+                            } else {
+                                Swal.fire('Error!', data.message || 'An error occurred.', 'error');
+                            }
+                        })
+                        .catch((error) => {
+                            Swal.fire('Error!','An error occurred.','error');
+                        });
+                    }
+                });
+            });
+        }
+
+        // Delete Transaction Function
+        window.deleteTransaction = function(transactionId) {
             Swal.fire({
                 title: 'Are you sure?',
-                text: 'You will not be able to recover these transactions!',
+                text: 'You will not be able to recover this transaction!',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete them!'
+                confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {
                     let formData = new FormData();
-                    transactionIds.forEach((id) => {
-                        formData.append('transaction_ids[]', id);
-                    });
-                    fetch("{% url 'bulk_delete_transactions' %}", {
+                    fetch("{% url 'delete_transaction' transaction_id=0 %}".replace('0', transactionId), {
                         method: 'POST',
                         headers: {
                             'X-CSRFToken': csrfToken,
@@ -368,229 +499,22 @@
                     .then(data => {
                         if (data.status === 'success') {
                             Swal.fire('Deleted!', data.message, 'success');
-                            transactionIds.forEach((transactionId) => {
-                                let row = document.getElementById('transaction-row-' + transactionId);
-                                if (row) {
-                                    row.remove();
-                                }
-                            });
+                            const row = document.getElementById('transaction-row-' + transactionId);
+                            if (row) row.remove();
                         } else {
-                            Swal.fire('Error!', data.message || 'An error occurred.', 'error');
+                            Swal.fire('Error!', data.message || 'An error occurred while deleting the transaction.', 'error');
                         }
                     })
                     .catch((error) => {
-                        Swal.fire('Error!','An error occurred.','error');
+                        Swal.fire('Error!','An error occurred while deleting the transaction.','error');
                     });
                 }
             });
-        });
-    }
+        }
 
-    function deleteTransaction(transactionId) {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'You will not be able to recover this transaction!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                let formData = new FormData();
-                fetch("{% url 'delete_transaction' transaction_id=0 %}".replace('0', transactionId), {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': csrfToken,
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    credentials: 'same-origin',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        Swal.fire('Deleted!', data.message, 'success');
-                        let row = document.getElementById('transaction-row-' + transactionId);
-                        if (row) {
-                            row.remove();
-                        }
-                    } else {
-                        Swal.fire('Error!', data.message || 'An error occurred while deleting the transaction.', 'error');
-                    }
-                })
-                .catch((error) => {
-                    Swal.fire('Error!','An error occurred while deleting the transaction.','error');
-                });
-            }
-        });
-    }
-
-    function editTransaction(transactionId) {
-        fetch("{% url 'edit_transaction' transaction_id=0 %}".replace('0', transactionId), {
-            method: 'GET',
-            headers: {
-                'X-CSRFToken': csrfToken,
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            credentials: 'same-origin'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                const transaction = data.transaction;
-                transactionForm.querySelector('select[name="patient"]').value = transaction.patient || '';
-                transactionForm.querySelector('input[name="issuer"]').value = transaction.issuer || '';
-                transactionForm.action = "{% url 'edit_transaction' transaction_id=0 %}".replace('0', transaction.id);
-                modalTitle.textContent = "Edit Transaction";
-                submitButton.textContent = "Update Transaction";
-                isEditMode = true;
-                editTransactionId = transaction.id;
-                fetch("{% url 'get_patient_details' patient_id=0 %}".replace('0', transaction.patient), {
-                    method: 'GET',
-                    headers: {
-                        'X-CSRFToken': csrfToken,
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    credentials: 'same-origin'
-                })
-                .then(response => response.json())
-                .then(patientData => {
-                    if (patientData.status === 'success') {
-                        document.getElementById('email').value = patientData.data.email || '';
-                        document.getElementById('address').value = patientData.data.address || '';
-                        document.getElementById('tel').value = patientData.data.phone || '';
-                        document.getElementById('transaction_no').value = transaction.transaction_no || '';
-                    } else {
-                        Swal.fire('Error!', patientData.message || 'Failed to fetch patient details.','error');
-                    }
-                })
-                .catch((error) => {
-                    Swal.fire('Error!','An error occurred while fetching patient details.','error');
-                });
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            } else {
-                Swal.fire('Error!', data.message || 'Failed to fetch transaction data.','error');
-            }
-        })
-        .catch((error) => {
-            Swal.fire('Error!','An error occurred while fetching transaction data.','error');
-        });
-    }
-
-    transactionForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const url = transactionForm.action;
-        const method = 'POST';
-        const formData = new FormData(this);
-        fetch(url, {
-            method: method,
-            headers: {
-                'X-CSRFToken': csrfToken,
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            credentials: 'same-origin',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                Swal.fire(isEditMode ? 'Updated!' : 'Added!', data.message, 'success');
-                if (isEditMode) {
-                    const transaction = data.transaction;
-                    const row = document.getElementById('transaction-row-' + transaction.id);
-                    if (row) {
-                        row.innerHTML = `
-                            <td class="p-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <input id="checkbox-${transaction.id}" name="transaction_ids" value="${transaction.id}" type="checkbox" class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                    <label for="checkbox-${transaction.id}" class="sr-only">Select transaction</label>
-                                </div>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">${transaction.transaction_no}</td>
-                            <td class="px-4 py-3 whitespace-nowrap">${transaction.patient}</td>
-                            <td class="px-4 py-3 whitespace-nowrap">${transaction.date}</td>
-                            <td class="px-4 py-3 whitespace-nowrap">${transaction.issuer}</td>
-                            <td class="px-4 py-3 whitespace-nowrap">${transaction.tel || ''}</td>
-                            <td class="px-4 py-3 whitespace-nowrap">${transaction.email}</td>
-                            <td class="px-4 py-3 whitespace-nowrap">${transaction.address}</td>
-                            <td class="px-4 py-3 whitespace-nowrap flex space-x-2">
-                                <button type="button" class="text-blue-600 hover:text-blue-800 focus:outline-none" onclick="editTransaction('${transaction.id}')" title="Edit Transaction">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 18a1 1 0 01-1-1v-4.586l10.293-10.293a1 1 0 011.414 0l2.586 2.586a1 1 0 010 1.414L9.414 17H5z"/>
-                                    </svg>
-                                </button>
-                                <button type="button" class="text-red-600 hover:text-red-800 focus:outline-none" onclick="deleteTransaction('${transaction.id}')" title="Delete Transaction">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M6 3V4H4V6H16V4H14V3H6ZM6 6V15C6 16.1046 6.89543 17 8 17H12C13.1046 17 14 16.1046 14 15V6H6Z"/>
-                                    </svg>
-                                </button>
-                            </td>
-                        `;
-                    }
-                } else {
-                    const transaction = data.transaction;
-                    const tableBody = document.getElementById('transactionTableBody');
-                    tableBody.insertAdjacentHTML('beforeend', `
-                        <tr id="transaction-row-${transaction.id}" class="hover:bg-gray-100 dark:hover:bg-gray-700">
-                            <td class="p-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <input id="checkbox-${transaction.id}" name="transaction_ids" value="${transaction.id}" type="checkbox" class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                    <label for="checkbox-${transaction.id}" class="sr-only">Select transaction</label>
-                                </div>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">${transaction.transaction_no}</td>
-                            <td class="px-4 py-3 whitespace-nowrap">${transaction.patient}</td>
-                            <td class="px-4 py-3 whitespace-nowrap">${transaction.date}</td>
-                            <td class="px-4 py-3 whitespace-nowrap">${transaction.issuer}</td>
-                            <td class="px-4 py-3 whitespace-nowrap">${transaction.tel || ''}</td>
-                            <td class="px-4 py-3 whitespace-nowrap">${transaction.email}</td>
-                            <td class="px-4 py-3 whitespace-nowrap">${transaction.address}</td>
-                            <td class="px-4 py-3 whitespace-nowrap flex space-x-2">
-                                <button type="button" class="text-blue-600 hover:text-blue-800 focus:outline-none" onclick="editTransaction('${transaction.id}')" title="Edit Transaction">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 18a1 1 0 01-1-1v-4.586l10.293-10.293a1 1 0 011.414 0l2.586 2.586a1 1 0 010 1.414L9.414 17H5z"/>
-                                    </svg>
-                                </button>
-                                <button type="button" class="text-red-600 hover:text-red-800 focus:outline-none" onclick="deleteTransaction('${transaction.id}')" title="Delete Transaction">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M6 3V4H4V6H16V4H14V3H6ZM6 6V15C6 16.1046 6.89543 17 8 17H12C13.1046 17 14 16.1046 14 15V6H6Z"/>
-                                    </svg>
-                                </button>
-                            </td>
-                        </tr>
-                    `);
-                }
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                resetForm();
-            } else {
-                if (data.errors) {
-                    let errorMessages = '';
-                    const errors = JSON.parse(data.errors);
-                    for (let field in errors) {
-                        errors[field].forEach(error => {
-                            errorMessages += `${error.message}<br>`;
-                        });
-                    }
-                    Swal.fire({icon: 'error', title: 'Form Errors', html: errorMessages});
-                } else {
-                    Swal.fire('Error!', data.message || 'An error occurred.', 'error');
-                }
-            }
-        })
-        .catch((error) => {
-            Swal.fire('Error!','An error occurred.','error');
-        });
-    });
-
-    const searchInput = document.getElementById('searchInput');
-    const transactionTableBody = document.getElementById('transactionTableBody');
-    if (searchInput) {
-        searchInput.addEventListener('input', debounce(function() {
-            const query = this.value.trim();
-            fetch("{% url 'search_transactions' %}?q=" + encodeURIComponent(query), {
+        // Edit Transaction Function
+        window.editTransaction = function(transactionId) {
+            fetch("{% url 'edit_transaction' transaction_id=0 %}".replace('0', transactionId), {
                 method: 'GET',
                 headers: {
                     'X-CSRFToken': csrfToken,
@@ -601,23 +525,174 @@
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    transactionTableBody.innerHTML = data.html;
+                    const transaction = data.transaction;
+                    transactionForm.querySelector('select[name="patient"]').value = transaction.patient || '';
+                    transactionForm.querySelector('input[name="issuer"]').value = transaction.issuer || '';
+                    // Set the form action to the edit URL
+                    transactionForm.action = "{% url 'edit_transaction' transaction_id=0 %}".replace('0', transaction.id);
+                    modalTitle.textContent = "Edit Transaction";
+                    submitButton.textContent = "Update Transaction";
+                    isEditMode = true;
+                    editTransactionId = transaction.id;
+
+                    // Fetch patient details
+                    fetch("{% url 'get_patient_details' patient_id=0 %}".replace('0', transaction.patient), {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'same-origin'
+                    })
+                    .then(response => response.json())
+                    .then(patientData => {
+                        if (patientData.status === 'success') {
+                            document.getElementById('email').value = patientData.data.email || '';
+                            document.getElementById('address').value = patientData.data.address || '';
+                            document.getElementById('tel').value = patientData.data.phone || '';
+                            document.getElementById('transaction_no').value = transaction.transaction_no || '';
+                        } else {
+                            Swal.fire('Error!', patientData.message || 'Failed to fetch patient details.', 'error');
+                        }
+                    })
+                    .catch((error) => {
+                        Swal.fire('Error!','An error occurred while fetching patient details.','error');
+                    });
+
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                    updateGrandTotal();
                 } else {
-                    Swal.fire('Error!', data.message || 'An error occurred while searching.', 'error');
+                    Swal.fire('Error!', data.message || 'Failed to fetch transaction data.','error');
                 }
             })
             .catch((error) => {
-                Swal.fire('Error!','An error occurred while searching.','error');
+                Swal.fire('Error!','An error occurred while fetching transaction data.','error');
             });
-        }, 300));
-    }
+        }
 
-    const patientSelect = document.getElementById('id_patient');
-    if (patientSelect) {
-        patientSelect.addEventListener('change', function() {
-            const patientId = this.value;
-            if (patientId) {
-                fetch("{% url 'get_patient_details' patient_id=0 %}".replace('0', patientId), {
+        // Handle Form Submission
+        transactionForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const url = transactionForm.action;
+            const formData = new FormData(this);
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Swal.fire(isEditMode ? 'Updated!' : 'Added!', data.message, 'success');
+                    const transaction = data.transaction;
+
+                    if (isEditMode) {
+                        // Update row in the table
+                        const row = document.getElementById('transaction-row-' + transaction.id);
+                        if (row) {
+                            row.innerHTML = `
+                                <td class="p-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <input id="checkbox-${transaction.id}" name="transaction_ids" value="${transaction.id}" type="checkbox" class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                        <label for="checkbox-${transaction.id}" class="sr-only">Select transaction</label>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">${transaction.transaction_no}</td>
+                                <td class="px-4 py-3 whitespace-nowrap">${transaction.patient}</td>
+                                <td class="px-4 py-3 whitespace-nowrap">${transaction.date}</td>
+                                <td class="px-4 py-3 whitespace-nowrap">${transaction.issuer}</td>
+                                <td class="px-4 py-3 whitespace-nowrap">${transaction.tel || ''}</td>
+                                <td class="px-4 py-3 whitespace-nowrap">${transaction.email}</td>
+                                <td class="px-4 py-3 whitespace-nowrap">${transaction.address}</td>
+                                <td class="px-4 py-3 whitespace-nowrap flex space-x-2">
+                                    <button type="button" class="text-blue-600 hover:text-blue-800 focus:outline-none" onclick="editTransaction('${transaction.id}')" title="Edit Transaction">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 18a1 1 0 01-1-1v-4.586l10.293-10.293a1 1 0 011.414 0l2.586 2.586a1 1 0 010 1.414L9.414 17H5z"/>
+                                        </svg>
+                                    </button>
+                                    <button type="button" class="text-red-600 hover:text-red-800 focus:outline-none" onclick="deleteTransaction('${transaction.id}')" title="Delete Transaction">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M6 3V4H4V6H16V4H14V3H6ZM6 6V15C6 16.1046 6.89543 17 8 17H12C13.1046 17 14 16.1046 14 15V6H6Z"/>
+                                        </svg>
+                                    </button>
+                                </td>
+                            `;
+                        }
+                    } else {
+                        // Add new row in the table
+                        const tableBody = document.getElementById('transactionTableBody');
+                        tableBody.insertAdjacentHTML('beforeend', `
+                            <tr id="transaction-row-${transaction.id}" class="hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <td class="p-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <input id="checkbox-${transaction.id}" name="transaction_ids" value="${transaction.id}" type="checkbox" class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                        <label for="checkbox-${transaction.id}" class="sr-only">Select transaction</label>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">${transaction.transaction_no}</td>
+                                <td class="px-4 py-3 whitespace-nowrap">${transaction.patient}</td>
+                                <td class="px-4 py-3 whitespace-nowrap">${transaction.date}</td>
+                                <td class="px-4 py-3 whitespace-nowrap">${transaction.issuer}</td>
+                                <td class="px-4 py-3 whitespace-nowrap">${transaction.tel || ''}</td>
+                                <td class="px-4 py-3 whitespace-nowrap">${transaction.email}</td>
+                                <td class="px-4 py-3 whitespace-nowrap">${transaction.address}</td>
+                                <td class="px-4 py-3 whitespace-nowrap flex space-x-2">
+                                    <button type="button" class="text-blue-600 hover:text-blue-800 focus:outline-none" onclick="editTransaction('${transaction.id}')" title="Edit Transaction">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 18a1 1 0 01-1-1v-4.586l10.293-10.293a1 1 0 011.414 0l2.586 2.586a1 1 0 010 1.414L9.414 17H5z"/>
+                                        </svg>
+                                    </button>
+                                    <button type="button" class="text-red-600 hover:text-red-800 focus:outline-none" onclick="deleteTransaction('${transaction.id}')" title="Delete Transaction">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M6 3V4H4V6H16V4H14V3H6ZM6 6V15C6 16.1046 6.89543 17 8 17H12C13.1046 17 14 16.1046 14 15V6H6Z"/>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                        `);
+                    }
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    resetForm();
+                } else {
+                    if (data.errors) {
+                        let errorMessages = '';
+                        const errors = JSON.parse(data.errors);
+                        for (let field in errors) {
+                            errors[field].forEach(error => {
+                                errorMessages += `${error.message}<br>`;
+                            });
+                        }
+                        Swal.fire({icon: 'error', title: 'Form Errors', html: errorMessages});
+                    } else {
+                        Swal.fire('Error!', data.message || 'An error occurred.', 'error');
+                    }
+                }
+            })
+            .catch((error) => {
+                Swal.fire('Error!','An error occurred.','error');
+            });
+        });
+
+        // Update Grand Total on input changes
+        document.addEventListener('input', event => {
+            if (event.target.name && (event.target.name.endsWith('-quantity') || event.target.name.endsWith('-price'))) {
+                updateGrandTotal();
+            }
+        });
+
+        // Search Functionality
+        const searchInput = document.getElementById('searchInput');
+        const transactionTableBody = document.getElementById('transactionTableBody');
+        if (searchInput) {
+            searchInput.addEventListener('input', debounce(function() {
+                const query = this.value.trim();
+                fetch("{% url 'search_transactions' %}?q=" + encodeURIComponent(query), {
                     method: 'GET',
                     headers: {
                         'X-CSRFToken': csrfToken,
@@ -628,98 +703,24 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        document.getElementById('email').value = data.data.email || '';
-                        document.getElementById('address').value = data.data.address || '';
-                        document.getElementById('tel').value = data.data.phone || '';
-                        document.getElementById('transaction_no').value = "";
+                        transactionTableBody.innerHTML = data.html;
                     } else {
-                        document.getElementById('email').value = "";
-                        document.getElementById('address').value = "";
-                        document.getElementById('tel').value = "";
-                        Swal.fire('Error!', data.message || 'Failed to fetch patient details.', 'error');
+                        Swal.fire('Error!', data.message || 'An error occurred while searching.', 'error');
                     }
                 })
                 .catch((error) => {
-                    document.getElementById('email').value = "";
-                    document.getElementById('address').value = "";
-                    document.getElementById('tel').value = "";
-                    Swal.fire('Error!','An error occurred while fetching patient details.','error');
+                    Swal.fire('Error!','An error occurred while searching.','error');
                 });
-            } else {
-                document.getElementById('email').value = "";
-                document.getElementById('address').value = "";
-                document.getElementById('tel').value = "";
-                document.getElementById('transaction_no').value = "";
-            }
-        });
-    }
+            }, 300));
+        }
 
-    {% if messages %}
-        {% for message in messages %}
-            Swal.fire({
-                icon: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}",
-                title: "{% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% elif message.tags == 'warning' %}Warning{% else %}Notice{% endif %}",
-                text: "{{ message }}",
-                timer: 3000,
-                showConfirmButton: false
-            });
-        {% endfor %}
-    {% endif %}
-
-    const transactionItemsWrapper = document.getElementById('transactionItemsWrapper');
-    const addItemButton = document.getElementById('addItemButton');
-    let formIndex = {{ formset.total_form_count|default:"1" }};
-    if (addItemButton) {
-        addItemButton.addEventListener('click', function() {
-            const totalForms = document.querySelector(`input[name="form-TOTAL_FORMS"]`);
-            const newFormIndex = formIndex;
-            const emptyFormRegex = new RegExp('__prefix__','g');
-            const emptyFormHtml = `
-            <div class="p-3 border rounded mb-3 relative" style="background-color: #f9f9f9;">
-                <div>
-                    <input type="hidden" name="form-${newFormIndex}-id" id="id_form-${newFormIndex}-id">
-                </div>
-                <div class="grid grid-cols-4 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Item type</label>
-                        <select name="form-${newFormIndex}-item_type" class="form-control">
-                            <option value="Article">Article</option>
-                            <option value="Component">Component</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product</label>
-                        <select name="form-${newFormIndex}-product" class="form-control product-select">
-                            <option value="">---------</option>
-                            {% for p in formset.forms.0.fields.product.queryset %}
-                                <option value="{{ p.id }}">{{ p.item_name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Quantity</label>
-                        <input type="number" name="form-${newFormIndex}-quantity" min="1" class="form-control" value="1">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Price</label>
-                        <input type="text" class="price-field mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 bg-gray-100 rounded-md" readonly>
-                    </div>
-                </div>
-                <input type="hidden" name="form-${newFormIndex}-DELETE" id="id_form-${newFormIndex}-DELETE">
-            </div>`;
-            transactionItemsWrapper.insertAdjacentHTML('beforeend', emptyFormHtml);
-            formIndex++;
-            totalForms.value = formIndex;
-        });
-    }
-
-    function attachPriceFetch() {
-        document.querySelectorAll('.product-select').forEach(selectEl => {
-            selectEl.addEventListener('change', function() {
-                const productId = this.value;
-                const priceField = this.closest('.grid').querySelector('.price-field');
-                if (productId) {
-                    fetch("{% url 'get_product_details' product_id=0 %}".replace('0', productId), {
+        // Fetch Patient Details on Change
+        const patientSelect = document.getElementById('id_patient');
+        if (patientSelect) {
+            patientSelect.addEventListener('change', function() {
+                const patientId = this.value;
+                if (patientId) {
+                    fetch("{% url 'get_patient_details' patient_id=0 %}".replace('0', patientId), {
                         method: 'GET',
                         headers: {
                             'X-CSRFToken': csrfToken,
@@ -730,29 +731,150 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === 'success') {
-                            priceField.value = data.data.retail_price;
+                            document.getElementById('email').value = data.data.email || '';
+                            document.getElementById('address').value = data.data.address || '';
+                            document.getElementById('tel').value = data.data.phone || '';
+                            document.getElementById('transaction_no').value = "";
                         } else {
-                            priceField.value = '0.00';
+                            document.getElementById('email').value = "";
+                            document.getElementById('address').value = "";
+                            document.getElementById('tel').value = "";
+                            Swal.fire('Error!', data.message || 'Failed to fetch patient details.', 'error');
                         }
                     })
                     .catch((error) => {
-                        priceField.value = '0.00';
+                        document.getElementById('email').value = "";
+                        document.getElementById('address').value = "";
+                        document.getElementById('tel').value = "";
+                        Swal.fire('Error!','An error occurred while fetching patient details.','error');
                     });
                 } else {
-                    priceField.value = '0.00';
+                    document.getElementById('email').value = "";
+                    document.getElementById('address').value = "";
+                    document.getElementById('tel').value = "";
+                    document.getElementById('transaction_no').value = "";
                 }
             });
-        });
-    }
-    attachPriceFetch();
-    const observer = new MutationObserver(function(mutations) {
-        for (let mutation of mutations) {
-            if (mutation.addedNodes.length > 0) {
+        }
+
+        // Display Django Messages via SweetAlert
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    icon: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}",
+                    title: "{% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% elif message.tags == 'warning' %}Warning{% else %}Notice{% endif %}",
+                    text: "{{ message }}",
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            {% endfor %}
+        {% endif %}
+
+        // Handle Adding New Transaction Items
+        const addItemButton = document.getElementById('addItemButton');
+        let formIndex = parseInt("{{ formset.total_form_count }}");
+        if (addItemButton) {
+            addItemButton.addEventListener('click', function() {
+                const totalFormsInput = document.querySelector('input[name="form-TOTAL_FORMS"]');
+                const newFormIndex = formIndex;
+                const emptyFormHtml = `
+                <div class="p-3 border rounded mb-3 relative bg-gray-50 dark:bg-gray-800 dark:text-gray-100">
+                    <input type="hidden" name="form-${newFormIndex}-id" id="id_form-${newFormIndex}-id">
+                    <div class="grid grid-cols-5 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Item type</label>
+                            <select name="form-${newFormIndex}-item_type" class="form-control dark:bg-gray-700 dark:text-white">
+                                <option value="Article">Article</option>
+                                <option value="Component">Component</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product</label>
+                            <select name="form-${newFormIndex}-product" class="form-control product-select dark:bg-gray-700 dark:text-white">
+                                <option value="">---------</option>
+                                {% for p in formset.forms.0.fields.product.queryset %}
+                                    <option value="{{ p.id }}">{{ p.item_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Quantity</label>
+                            <input type="number" name="form-${newFormIndex}-quantity" min="1" class="form-control quantity-field dark:bg-gray-700 dark:text-white" value="1">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Price</label>
+                            <input type="number" name="form-${newFormIndex}-price" step="0.01" class="form-control price-input dark:bg-gray-700 dark:text-white" value="0.00">
+                        </div>
+                        <div class="flex items-center">
+                            <button type="button" class="remove-item inline-flex items-center mt-6 text-red-500 hover:text-red-700 focus:outline-none">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M6 3V4H4V6H16V4H14V3H6ZM6 6V15C6 16.1046 6.89543 17 8 17H12C13.1046 17 14 16.1046 14 15V6H6Z"/>
+                                </svg>
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+                transactionItemsWrapper.insertAdjacentHTML('beforeend', emptyFormHtml);
+                updateTotalForms(1); // Increment TOTAL_FORMS
+                formIndex++;
                 attachPriceFetch();
+                updateGrandTotal();
+            });
+        }
+
+        // Attach Price Fetch to Product Selects
+        function attachPriceFetch() {
+            document.querySelectorAll('.product-select').forEach(selectEl => {
+                selectEl.removeEventListener('change', fetchPrice);
+                selectEl.addEventListener('change', fetchPrice);
+            });
+        }
+
+        // Fetch Price Based on Selected Product
+        function fetchPrice(event) {
+            const productId = this.value;
+            const rowEl = this.closest('.grid');
+            const priceField = rowEl.querySelector('input[name$="-price"]');
+            if (productId) {
+                fetch("{% url 'get_product_details' product_id=0 %}".replace('0', productId), {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        priceField.value = data.data.retail_price;
+                    } else {
+                        priceField.value = '0.00';
+                    }
+                    updateGrandTotal();
+                })
+                .catch((error) => {
+                    priceField.value = '0.00';
+                    updateGrandTotal();
+                });
+            } else {
+                priceField.value = '0.00';
+                updateGrandTotal();
             }
         }
-    });
-    observer.observe(transactionItemsWrapper, { childList: true });
+        attachPriceFetch();
 
+        // Observe Changes to Attach Price Fetch to New Product Selects
+        const observer = new MutationObserver(function(mutations) {
+            for (let mutation of mutations) {
+                if (mutation.addedNodes.length > 0) {
+                    attachPriceFetch();
+                }
+            }
+        });
+        observer.observe(transactionItemsWrapper, { childList: true });
+
+    })();
 </script>
 {% endblock %}

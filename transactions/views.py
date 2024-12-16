@@ -37,7 +37,10 @@ def add_transaction(request):
                 items = formset.save(commit=False)
                 for item in items:
                     item.transaction = transaction
+                    if item.product and item.price == 0:
+                        item.price = item.product.retail_price or 0
                     item.save()
+                formset.save_m2m()
             messages.success(request, "Transaction and items added successfully.")
             return JsonResponse({
                 'status': 'success',
@@ -54,7 +57,11 @@ def add_transaction(request):
                 }
             })
         else:
-            return JsonResponse({'status': 'error', 'errors': form.errors.as_json(), 'message': 'Validation failed.'})
+            return JsonResponse({
+                'status': 'error',
+                'errors': form.errors.as_json(),
+                'message': 'Validation failed.'
+            })
     else:
         form = TransactionForm()
         formset = TransactionItemFormSet()
@@ -74,8 +81,18 @@ def edit_transaction(request, transaction_id):
         formset = TransactionItemFormSet(request.POST, instance=transaction_obj)
         if form.is_valid() and formset.is_valid():
             with db_transaction.atomic():
-                form.save()
-                formset.save()
+                transaction_updated = form.save()
+                items = formset.save(commit=False)
+                for item in items:
+                    item.transaction = transaction_updated
+                    # If product selected and no price provided, default to product's retail price
+                    if item.product and item.price == 0:
+                        item.price = item.product.retail_price or 0
+                    item.save()
+                # Remove any items marked for deletion
+                for deleted_item in formset.deleted_objects:
+                    deleted_item.delete()
+                formset.save_m2m()
             messages.success(request, "Transaction and items updated successfully.")
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({
@@ -96,11 +113,22 @@ def edit_transaction(request, transaction_id):
                 return redirect('transaction_list')
         else:
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                return JsonResponse({'status': 'error', 'errors': form.errors.as_json(), 'message': 'Validation failed.'})
+                return JsonResponse({
+                    'status': 'error',
+                    'errors': form.errors.as_json(),
+                    'message': 'Validation failed.'
+                })
             else:
                 messages.error(request, "Please correct the errors below.")
     else:
+        # AJAX GET: Return the entire rendered form + formset so items appear
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            form = TransactionForm(instance=transaction_obj)
+            formset = TransactionItemFormSet(instance=transaction_obj)
+            # Render the formset HTML to inject into the modal
+            rendered_formset = render(request, 'transactions/_transaction_formset.html', {
+                'formset': formset
+            })
             data = {
                 'id': transaction_obj.id,
                 'transaction_no': transaction_obj.transaction_no,
@@ -110,11 +138,18 @@ def edit_transaction(request, transaction_id):
                 'tel': transaction_obj.tel,
                 'email': transaction_obj.email,
                 'address': transaction_obj.address,
+                'formset_html': rendered_formset.content.decode('utf-8')
             }
             return JsonResponse({'status': 'success', 'transaction': data})
-        form = TransactionForm(instance=transaction_obj)
-        formset = TransactionItemFormSet(instance=transaction_obj)
-    return render(request, 'transactions/edit_transaction.html', {'form': form, 'formset': formset})
+        else:
+            form = TransactionForm(instance=transaction_obj)
+            formset = TransactionItemFormSet(instance=transaction_obj)
+
+    return render(request, 'transactions/edit_transaction.html', {
+        'form': form,
+        'formset': formset,
+        'transaction': transaction_obj
+    })
 
 @login_required
 def invoice_view(request, transaction_id):
@@ -191,6 +226,7 @@ def get_transaction_items(request, transaction_id):
             'item_type': item.item_type,
             'product': item.product.item_name if item.product else 'N/A',
             'quantity': item.quantity,
+            'price': str(item.price),
         })
     return JsonResponse({'status': 'success', 'items': items_data})
 
