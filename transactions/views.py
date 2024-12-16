@@ -9,6 +9,8 @@ from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.db import transaction as db_transaction
+from django.db import IntegrityError
+from django.core.exceptions import ValidationError
 from inventory.models import Product
 
 @login_required
@@ -17,8 +19,11 @@ def transaction_list(request):
     paginator = Paginator(transactions, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+
+    # Use an empty queryset for the formset to ensure a fresh item list when adding a new transaction
     form = TransactionForm()
-    formset = TransactionItemFormSet()
+    formset = TransactionItemFormSet(queryset=TransactionItem.objects.none())
+
     return render(request, 'transactions/transaction_list.html', {
         'page_obj': page_obj,
         'form': form,
@@ -32,34 +37,47 @@ def add_transaction(request):
         form = TransactionForm(request.POST)
         formset = TransactionItemFormSet(request.POST)
         if form.is_valid() and formset.is_valid():
-            with db_transaction.atomic():
-                transaction = form.save()
-                items = formset.save(commit=False)
-                for item in items:
-                    item.transaction = transaction
-                    if item.product and item.price == 0:
-                        item.price = item.product.retail_price or 0
-                    item.save()
-                formset.save_m2m()
-            messages.success(request, "Transaction and items added successfully.")
-            return JsonResponse({
-                'status': 'success',
-                'message': 'Transaction and items added successfully.',
-                'transaction': {
-                    'id': transaction.id,
-                    'transaction_no': transaction.transaction_no,
-                    'patient': str(transaction.patient),
-                    'date': transaction.date.strftime('%Y-%m-%d'),
-                    'issuer': transaction.issuer,
-                    'tel': transaction.tel,
-                    'email': transaction.email,
-                    'address': transaction.address,
-                }
-            })
+            try:
+                with db_transaction.atomic():
+                    transaction = form.save()
+                    items = formset.save(commit=False)
+                    for item in items:
+                        item.transaction = transaction
+                        if item.product and item.price == 0:
+                            if item.product.retail_price:
+                                item.price = item.product.retail_price
+                            else:
+                                item.price = 0
+                        item.save()
+                    formset.save_m2m()
+                messages.success(request, "Transaction and items added successfully.")
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Transaction and items added successfully.',
+                    'transaction': {
+                        'id': transaction.id,
+                        'transaction_no': transaction.transaction_no,
+                        'patient': str(transaction.patient),
+                        'date': transaction.date.strftime('%Y-%m-%d'),
+                        'issuer': transaction.issuer,
+                        'tel': transaction.tel,
+                        'email': transaction.email,
+                        'address': transaction.address,
+                    }
+                })
+            except ValidationError as e:
+                return JsonResponse({
+                    'status': 'error',
+                    'errors': {'__all__': [{'message': str(e)}]},
+                    'message': str(e)
+                })
         else:
             return JsonResponse({
                 'status': 'error',
-                'errors': form.errors.as_json(),
+                'errors': {
+                    'form': form.errors.get_json_data(),
+                    'formset': formset.errors
+                },
                 'message': 'Validation failed.'
             })
     else:
@@ -80,52 +98,64 @@ def edit_transaction(request, transaction_id):
         form = TransactionForm(request.POST, instance=transaction_obj)
         formset = TransactionItemFormSet(request.POST, instance=transaction_obj)
         if form.is_valid() and formset.is_valid():
-            with db_transaction.atomic():
-                transaction_updated = form.save()
-                items = formset.save(commit=False)
-                for item in items:
-                    item.transaction = transaction_updated
-                    # If product selected and no price provided, default to product's retail price
-                    if item.product and item.price == 0:
-                        item.price = item.product.retail_price or 0
-                    item.save()
-                # Remove any items marked for deletion
-                for deleted_item in formset.deleted_objects:
-                    deleted_item.delete()
-                formset.save_m2m()
-            messages.success(request, "Transaction and items updated successfully.")
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'status': 'success',
-                    'message': 'Transaction and items updated successfully.',
-                    'transaction': {
-                        'id': transaction_obj.id,
-                        'transaction_no': transaction_obj.transaction_no,
-                        'patient': str(transaction_obj.patient),
-                        'date': transaction_obj.date.strftime('%Y-%m-%d'),
-                        'issuer': transaction_obj.issuer,
-                        'tel': transaction_obj.tel,
-                        'email': transaction_obj.email,
-                        'address': transaction_obj.address,
-                    }
-                })
-            else:
-                return redirect('transaction_list')
+            try:
+                with db_transaction.atomic():
+                    transaction_updated = form.save()
+                    items = formset.save(commit=False)
+                    for item in items:
+                        item.transaction = transaction_updated
+                        if item.product and item.price == 0:
+                            if item.product.retail_price:
+                                item.price = item.product.retail_price
+                            else:
+                                item.price = 0
+                        item.save()
+                    for deleted_item in formset.deleted_objects:
+                        deleted_item.delete()
+                    formset.save_m2m()
+                messages.success(request, "Transaction and items updated successfully.")
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'status': 'success',
+                        'message': 'Transaction and items updated successfully.',
+                        'transaction': {
+                            'id': transaction_obj.id,
+                            'transaction_no': transaction_obj.transaction_no,
+                            'patient': str(transaction_obj.patient),
+                            'date': transaction_obj.date.strftime('%Y-%m-%d'),
+                            'issuer': transaction_obj.issuer,
+                            'tel': transaction_obj.tel,
+                            'email': transaction_obj.email,
+                            'address': transaction_obj.address,
+                        }
+                    })
+                else:
+                    return redirect('transaction_list')
+            except ValidationError as e:
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'status': 'error',
+                        'errors': {'__all__': [{'message': str(e)}]},
+                        'message': str(e)
+                    })
+                else:
+                    messages.error(request, str(e))
         else:
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({
                     'status': 'error',
-                    'errors': form.errors.as_json(),
+                    'errors': {
+                        'form': form.errors.get_json_data(),
+                        'formset': formset.errors
+                    },
                     'message': 'Validation failed.'
                 })
             else:
                 messages.error(request, "Please correct the errors below.")
     else:
-        # AJAX GET: Return the entire rendered form + formset so items appear
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             form = TransactionForm(instance=transaction_obj)
             formset = TransactionItemFormSet(instance=transaction_obj)
-            # Render the formset HTML to inject into the modal
             rendered_formset = render(request, 'transactions/_transaction_formset.html', {
                 'formset': formset
             })

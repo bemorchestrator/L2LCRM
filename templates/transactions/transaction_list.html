@@ -182,7 +182,6 @@
             {% csrf_token %}
             <div class="px-4 py-5">
                 <div class="space-y-4">
-                    <!-- Patient -->
                     <div>
                         <label for="id_patient" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Patient</label>
                         <select id="id_patient" name="patient" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white">
@@ -195,12 +194,10 @@
                             <p class="text-red-500 text-xs mt-1">{{ form.patient.errors }}</p>
                         {% endif %}
                     </div>
-                    <!-- Transaction Number -->
                     <div>
                         <label for="transaction_no" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Transaction Number</label>
                         <input type="text" id="transaction_no" name="transaction_no" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 bg-gray-100 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white" readonly>
                     </div>
-                    <!-- Issuer -->
                     <div>
                         <label for="{{ form.issuer.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form.issuer.label }}</label>
                         <input type="text" id="{{ form.issuer.id_for_label }}" name="{{ form.issuer.name }}" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white" value="{{ form.issuer.value }}">
@@ -208,7 +205,6 @@
                             <p class="text-red-500 text-xs mt-1">{{ form.issuer.errors }}</p>
                         {% endif %}
                     </div>
-                    <!-- Telephone Number -->
                     <div>
                         <label for="tel" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Telephone Number</label>
                         <input type="text" id="tel" name="tel" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 bg-gray-100 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white" readonly>
@@ -216,23 +212,21 @@
                             <p class="text-red-500 text-xs mt-1">{{ form.tel.errors }}</p>
                         {% endif %}
                     </div>
-                    <!-- Email -->
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                         <input type="email" id="email" name="email" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 bg-gray-100 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white" readonly>
                     </div>
-                    <!-- Address -->
                     <div>
                         <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Address</label>
                         <textarea id="address" name="address" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 bg-gray-100 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white" rows="3" readonly></textarea>
                     </div>
                     <hr class="my-4 border-gray-300 dark:border-gray-600">
-                    <!-- Transaction Items -->
                     <div id="transactionItemsWrapper">
                         {{ formset.management_form }}
                         {% for form_i in formset.forms %}
                             <div class="p-3 border rounded mb-3 relative bg-gray-50 dark:bg-gray-800 dark:text-gray-100">
                                 {{ form_i.id }}
+                                {{ form_i.DELETE }}
                                 <div class="grid grid-cols-5 gap-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form_i.item_type.label }}</label>
@@ -318,7 +312,6 @@
             };
         }
 
-        // Open Modal
         if (openModalButton) {
             openModalButton.addEventListener('click', () => {
                 resetForm();
@@ -328,7 +321,6 @@
             });
         }
 
-        // Close Modal
         closeModalButtons.forEach(button => {
             button.addEventListener('click', () => {
                 modal.classList.add('hidden');
@@ -337,7 +329,6 @@
             });
         });
 
-        // Close modal when clicking outside
         window.addEventListener('click', (event) => {
             if (event.target === modal) {
                 modal.classList.add('hidden');
@@ -346,7 +337,6 @@
             }
         });
 
-        // Reset Form
         function resetForm() {
             isEditMode = false;
             editTransactionId = null;
@@ -358,13 +348,23 @@
             document.getElementById('email').value = "";
             document.getElementById('address').value = "";
             document.getElementById('tel').value = "";
-            // Reset all DELETE checkboxes and show all items
-            document.querySelectorAll('input[name$="-DELETE"]').forEach(cb => cb.checked = false);
-            document.querySelectorAll('#transactionItemsWrapper .p-3.border.rounded.mb-3').forEach(item => item.style.display = 'block');
+
+            // Remove any existing item blocks, but keep the management form markup
+            const itemsWrapper = document.getElementById('transactionItemsWrapper');
+            itemsWrapper.querySelectorAll('.p-3.border.rounded.mb-3').forEach(div => div.remove());
+
+            // Re-inject the management form (empty) so we start from scratch
+            itemsWrapper.innerHTML = `
+                {{ formset.management_form }}
+            `.trim();
+
+            // If you want exactly one default empty form row upon opening, add it here or rely on extra=1
+            // The inline formset's 'extra=1' normally provides 1 empty row, but once we reset the form above,
+            // we re-initialize it in a blank state, so let's rely on the "Add Another Item" button or custom logic.
+
             updateGrandTotal();
         }
 
-        // Update Grand Total
         function updateGrandTotal() {
             let sum = 0.00;
             document.querySelectorAll('#transactionItemsWrapper .p-3.border.rounded.mb-3').forEach(row => {
@@ -380,7 +380,6 @@
             document.getElementById('grandTotal').textContent = '$' + sum.toFixed(2);
         }
 
-        // Update TOTAL_FORMS
         function updateTotalForms(delta) {
             const totalFormsInput = document.querySelector('input[name="form-TOTAL_FORMS"]');
             let total = parseInt(totalFormsInput.value);
@@ -388,34 +387,27 @@
             totalFormsInput.value = total;
         }
 
-        // Handle Remove Item
         function handleRemoveItem(event) {
             if (!event.target.closest('.remove-item')) return;
-
+            event.preventDefault();
             const removeButton = event.target.closest('.remove-item');
             const itemDiv = removeButton.closest('.p-3.border.rounded.mb-3');
-
-            // Check if the form has a DELETE checkbox (existing form)
             const deleteCheckbox = itemDiv.querySelector('input[name$="-DELETE"]');
             if (deleteCheckbox) {
-                // For existing forms, mark them for deletion and hide the item
                 deleteCheckbox.checked = true;
                 itemDiv.style.display = 'none';
             } else {
-                // For new forms, remove the item from the DOM and update TOTAL_FORMS
                 itemDiv.remove();
                 updateTotalForms(-1);
             }
             updateGrandTotal();
         }
 
-        // Event delegation for Remove buttons
         const transactionItemsWrapper = document.getElementById('transactionItemsWrapper');
         if (transactionItemsWrapper) {
             transactionItemsWrapper.addEventListener('click', handleRemoveItem);
         }
 
-        // Bulk Delete Button
         const bulkDeleteButton = document.getElementById('bulkDeleteButton');
         if (bulkDeleteButton) {
             bulkDeleteButton.addEventListener('click', function() {
@@ -473,7 +465,6 @@
             });
         }
 
-        // Delete Transaction Function
         window.deleteTransaction = function(transactionId) {
             Swal.fire({
                 title: 'Are you sure?',
@@ -512,7 +503,6 @@
             });
         }
 
-        // Edit Transaction Function
         window.editTransaction = function(transactionId) {
             fetch("{% url 'edit_transaction' transaction_id=0 %}".replace('0', transactionId), {
                 method: 'GET',
@@ -528,14 +518,20 @@
                     const transaction = data.transaction;
                     transactionForm.querySelector('select[name="patient"]').value = transaction.patient || '';
                     transactionForm.querySelector('input[name="issuer"]').value = transaction.issuer || '';
-                    // Set the form action to the edit URL
+                    document.getElementById('email').value = transaction.email || '';
+                    document.getElementById('address').value = transaction.address || '';
+                    document.getElementById('tel').value = transaction.tel || '';
+                    document.getElementById('transaction_no').value = transaction.transaction_no || '';
+
+                    const transactionItemsWrapper = document.getElementById('transactionItemsWrapper');
+                    transactionItemsWrapper.innerHTML = transaction.formset_html;
+
                     transactionForm.action = "{% url 'edit_transaction' transaction_id=0 %}".replace('0', transaction.id);
                     modalTitle.textContent = "Edit Transaction";
                     submitButton.textContent = "Update Transaction";
                     isEditMode = true;
                     editTransactionId = transaction.id;
 
-                    // Fetch patient details
                     fetch("{% url 'get_patient_details' patient_id=0 %}".replace('0', transaction.patient), {
                         method: 'GET',
                         headers: {
@@ -561,6 +557,7 @@
 
                     modal.classList.remove('hidden');
                     modal.classList.add('flex');
+                    attachPriceFetch();
                     updateGrandTotal();
                 } else {
                     Swal.fire('Error!', data.message || 'Failed to fetch transaction data.','error');
@@ -571,7 +568,6 @@
             });
         }
 
-        // Handle Form Submission
         transactionForm.addEventListener('submit', function(event) {
             event.preventDefault();
             const url = transactionForm.action;
@@ -590,9 +586,7 @@
                 if (data.status === 'success') {
                     Swal.fire(isEditMode ? 'Updated!' : 'Added!', data.message, 'success');
                     const transaction = data.transaction;
-
                     if (isEditMode) {
-                        // Update row in the table
                         const row = document.getElementById('transaction-row-' + transaction.id);
                         if (row) {
                             row.innerHTML = `
@@ -624,7 +618,6 @@
                             `;
                         }
                     } else {
-                        // Add new row in the table
                         const tableBody = document.getElementById('transactionTableBody');
                         tableBody.insertAdjacentHTML('beforeend', `
                             <tr id="transaction-row-${transaction.id}" class="hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -662,15 +655,37 @@
                 } else {
                     if (data.errors) {
                         let errorMessages = '';
-                        const errors = JSON.parse(data.errors);
-                        for (let field in errors) {
-                            errors[field].forEach(error => {
-                                errorMessages += `${error.message}<br>`;
-                            });
+                        if (typeof data.errors === 'object') {
+                            if (data.errors.form) {
+                                for (let field in data.errors.form) {
+                                    data.errors.form[field].forEach(error => {
+                                        errorMessages += `${error.message}<br>`;
+                                    });
+                                }
+                            }
+                            if (data.errors.formset) {
+                                data.errors.formset.forEach(formErrors => {
+                                    for (let field in formErrors) {
+                                        formErrors[field].forEach(error => {
+                                            errorMessages += `${error.message}<br>`;
+                                        });
+                                    }
+                                });
+                            }
+                            if (data.errors.__all__) {
+                                data.errors.__all__.forEach(err => {
+                                    errorMessages += `${err.message}<br>`;
+                                });
+                            }
+                        }
+                        if (data.message && !errorMessages.includes(data.message)) {
+                            errorMessages += data.message;
                         }
                         Swal.fire({icon: 'error', title: 'Form Errors', html: errorMessages});
+                    } else if (data.message) {
+                        Swal.fire({icon: 'error', title: 'Error', text: data.message});
                     } else {
-                        Swal.fire('Error!', data.message || 'An error occurred.', 'error');
+                        Swal.fire('Error!', 'An error occurred.', 'error');
                     }
                 }
             })
@@ -679,14 +694,12 @@
             });
         });
 
-        // Update Grand Total on input changes
         document.addEventListener('input', event => {
             if (event.target.name && (event.target.name.endsWith('-quantity') || event.target.name.endsWith('-price'))) {
                 updateGrandTotal();
             }
         });
 
-        // Search Functionality
         const searchInput = document.getElementById('searchInput');
         const transactionTableBody = document.getElementById('transactionTableBody');
         if (searchInput) {
@@ -714,7 +727,6 @@
             }, 300));
         }
 
-        // Fetch Patient Details on Change
         const patientSelect = document.getElementById('id_patient');
         if (patientSelect) {
             patientSelect.addEventListener('change', function() {
@@ -757,7 +769,6 @@
             });
         }
 
-        // Display Django Messages via SweetAlert
         {% if messages %}
             {% for message in messages %}
                 Swal.fire({
@@ -770,7 +781,6 @@
             {% endfor %}
         {% endif %}
 
-        // Handle Adding New Transaction Items
         const addItemButton = document.getElementById('addItemButton');
         let formIndex = parseInt("{{ formset.total_form_count }}");
         if (addItemButton) {
@@ -780,6 +790,7 @@
                 const emptyFormHtml = `
                 <div class="p-3 border rounded mb-3 relative bg-gray-50 dark:bg-gray-800 dark:text-gray-100">
                     <input type="hidden" name="form-${newFormIndex}-id" id="id_form-${newFormIndex}-id">
+                    <input type="checkbox" name="form-${newFormIndex}-DELETE" style="display:none;">
                     <div class="grid grid-cols-5 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Item type</label>
@@ -816,14 +827,13 @@
                     </div>
                 </div>`;
                 transactionItemsWrapper.insertAdjacentHTML('beforeend', emptyFormHtml);
-                updateTotalForms(1); // Increment TOTAL_FORMS
+                updateTotalForms(1);
                 formIndex++;
                 attachPriceFetch();
                 updateGrandTotal();
             });
         }
 
-        // Attach Price Fetch to Product Selects
         function attachPriceFetch() {
             document.querySelectorAll('.product-select').forEach(selectEl => {
                 selectEl.removeEventListener('change', fetchPrice);
@@ -831,7 +841,6 @@
             });
         }
 
-        // Fetch Price Based on Selected Product
         function fetchPrice(event) {
             const productId = this.value;
             const rowEl = this.closest('.grid');
@@ -865,7 +874,6 @@
         }
         attachPriceFetch();
 
-        // Observe Changes to Attach Price Fetch to New Product Selects
         const observer = new MutationObserver(function(mutations) {
             for (let mutation of mutations) {
                 if (mutation.addedNodes.length > 0) {
