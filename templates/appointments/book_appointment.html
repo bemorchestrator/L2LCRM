@@ -1,0 +1,549 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section>
+    <div class="container mx-auto px-4">
+        <!-- Outer container to mimic the same 'Add Diagnosis' style -->
+        <div class="relative overflow-hidden">
+            
+            <!-- Header bar, similar layout to your "Add New Diagnosis" modal header -->
+            <div class="flex flex-col px-4 py-3 space-y-3 lg:flex-row lg:items-center lg:justify-between lg:space-y-0 lg:space-x-4">
+                <div class="flex items-center flex-1 space-x-4">
+                    <h5 class="text-lg font-semibold text-gray-700 dark:text-white">
+                        <span class="text-gray-500">Book an Appointment</span>
+                    </h5>
+                </div>
+            </div>
+            
+            <!-- Form container -->
+            <div class="px-6 py-4">
+                <!-- Inner form box using the same dark/light background style -->
+                <div class="bg-white dark:bg-[#131313] rounded-lg shadow-lg max-w-4xl mx-auto p-6 text-gray-900 dark:text-gray-200">
+                    <form method="POST" class="space-y-6" id="appointmentForm">
+                        {% csrf_token %}
+
+                        <!-- Basic Information -->
+                        <div>
+                            <h4 class="text-md font-semibold text-gray-700 dark:text-gray-200">Basic Information</h4>
+                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 mt-2">
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="email">Email</label>
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        name="email"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="Enter your email"
+                                        required
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="full_name">Full Name</label>
+                                    <input
+                                        type="text"
+                                        id="full_name"
+                                        name="full_name"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="Enter your full name"
+                                        required
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="nric_passport">NRIC/Passport</label>
+                                    <input
+                                        type="text"
+                                        id="nric_passport"
+                                        name="nric_passport"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="Enter your NRIC or Passport number"
+                                        required
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="date_of_birth">Date of Birth</label>
+                                    <input
+                                        type="date"
+                                        id="date_of_birth"
+                                        name="date_of_birth"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        required
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="time_of_birth">Time of Birth</label>
+                                    <input
+                                        type="time"
+                                        id="time_of_birth"
+                                        name="time_of_birth"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="Enter time of birth"
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="country_of_birth">Country of Birth</label>
+                                    <input
+                                        type="text"
+                                        id="country_of_birth"
+                                        name="country_of_birth"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="Enter country of birth"
+                                        required
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="contact_number">Contact Number</label>
+                                    <input
+                                        type="text"
+                                        id="contact_number"
+                                        name="contact_number"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="Enter your contact number"
+                                        required
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">WhatsApp Contactable</label>
+                                    <div class="flex space-x-4 mt-1">
+                                        <label class="flex items-center text-gray-700 dark:text-gray-300">
+                                            <input
+                                                type="radio"
+                                                name="whatsapp_contactable"
+                                                value="yes"
+                                                class="w-4 h-4 bg-gray-100 border-gray-300 focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600"
+                                            >
+                                            <span class="ml-2">Yes</span>
+                                        </label>
+                                        <label class="flex items-center text-gray-700 dark:text-gray-300">
+                                            <input
+                                                type="radio"
+                                                name="whatsapp_contactable"
+                                                value="no"
+                                                class="w-4 h-4 bg-gray-100 border-gray-300 focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600"
+                                            >
+                                            <span class="ml-2">No</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="referral_source">Referral Source</label>
+                                    <input
+                                        type="text"
+                                        id="referral_source"
+                                        name="referral_source"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="How did you hear about us?"
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Personal Details -->
+                        <div>
+                            <h4 class="text-md font-semibold text-gray-700 dark:text-gray-200">Personal Details</h4>
+                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 mt-2">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="profession">Profession</label>
+                                    <input
+                                        type="text"
+                                        id="profession"
+                                        name="profession"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="Enter your profession"
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="race">Race</label>
+                                    <input
+                                        type="text"
+                                        id="race"
+                                        name="race"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="Enter your race"
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="religion">Religion</label>
+                                    <input
+                                        type="text"
+                                        id="religion"
+                                        name="religion"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="Enter your religion"
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="marital_status">Marital Status</label>
+                                    <select
+                                        id="marital_status"
+                                        name="marital_status"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                    >
+                                        <option value="single">Single</option>
+                                        <option value="married">Married</option>
+                                        <option value="divorced">Divorced/Widowed</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="number_of_children">Number of Children</label>
+                                    <input
+                                        type="number"
+                                        id="number_of_children"
+                                        name="number_of_children"
+                                        min="0"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="Enter number of children"
+                                    >
+                                </div>
+
+                                <div class="flex items-center mt-6">
+                                    <input
+                                        type="checkbox"
+                                        id="normal_delivery"
+                                        name="normal_delivery"
+                                        class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600"
+                                    >
+                                    <label for="normal_delivery" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Normal Delivery</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lifestyle -->
+                        <div>
+                            <h4 class="text-md font-semibold text-gray-700 dark:text-gray-200">Lifestyle</h4>
+                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 mt-2">
+                                <div class="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id="smoke"
+                                        name="smoke"
+                                        class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600"
+                                    >
+                                    <label for="smoke" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Do You Smoke?</label>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="drink_alcohol">Drink Alcohol</label>
+                                    <select
+                                        id="drink_alcohol"
+                                        name="drink_alcohol"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                    >
+                                        <option value="less_than_3">Yes, less than 3 times per week</option>
+                                        <option value="more_than_3">Yes, more than 3 times per week</option>
+                                        <option value="no">No</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="special_diet">Special Diet</label>
+                                    <input
+                                        type="text"
+                                        id="special_diet"
+                                        name="special_diet"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="Describe your special diet"
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="current_conditions">Current Health Conditions</label>
+                                    <input
+                                        type="text"
+                                        id="current_conditions"
+                                        name="current_conditions"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="Describe any health conditions"
+                                    >
+                                </div>
+
+                                <div class="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id="prepares_meals"
+                                        name="prepares_meals"
+                                        class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600"
+                                    >
+                                    <label for="prepares_meals" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Do you prepare meals?</label>
+                                </div>
+
+                                <div class="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id="skips_breakfast"
+                                        name="skips_breakfast"
+                                        class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600"
+                                    >
+                                    <label for="skips_breakfast" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Skip Breakfast?</label>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="breakfast_description">Breakfast Description</label>
+                                    <textarea
+                                        id="breakfast_description"
+                                        name="breakfast_description"
+                                        rows="2"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="Describe your breakfast habits"
+                                    ></textarea>
+                                </div>
+
+                                <div class="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id="vegan"
+                                        name="vegan"
+                                        class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600"
+                                    >
+                                    <label for="vegan" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Are You Vegan?</label>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="daily_beverage">Daily Beverage</label>
+                                    <input
+                                        type="text"
+                                        id="daily_beverage"
+                                        name="daily_beverage"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="Your daily beverages"
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="daily_favorite_food">Favorite Food</label>
+                                    <input
+                                        type="text"
+                                        id="daily_favorite_food"
+                                        name="daily_favorite_food"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="Your favorite food"
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Health Information -->
+                        <div>
+                            <h4 class="text-md font-semibold text-gray-700 dark:text-gray-200">Health Information</h4>
+                            <div class="grid grid-cols-1 gap-4 mt-2">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="medications_supplements">Medications/Supplements</label>
+                                    <textarea
+                                        id="medications_supplements"
+                                        name="medications_supplements"
+                                        rows="4"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="List your medications or supplements"
+                                    ></textarea>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="symptoms_onset">Onset</label>
+                                    <input
+                                        type="text"
+                                        id="symptoms_onset"
+                                        name="symptoms_onset"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="When did the symptoms start?"
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="provoked_by">Provoked By</label>
+                                    <input
+                                        type="text"
+                                        id="provoked_by"
+                                        name="provoked_by"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="What provokes the symptoms?"
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="better_with">Better With</label>
+                                    <input
+                                        type="text"
+                                        id="better_with"
+                                        name="better_with"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="What alleviates the symptoms?"
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="condition_notes">Condition Notes</label>
+                                    <textarea
+                                        id="condition_notes"
+                                        name="condition_notes"
+                                        rows="2"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="Additional notes about your condition"
+                                    ></textarea>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="symptom_severity">Symptom Severity (1-10)</label>
+                                    <input
+                                        type="number"
+                                        id="symptom_severity"
+                                        name="symptom_severity"
+                                        min="1"
+                                        max="10"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                                        placeholder="Rate your symptoms"
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Consent -->
+                        <div>
+                            <h4 class="text-md font-semibold text-gray-700 dark:text-gray-200">Consent</h4>
+                            <div class="grid grid-cols-1 gap-4 mt-2">
+                                <div class="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id="pdpa_consent"
+                                        name="pdpa_consent"
+                                        class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600"
+                                    >
+                                    <label for="pdpa_consent" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">PDPA Consent</label>
+                                </div>
+
+                                <div class="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id="informed_consent"
+                                        name="informed_consent"
+                                        class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600"
+                                    >
+                                    <label for="informed_consent" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Informed Consent</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+                            <button
+                                type="reset"
+                                class="mr-3 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                class="px-4 py-2 bg-[#C4C508] text-white rounded-lg hover:bg-[#A4A308] dark:bg-[#C4C508] dark:hover:bg-[#A4A308]"
+                            >
+                                Submit
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    // CSRF Token Helper
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrfToken = getCookie('csrftoken');
+
+    // Form Submission
+    const appointmentForm = document.getElementById('appointmentForm');
+
+    appointmentForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        fetch("{% url 'book_appointment' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === 'success') {
+                Swal.fire(
+                    'Success!',
+                    'Your appointment has been booked successfully.',
+                    'success'
+                ).then(() => {
+                    appointmentForm.reset();
+                });
+            } else {
+                if(data.errors) {
+                    let errorMessages = '';
+                    const errors = JSON.parse(data.errors);
+                    for(let field in errors) {
+                        errors[field].forEach(error => {
+                            errorMessages += `${error.message}<br>`;
+                        });
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Form Errors',
+                        html: errorMessages
+                    });
+                } else {
+                    Swal.fire(
+                        'Error!',
+                        data.message || 'An error occurred while booking the appointment.',
+                        'error'
+                    );
+                }
+            }
+        })
+        .catch((error) => {
+            Swal.fire(
+                'Error!',
+                'An error occurred while booking the appointment.',
+                'error'
+            );
+        });
+    });
+
+    // Display Django Messages with SweetAlert
+    {% if messages %}
+        {% for message in messages %}
+            Swal.fire({
+                icon: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}",
+                title: "{% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% elif message.tags == 'warning' %}Warning{% else %}Notice{% endif %}",
+                text: "{{ message }}",
+                timer: 3000,
+                showConfirmButton: false
+            });
+        {% endfor %}
+    {% endif %}
+</script>
+{% endblock %}
