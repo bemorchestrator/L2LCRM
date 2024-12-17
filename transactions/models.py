@@ -45,7 +45,6 @@ class TransactionItem(models.Model):
         (ARTICLE, 'Article'),
         (COMPONENT, 'Component'),
     ]
-
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name='items')
     item_type = models.CharField(max_length=10, choices=ITEM_TYPE_CHOICES)
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
@@ -57,17 +56,18 @@ class TransactionItem(models.Model):
         self.update_inventory()
 
     def update_inventory(self):
-        if self.product and (
-            (self.item_type == self.ARTICLE and self.product.product_type == self.ARTICLE) or
-            (self.item_type == self.COMPONENT and self.product.product_type == self.COMPONENT)
-        ):
-            self.product.quantity -= self.quantity
-            if self.product.quantity < 0:
-                raise ValidationError(
-                    f"Not enough stock for {self.product.item_name}. "
-                    f"Available: {self.product.quantity + self.quantity}, Required: {self.quantity}."
-                )
-            self.product.save()
+        if self.product:
+            if self.item_type == self.ARTICLE and self.product.product_type == self.product.ARTICLE:
+                self.product.quantity -= self.quantity
+                if self.product.quantity < 0:
+                    raise ValidationError(f"Not enough stock for {self.product.item_name}. Available: {self.product.quantity + self.quantity}, Required: {self.quantity}.")
+                self.product.save()
+                self.product.update_component_quantities(self.quantity)
+            elif self.item_type == self.COMPONENT and self.product.product_type == self.product.COMPONENT:
+                self.product.quantity -= self.quantity
+                if self.product.quantity < 0:
+                    raise ValidationError(f"Not enough stock for {self.product.item_name}. Available: {self.product.quantity + self.quantity}, Required: {self.quantity}.")
+                self.product.save()
 
     def __str__(self):
         return f"{self.item_type} - {self.product.item_name if self.product else 'N/A'} (x{self.quantity})"
