@@ -6,14 +6,12 @@
 <section>
     <div class="container mx-auto px-4">
         <div class="relative overflow-hidden bg-white shadow-md sm:rounded-lg dark:bg-[#1a1a1a]">
-            <!-- Header with stats, search, and action buttons -->
             <div class="flex flex-col px-4 py-3 space-y-3 lg:flex-row lg:items-center lg:justify-between lg:space-y-0 lg:space-x-4">
                 <div class="flex items-center flex-1 space-x-4">
                     <h5 class="text-lg font-semibold">
                         <span class="text-gray-500">All Patients:</span>
                         <span class="dark:text-white">{{ page_obj.paginator.count }}</span>
                     </h5>
-                    <!-- Search Input -->
                     <div class="relative w-full max-w-sm">
                         <input type="text" id="searchInput" placeholder="Search patients..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-gray-200 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -24,27 +22,23 @@
                     </div>
                 </div>
                 <div class="flex flex-row flex-shrink-0 space-x-3 md:flex-row md:items-center lg:justify-end">
-                    <!-- Bulk Delete Button -->
                     <button
                         type="button"
                         class="flex items-center justify-center w-10 h-10 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 rounded-full focus:outline-none dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-800"
                         id="bulkDeleteButton"
                         title="Delete Selected Patients"
                     >
-                        <!-- Delete Icon -->
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M6 3V4H4V6H16V4H14V3H6ZM6 6V15C6 16.1046 6.89543 17 8 17H12C13.1046 17 14 16.1046 14 15V6H6Z" />
                         </svg>
                     </button>
 
-                    <!-- Add New Patient Button -->
                     <button 
                         type="button" 
                         class="flex items-center justify-center w-10 h-10 text-white bg-[#c4c508] hover:bg-green-700 focus:ring-4 focus:ring-green-300 rounded-full focus:outline-none dark:bg-green-500 dark:hover:bg-green-600 dark:focus:ring-green-800" 
                         id="openModalButton"
                         title="Add New Patient"
                     >
-                        <!-- Plus Icon -->
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0V11H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
                         </svg>
@@ -52,7 +46,6 @@
                 </div>
             </div>
 
-            <!-- Patient Table -->
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400 bg-white">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-[#131313] dark:text-gray-400">
@@ -68,7 +61,7 @@
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">First Name</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Last Name</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Birth Date</th>
-                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Age</th> <!-- Age Column -->
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Age</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">NRIC</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Country</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Address</th>
@@ -78,6 +71,7 @@
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Consented</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Remarks</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Active</th>
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Diagnosis</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Actions</th>
                         </tr>
                     </thead>
@@ -87,7 +81,6 @@
                 </table>
             </div>
 
-            <!-- Pagination Controls -->
             <div class="flex items-center justify-between px-4 py-3 bg-white dark:bg-[#1a1a1a] border-t border-gray-200 dark:border-gray-700 sm:px-6">
                 <div class="flex flex-1 justify-between sm:hidden">
                     {% if page_obj.has_previous %}
@@ -145,7 +138,6 @@
                                 </span>
                             {% endif %}
 
-                            <!-- Page Numbers -->
                             {% for num in page_obj.paginator.page_range %}
                                 {% if page_obj.number == num %}
                                     <span aria-current="page">
@@ -164,7 +156,7 @@
                                 <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700" aria-label="Next">
                                     <span class="sr-only">Next</span>
                                     <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0L3 11.414V14a1 1 0 11-2 0V6a1 1 0 112 0v4.586l3.879-3.879a1 1 0 011.414 1.414L6.414 15l4.879 4.879a1 1 0 010 1.414z" clip-rule="evenodd" />
+                                        <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 010-1.414L11.414 10 7.707 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                                     </svg>
                                 </a>
                                 <a href="?page={{ page_obj.paginator.num_pages }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700" aria-label="Last">
@@ -177,7 +169,7 @@
                                 <span class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 cursor-not-allowed" aria-disabled="true" aria-label="Next">
                                     <span class="sr-only">Next</span>
                                     <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 010-1.414L11.414 10 7.707 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                        <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0L3 11.414V14a1 1 0 11-2 0V6a1 1 0 112 0v4.586l3.879-3.879a1 1 0 011.414 1.414L6.414 15l4.879 4.879a1 1 0 010 1.414z" clip-rule="evenodd" />
                                     </svg>
                                 </span>
                                 <span class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 cursor-not-allowed rounded-r-md" aria-disabled="true" aria-label="Last">
@@ -195,9 +187,7 @@
     </div>
 </section>
 
-<!-- Modal for Adding/Editing Patient -->
 <div id="modal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-50 z-50">
-    <!-- Modal Content -->
     <div class="bg-white dark:bg-[#131313] rounded-lg shadow-lg w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center px-4 py-3 border-b dark:border-gray-700">
             <h3 id="modalTitle" class="text-lg font-semibold text-gray-700 dark:text-gray-200">
@@ -214,10 +204,10 @@
             <div class="px-4 py-5">
                 <div class="grid grid-cols-1 gap-4">
                     <div>
-                        {{ form.patient_no.label_tag }}
-                        {{ form.patient_no }}
-                        {% if form.patient_no.errors %}
-                            <p class="text-red-500 text-xs mt-1">{{ form.patient_no.errors }}</p>
+                        {{ form.nric.label_tag }}
+                        {{ form.nric }}
+                        {% if form.nric.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.nric.errors }}</p>
                         {% endif %}
                     </div>
                     <div>
@@ -244,13 +234,6 @@
                     <div>
                         <label for="age" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Age</label>
                         <input type="text" id="age" name="age" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 dark:bg-gray-700 dark:text-white" readonly>
-                    </div>
-                    <div>
-                        {{ form.nric.label_tag }}
-                        {{ form.nric }}
-                        {% if form.nric.errors %}
-                            <p class="text-red-500 text-xs mt-1">{{ form.nric.errors }}</p>
-                        {% endif %}
                     </div>
                     <div>
                         {{ form.country.label_tag }}
@@ -329,12 +312,9 @@
     </div>
 </div>
 
-<!-- Include SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- JavaScript for Modal, Delete, Edit, and Search Functionality -->
 <script>
-    // Function to get CSRF token from cookies
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -351,7 +331,6 @@
     }
     const csrfToken = getCookie('csrftoken');
 
-    // Modal elements
     const openModalButton = document.getElementById('openModalButton');
     const modal = document.getElementById('modal');
     const closeModalButtons = document.querySelectorAll('#closeModalButton, #closeModalButtonFooter');
@@ -362,7 +341,6 @@
     let isEditMode = false;
     let editPatientId = null;
 
-    // Debounce function to limit the rate of function calls
     function debounce(func, delay) {
         let debounceTimer;
         return function() {
@@ -373,7 +351,6 @@
         };
     }
 
-    // Function to calculate age
     function calculateAge(birthDate) {
         const today = new Date();
         const birth = new Date(birthDate);
@@ -385,7 +362,6 @@
         return age;
     }
 
-    // Event listener for birth_date input to calculate age
     const birthDateInput = patientForm.querySelector('input[name="birth_date"]');
     const ageInput = document.getElementById('age');
 
@@ -399,14 +375,12 @@
         }
     });
 
-    // Open modal for adding new patient
     openModalButton.addEventListener('click', () => {
         resetForm();
         modal.classList.remove('hidden');
         modal.classList.add('flex');
     });
 
-    // Close modal
     closeModalButtons.forEach(button => {
         button.addEventListener('click', () => {
             modal.classList.add('hidden');
@@ -415,7 +389,6 @@
         });
     });
 
-    // Close modal when clicking outside the modal content
     window.addEventListener('click', (event) => {
         if (event.target === modal) {
             modal.classList.add('hidden');
@@ -424,7 +397,6 @@
         }
     });
 
-    // Reset form to default (add mode)
     function resetForm() {
         isEditMode = false;
         editPatientId = null;
@@ -435,7 +407,6 @@
         submitButton.textContent = "Save Patient";
     }
 
-    // Handle 'Select All' checkbox
     document.getElementById('checkbox-all').addEventListener('change', function() {
         let checkboxes = document.querySelectorAll('input[name="patient_ids"]');
         checkboxes.forEach((checkbox) => {
@@ -443,7 +414,6 @@
         });
     });
 
-    // Bulk delete functionality
     document.getElementById('bulkDeleteButton').addEventListener('click', function() {
         let checkboxes = document.querySelectorAll('input[name="patient_ids"]:checked');
         if (checkboxes.length === 0) {
@@ -516,7 +486,6 @@
         });
     });
 
-    // Individual delete functionality
     function deletePatient(patientId) {
         Swal.fire({
             title: 'Are you sure?',
@@ -569,7 +538,6 @@
         });
     }
 
-    // Edit Patient Functionality
     function editPatient(patientId) {
         fetch("{% url 'edit_patient' patient_id=0 %}".replace('0', patientId), {
             method: 'GET',
@@ -581,13 +549,12 @@
         })
         .then(response => response.json())
         .then(data => {
-            if (data.status === 'success') {
+            if(data.status === 'success') {
                 const patient = data.patient;
-                patientForm.querySelector('input[name="patient_no"]').value = patient.patient_no || '';
+                patientForm.querySelector('input[name="nric"]').value = patient.nric || '';
                 patientForm.querySelector('input[name="first_name"]').value = patient.first_name || '';
                 patientForm.querySelector('input[name="last_name"]').value = patient.last_name || '';
                 patientForm.querySelector('input[name="birth_date"]').value = patient.birth_date || '';
-                patientForm.querySelector('input[name="nric"]').value = patient.nric || '';
                 patientForm.querySelector('input[name="country"]').value = patient.country || '';
                 patientForm.querySelector('textarea[name="address"]').value = patient.address || '';
                 patientForm.querySelector('input[name="phone"]').value = patient.phone || '';
@@ -596,14 +563,12 @@
                 patientForm.querySelector('textarea[name="remarks"]').value = patient.remarks || '';
                 patientForm.querySelector('input[name="consented"]').checked = !!patient.consented;
                 patientForm.querySelector('input[name="active"]').checked = !!patient.active;
-                // Calculate and set age
-                if (patient.birth_date) {
+                if(patient.birth_date) {
                     const age = calculateAge(patient.birth_date);
                     ageInput.value = age;
                 } else {
                     ageInput.value = '';
                 }
-                // Note: profile_photo cannot be set programmatically for security reasons
                 patientForm.action = "{% url 'update_patient' patient_id=0 %}".replace('0', patient.id);
                 modalTitle.textContent = "Edit Patient";
                 submitButton.textContent = "Update Patient";
@@ -628,9 +593,8 @@
         });
     }
 
-    // Handle form submission for adding and editing
     patientForm.addEventListener('submit', function(event) {
-        if (isEditMode && editPatientId) {
+        if(isEditMode && editPatientId) {
             event.preventDefault();
             const formData = new FormData(this);
             fetch(patientForm.action, {
@@ -644,7 +608,7 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.status === 'success') {
+                if(data.status === 'success') {
                     Swal.fire(
                         'Updated!',
                         data.message,
@@ -652,38 +616,37 @@
                     );
                     const updatedPatient = data.patient;
                     const row = document.getElementById('patient-row-' + updatedPatient.id);
-                    if (row) {
-                        // Update Profile Photo
+                    if(row) {
                         const photoCell = row.querySelector('td:nth-child(2)');
-                        if (updatedPatient.profile_photo_url) {
+                        if(updatedPatient.profile_photo_url) {
                             photoCell.innerHTML = `<img src="${updatedPatient.profile_photo_url}" alt="Profile Photo" class="w-10 h-10 rounded-full object-cover">`;
                         } else {
                             photoCell.innerHTML = `<span class="text-gray-500">No Photo</span>`;
                         }
 
-                        row.querySelector('th[scope="row"]').innerHTML = `<a href="{% url 'patient_detail' patient_id=0 %}".replace('0', updatedPatient.id) class="text-blue-600 hover:text-blue-800 underline">${updatedPatient.patient_no}</a>`;
-                        row.querySelector('td:nth-child(3)').textContent = updatedPatient.first_name;
-                        row.querySelector('td:nth-child(4)').textContent = updatedPatient.last_name;
-                        row.querySelector('td:nth-child(5)').textContent = updatedPatient.birth_date;
-                        row.querySelector('td:nth-child(6)').textContent = updatedPatient.age; // Update Age
-                        row.querySelector('td:nth-child(7)').textContent = updatedPatient.nric;
-                        row.querySelector('td:nth-child(8)').textContent = updatedPatient.country;
-                        row.querySelector('td:nth-child(9)').textContent = updatedPatient.address;
-                        row.querySelector('td:nth-child(10)').textContent = updatedPatient.phone;
-                        row.querySelector('td:nth-child(11)').textContent = updatedPatient.fax;
-                        row.querySelector('td:nth-child(12)').textContent = updatedPatient.email;
-                        row.querySelector('td:nth-child(13)').textContent = updatedPatient.consented;
-                        row.querySelector('td:nth-child(14)').textContent = updatedPatient.remarks;
-                        row.querySelector('td:nth-child(15)').textContent = updatedPatient.active;
+                        row.querySelector('th[scope="row"]').innerHTML = `<a href="{% url 'patient_detail' patient_id=0 %}".replace('0', updatedPatient.id) class="text-blue-600 hover:text-blue-800 underline">${updatedPatient.nric}</a>`;
+                        row.querySelector('td:nth-child(4)').textContent = updatedPatient.first_name;
+                        row.querySelector('td:nth-child(5)').textContent = updatedPatient.last_name;
+                        row.querySelector('td:nth-child(6)').textContent = updatedPatient.birth_date;
+                        row.querySelector('td:nth-child(7)').textContent = updatedPatient.age;
+                        row.querySelector('td:nth-child(8)').textContent = updatedPatient.nric;
+                        row.querySelector('td:nth-child(9)').textContent = updatedPatient.country;
+                        row.querySelector('td:nth-child(10)').textContent = updatedPatient.address;
+                        row.querySelector('td:nth-child(11)').textContent = updatedPatient.phone;
+                        row.querySelector('td:nth-child(12)').textContent = updatedPatient.fax;
+                        row.querySelector('td:nth-child(13)').textContent = updatedPatient.email;
+                        row.querySelector('td:nth-child(14)').textContent = updatedPatient.consented;
+                        row.querySelector('td:nth-child(15)').textContent = updatedPatient.remarks;
+                        row.querySelector('td:nth-child(16)').textContent = updatedPatient.active;
                     }
                     modal.classList.add('hidden');
                     modal.classList.remove('flex');
                     resetForm();
                 } else {
-                    if (data.errors) {
+                    if(data.errors) {
                         let errorMessages = '';
                         const errors = JSON.parse(data.errors);
-                        for (let field in errors) {
+                        for(let field in errors) {
                             errors[field].forEach(error => {
                                 errorMessages += `${error.message}<br>`;
                             });
@@ -712,7 +675,6 @@
         }
     });
 
-    // Search Functionality with Autocomplete
     const searchInput = document.getElementById('searchInput');
     const patientTableBody = document.getElementById('patientTableBody');
 
@@ -728,14 +690,13 @@
         })
         .then(response => response.json())
         .then(data => {
-            if (data.status === 'success') {
+            if(data.status === 'success') {
                 patientTableBody.innerHTML = '';
                 data.patients.forEach(patient => {
                     const row = document.createElement('tr');
                     row.id = `patient-row-${patient.id}`;
                     row.classList.add('hover:bg-gray-100', 'dark:hover:bg-gray-700');
                     
-                    // Checkbox Cell
                     const checkboxCell = document.createElement('td');
                     checkboxCell.classList.add('w-4', 'px-4', 'py-3', 'whitespace-nowrap');
                     checkboxCell.innerHTML = `
@@ -746,126 +707,111 @@
                     `;
                     row.appendChild(checkboxCell);
 
-                    // Profile Photo Cell
                     const photoCell = document.createElement('td');
                     photoCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
-                    if (patient.profile_photo_url) {
+                    if(patient.profile_photo_url) {
                         photoCell.innerHTML = `<img src="${patient.profile_photo_url}" alt="Profile Photo" class="w-10 h-10 rounded-full object-cover">`;
                     } else {
                         photoCell.innerHTML = `<span class="text-gray-500">No Photo</span>`;
                     }
                     row.appendChild(photoCell);
 
-                    // Patient Number Cell
                     const patientNoCell = document.createElement('th');
                     patientNoCell.scope = "row";
                     patientNoCell.classList.add('px-4', 'py-2', 'font-medium', 'text-gray-900', 'whitespace-nowrap', 'dark:text-gray-500');
-                    patientNoCell.innerHTML = `<a href="{% url 'patient_detail' patient_id=0 %}".replace('0', patient.id) class="text-blue-600 hover:text-blue-800 underline">${patient.patient_no}</a>`;
+                    patientNoCell.innerHTML = `<a href="{% url 'patient_detail' patient_id=0 %}".replace('0', patient.id) class="text-blue-600 hover:text-blue-800 underline">${patient.nric}</a>`;
                     row.appendChild(patientNoCell);
 
-                    // First Name Cell
                     const firstNameCell = document.createElement('td');
                     firstNameCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
                     firstNameCell.innerHTML = `<a href="{% url 'patient_detail' patient_id=0 %}".replace('0', patient.id) class="text-blue-600 hover:text-blue-800 underline">${patient.first_name}</a>`;
                     row.appendChild(firstNameCell);
 
-                    // Last Name Cell
                     const lastNameCell = document.createElement('td');
                     lastNameCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
                     lastNameCell.innerHTML = `<a href="{% url 'patient_detail' patient_id=0 %}".replace('0', patient.id) class="text-blue-600 hover:text-blue-800 underline">${patient.last_name}</a>`;
                     row.appendChild(lastNameCell);
 
-                    // Birth Date Cell
                     const birthDateCell = document.createElement('td');
                     birthDateCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
                     birthDateCell.textContent = patient.birth_date;
                     row.appendChild(birthDateCell);
 
-                    // Age Cell
                     const ageCell = document.createElement('td');
                     ageCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
                     ageCell.textContent = patient.age;
                     row.appendChild(ageCell);
 
-                    // NRIC Cell
                     const nricCell = document.createElement('td');
                     nricCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
                     nricCell.textContent = patient.nric;
                     row.appendChild(nricCell);
 
-                    // Country Cell
                     const countryCell = document.createElement('td');
                     countryCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
                     countryCell.textContent = patient.country;
                     row.appendChild(countryCell);
 
-                    // Address Cell
                     const addressCell = document.createElement('td');
                     addressCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
                     addressCell.textContent = patient.address;
                     row.appendChild(addressCell);
 
-                    // Phone Cell
                     const phoneCell = document.createElement('td');
                     phoneCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
                     phoneCell.textContent = patient.phone;
                     row.appendChild(phoneCell);
 
-                    // Fax Cell
                     const faxCell = document.createElement('td');
                     faxCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
                     faxCell.textContent = patient.fax;
                     row.appendChild(faxCell);
 
-                    // Email Cell
                     const emailCell = document.createElement('td');
                     emailCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
                     emailCell.textContent = patient.email;
                     row.appendChild(emailCell);
 
-                    // Consented Cell
                     const consentedCell = document.createElement('td');
                     consentedCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
                     consentedCell.textContent = patient.consented;
                     row.appendChild(consentedCell);
 
-                    // Remarks Cell
                     const remarksCell = document.createElement('td');
                     remarksCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
                     remarksCell.textContent = patient.remarks;
                     row.appendChild(remarksCell);
 
-                    // Active Cell
                     const activeCell = document.createElement('td');
                     activeCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
                     activeCell.textContent = patient.active;
                     row.appendChild(activeCell);
 
-                    // Actions Cell
+                    const diagnosisCell = document.createElement('td');
+                    diagnosisCell.classList.add('px-4', 'py-2', 'whitespace-nowrap');
+                    diagnosisCell.innerHTML = `<a href="{% url 'diagnosis_detail' nric='PATIENT_NRICS_PLACEHOLDER' %}".replace('PATIENT_NRICS_PLACEHOLDER', patient.nric) class="text-blue-600 hover:text-blue-800 underline">View Diagnosis</a>`;
+                    row.appendChild(diagnosisCell);
+
                     const actionsCell = document.createElement('td');
                     actionsCell.classList.add('px-4', 'py-2', 'whitespace-nowrap', 'flex', 'space-x-2');
                     actionsCell.innerHTML = `
-                        <!-- Edit Button -->
                         <button
                             type="button"
                             class="text-blue-600 hover:text-blue-800 focus:outline-none"
                             onclick="editPatient('${patient.id}')"
                             title="Edit Patient"
                         >
-                            <!-- Edit Icon -->
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 18a1 1 0 01-1-1v-4.586l10.293-10.293a1 1 0 011.414 0l2.586 2.586a1 1 0 010 1.414L9.414 17H5z" />
                             </svg>
                         </button>
 
-                        <!-- Individual Delete Button -->
                         <button
                             type="button"
                             class="text-red-600 hover:text-red-800 focus:outline-none"
                             onclick="deletePatient('${patient.id}')"
                             title="Delete Patient"
                         >
-                            <!-- Delete Icon -->
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M6 3V4H4V6H16V4H14V3H6ZM6 6V15C6 16.1046 6.89543 17 8 17H12C13.1046 17 14 16.1046 14 15V6H6Z" />
                             </svg>
@@ -889,9 +835,8 @@
                 'error'
             );
         });
-    }, 300)); // Debounce delay of 300ms
+    }, 300));
 
-    // Display SweetAlert2 notifications based on Django messages
     {% if messages %}
         {% for message in messages %}
             Swal.fire({
