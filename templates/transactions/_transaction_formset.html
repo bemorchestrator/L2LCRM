@@ -1,0 +1,33 @@
+{{ formset.management_form }}
+{% for form_i in formset.forms %}
+<div class="p-3 border rounded mb-3 relative bg-gray-50 dark:bg-gray-800 dark:text-gray-100">
+    {{ form_i.id }}
+    {{ form_i.DELETE }}
+    <div class="grid grid-cols-5 gap-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form_i.item_type.label }}</label>
+            {{ form_i.item_type }}
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form_i.product.label }}</label>
+            {{ form_i.product }}
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form_i.quantity.label }}</label>
+            {{ form_i.quantity }}
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Unit Price</label>
+            {{ form_i.price }}
+        </div>
+        <div class="flex items-center justify-end">
+            <button type="button" class="remove-item inline-flex items-center mt-6 text-red-500 hover:text-red-700 focus:outline-none">
+                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M6 3V4H4V6H16V4H14V3H6ZM6 6V15C6 16.1046 6.89543 17 8 17H12C13.1046 17 14 16.1046 14 15V6H6Z"/>
+                </svg>
+                Remove
+            </button>
+        </div>
+    </div>
+</div>
+{% endfor %}

@@ -1,0 +1,55 @@
+<!-- clinic/templates/patients/_diagnosis_rows.html -->
+
+{% for diagnosis in diagnoses %}
+<tr id="diagnosis-row-{{ diagnosis.id }}" class="bg-white dark:bg-[#1a1a1a]">
+    <td class="p-4 whitespace-nowrap">
+        <div class="flex items-center">
+            <input id="diagnosis-checkbox-{{ diagnosis.id }}" name="diagnosis_ids" value="{{ diagnosis.id }}" type="checkbox" class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+            <label for="diagnosis-checkbox-{{ diagnosis.id }}" class="sr-only">Select diagnosis</label>
+        </div>
+    </td>
+    <td class="px-4 py-2 whitespace-nowrap">
+        {{ diagnosis.apt }}
+    </td>
+    <td class="px-4 py-2 whitespace-nowrap">
+        {{ diagnosis.summary }}
+    </td>
+    <td class="px-4 py-2 whitespace-nowrap">
+        {{ diagnosis.instructions }}
+    </td>
+    <td class="px-4 py-2 whitespace-nowrap">
+        {{ diagnosis.lifestyle }}
+    </td>
+    <td class="px-4 py-2 whitespace-nowrap">
+        {{ diagnosis.next_apt }}
+    </td>
+    <td class="px-4 py-2 whitespace-nowrap">
+        {{ diagnosis.medication_status }}
+    </td>
+    <td class="px-4 py-2 whitespace-nowrap">
+        {{ diagnosis.diagnosis_date }}
+    </td>
+    <td class="px-4 py-2 whitespace-nowrap flex space-x-2">
+        <button
+            type="button"
+            class="text-blue-600 hover:text-blue-800 focus:outline-none"
+            onclick="editDiagnosis('{{ diagnosis.id }}')"
+            title="Edit Diagnosis"
+        >
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 18a1 1 0 01-1-1v-4.586l10.293-10.293a1 1 0 011.414 0l2.586 2.586a1 1 0 010 1.414L9.414 17H5z" />
+            </svg>
+        </button>
+        <button
+            type="button"
+            class="text-red-600 hover:text-red-800 focus:outline-none"
+            onclick="deleteDiagnosis('{{ diagnosis.id }}')"
+            title="Delete Diagnosis"
+        >
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M6 3V4H4V6H16V4H14V3H6ZM6 6V15C6 16.1046 6.89543 17 8 17H12C13.1046 17 14 16.1046 14 15V6H6Z" />
+            </svg>
+        </button>
+    </td>
+</tr>
+{% endfor %}

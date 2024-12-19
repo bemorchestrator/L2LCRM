@@ -1,21 +1,13 @@
 <!-- clinic/templates/patients/_patient_rows.html -->
-{% load static %}
+
 {% for patient in patients %}
-<tr id="patient-row-{{ patient.id }}" class="hover:bg-gray-100 dark:hover:bg-gray-300">
-    <!-- Checkbox Cell -->
+<tr id="patient-row-{{ patient.id }}" class="bg-white dark:bg-[#1a1a1a]">
     <td class="w-4 px-4 py-3 whitespace-nowrap">
         <div class="flex items-center">
-            <input 
-                id="checkbox-{{ patient.id }}" 
-                name="patient_ids" 
-                value="{{ patient.id }}" 
-                type="checkbox" 
-                class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+            <input id="checkbox-{{ patient.id }}" name="patient_ids" value="{{ patient.id }}" type="checkbox" class="w-4 h-4 bg-gray-100 border-gray-300 rounded focus:ring-green-500 dark:focus:ring-green-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
             <label for="checkbox-{{ patient.id }}" class="sr-only">Select patient</label>
         </div>
     </td>
-    
-    <!-- Profile Photo Cell -->
     <td class="px-4 py-2 whitespace-nowrap">
         {% if patient.profile_photo %}
             <img src="{{ patient.profile_photo.url }}" alt="Profile Photo" class="w-10 h-10 rounded-full object-cover">
@@ -23,84 +15,76 @@
             <span class="text-gray-500">No Photo</span>
         {% endif %}
     </td>
-    
-    <!-- Patient Number Cell -->
     <th scope="row" class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-gray-500">
-        <a href="{% url 'patient_detail' patient_id=patient.id %}" class="text-[#515f48] hover:text-white underline">
-            {{ patient.patient_no }}
-        </a>
+        <a href="{% url 'patient_detail' patient_id=patient.id %}" class="text-blue-600 hover:text-blue-800 underline">{{ patient.nric }}</a>
     </th>
-    
-    <!-- First Name Cell -->
     <td class="px-4 py-2 whitespace-nowrap">
-        <a href="{% url 'patient_detail' patient_id=patient.id %}" class="text-[#515f48] hover:text-white underline">
-            {{ patient.first_name }}
-        </a>
+        <a href="{% url 'patient_detail' patient_id=patient.id %}" class="text-blue-600 hover:text-blue-800 underline">{{ patient.first_name }}</a>
     </td>
-    
-    <!-- Last Name Cell -->
     <td class="px-4 py-2 whitespace-nowrap">
-        <a href="{% url 'patient_detail' patient_id=patient.id %}" class="text-[#515f48] hover:text-white underline">
-            {{ patient.last_name }}
-        </a>
+        <a href="{% url 'patient_detail' patient_id=patient.id %}" class="text-blue-600 hover:text-blue-800 underline">{{ patient.last_name }}</a>
     </td>
-    
-    <!-- Birth Date Cell -->
-    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.birth_date|date:"m/d/Y" }}</td>
-    
-    <!-- Age Cell -->
-    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.age }}</td>
-    
-    <!-- NRIC Cell -->
-    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.nric }}</td>
-    
-    <!-- Country Cell -->
-    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.country }}</td>
-    
-    <!-- Address Cell -->
-    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.address }}</td>
-    
-    <!-- Phone Cell -->
-    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.phone }}</td>
-    
-    <!-- Fax Cell -->
-    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.fax }}</td>
-    
-    <!-- Email Cell -->
-    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.email }}</td>
-    
-    <!-- Consented Cell -->
-    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.consented|yesno:"Yes,No" }}</td>
-    
-    <!-- Remarks Cell -->
-    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.remarks }}</td>
-    
-    <!-- Active Cell -->
-    <td class="px-4 py-2 text-[#515f48] hover:text-white whitespace-nowrap">{{ patient.active|yesno:"Yes,No" }}</td>
-    
-    <!-- Actions Cell -->
+    <td class="px-4 py-2 whitespace-nowrap">
+        {{ patient.birth_date }}
+    </td>
+    <td class="px-4 py-2 whitespace-nowrap">
+        {{ patient.age }}
+    </td>
+    <td class="px-4 py-2 whitespace-nowrap">
+        {{ patient.nric }}
+    </td>
+    <td class="px-4 py-2 whitespace-nowrap">
+        {{ patient.country }}
+    </td>
+    <td class="px-4 py-2 whitespace-nowrap">
+        {{ patient.address }}
+    </td>
+    <td class="px-4 py-2 whitespace-nowrap">
+        {{ patient.phone }}
+    </td>
+    <td class="px-4 py-2 whitespace-nowrap">
+        {{ patient.fax }}
+    </td>
+    <td class="px-4 py-2 whitespace-nowrap">
+        {{ patient.email }}
+    </td>
+    <td class="px-4 py-2 whitespace-nowrap">
+        {% if patient.consented %}
+            Yes
+        {% else %}
+            No
+        {% endif %}
+    </td>
+    <td class="px-4 py-2 whitespace-nowrap">
+        {{ patient.remarks }}
+    </td>
+    <td class="px-4 py-2 whitespace-nowrap">
+        {% if patient.active %}
+            Yes
+        {% else %}
+            No
+        {% endif %}
+    </td>
+    <td class="px-4 py-2 whitespace-nowrap">
+        <a href="{% url 'diagnosis_detail' nric=patient.nric %}" class="text-blue-600 hover:text-blue-800 underline">View Diagnosis</a>
+    </td>
     <td class="px-4 py-2 whitespace-nowrap flex space-x-2">
-        <!-- Edit Button -->
         <button
             type="button"
             class="text-blue-600 hover:text-blue-800 focus:outline-none"
             onclick="editPatient('{{ patient.id }}')"
             title="Edit Patient"
         >
-            <!-- Edit Icon -->
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 18a1 1 0 01-1-1v-4.586l10.293-10.293a1 1 0 011.414 0l2.586 2.586a1 1 0 010 1.414L9.414 17H5z" />
             </svg>
         </button>
-
-        <!-- Individual Delete Button -->
         <button
             type="button"
             class="text-red-600 hover:text-red-800 focus:outline-none"
             onclick="deletePatient('{{ patient.id }}')"
             title="Delete Patient"
         >
-            <!-- Delete Icon -->
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M6 3V4H4V6H16V4H14V3H6ZM6 6V15C6 16.1046 6.89543 17 8 17H12C13.1046 17 14 16.1046 14 15V6H6Z" />
             </svg>
