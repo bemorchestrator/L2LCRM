@@ -11,6 +11,7 @@ urlpatterns = [
     path('patients/', include('patients.urls')),
     path('transactions/', include('transactions.urls')),
     path('appointments/', include('appointments.urls')),
+    path('report/', include('report.urls')),
 ]
 
 # Add this line to serve media files during development

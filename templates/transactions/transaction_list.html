@@ -355,9 +355,6 @@
                 {{ formset.management_form }}
             `.trim();
 
-            // If you want a default empty row upon opening, you can create one here,
-            // or rely on the "Add Another Item" button if the user wants to start from zero.
-
             updateGrandTotal();
         }
 
@@ -799,7 +796,7 @@
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product</label>
                             <select name="form-${newFormIndex}-product" class="form-control product-select dark:bg-gray-700 dark:text-white">
                                 <option value="">---------</option>
-                                {% for p in formset.forms.0.fields.product.queryset %}
+                                {% for p in formset.empty_form.fields.product.queryset %}
                                     <option value="{{ p.id }}">{{ p.item_name }}</option>
                                 {% endfor %}
                             </select>
