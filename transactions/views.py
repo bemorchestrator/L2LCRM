@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .models import Transaction, TransactionItem
-from .forms import TransactionForm, TransactionItemFormSet
+from .forms import TransactionForm
 from patients.models import Patients
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -9,9 +9,9 @@ from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.db import transaction as db_transaction
-from django.db import IntegrityError
 from django.core.exceptions import ValidationError
 from inventory.models import Product
+from django.template.loader import render_to_string
 
 @login_required
 def transaction_list(request):
@@ -20,68 +20,82 @@ def transaction_list(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     form = TransactionForm()
-    # For the "Add Transaction" modal on this page, we create a blank formset with no items
-    formset = TransactionItemFormSet(queryset=TransactionItem.objects.none())
+    products = Product.objects.all()
     return render(request, 'transactions/transaction_list.html', {
         'page_obj': page_obj,
         'form': form,
-        'formset': formset
+        'products': products
     })
 
 @login_required
 @require_POST
 def add_transaction(request):
-    if request.method == 'POST':
-        form = TransactionForm(request.POST)
-        formset = TransactionItemFormSet(request.POST)
-        if form.is_valid() and formset.is_valid():
-            try:
-                with db_transaction.atomic():
-                    transaction = form.save()
-                    items = formset.save(commit=False)
-                    for item in items:
-                        item.transaction = transaction
-                        if item.product and item.price == 0:
-                            if item.product.retail_price:
-                                item.price = item.product.retail_price
-                            else:
-                                item.price = 0
+    form = TransactionForm(request.POST)
+    if form.is_valid():
+        try:
+            with db_transaction.atomic():
+                transaction = form.save()
+                item_types = request.POST.getlist('item_type[]', [])
+                product_ids = request.POST.getlist('product[]', [])
+                quantities = request.POST.getlist('quantity[]', [])
+                prices = request.POST.getlist('price[]', [])
+
+                for i in range(len(item_types)):
+                    item_type = item_types[i].strip()
+                    prod_id = product_ids[i].strip() if i < len(product_ids) else ''
+                    quantity = quantities[i].strip() if i < len(quantities) else '0'
+                    price = prices[i].strip() if i < len(prices) else '0.00'
+
+                    if not item_type:
+                        continue
+
+                    q = int(quantity) if quantity.isdigit() else 0
+                    p = float(price) if price.replace('.', '', 1).isdigit() else 0.00
+                    product = Product.objects.filter(id=prod_id).first() if prod_id else None
+
+                    # If price not set and product has retail_price
+                    if product and p == 0:
+                        p = product.retail_price if product.retail_price else 0
+
+                    if q > 0:
+                        item = TransactionItem(
+                            transaction=transaction,
+                            item_type=item_type,
+                            product=product,
+                            quantity=q,
+                            price=p
+                        )
                         item.save()
-                    formset.save_m2m()
-                messages.success(request, "Transaction and items added successfully.")
-                return JsonResponse({
-                    'status': 'success',
-                    'message': 'Transaction and items added successfully.',
-                    'transaction': {
-                        'id': transaction.id,
-                        'transaction_no': transaction.transaction_no,
-                        'patient': str(transaction.patient),
-                        'date': transaction.date.strftime('%Y-%m-%d'),
-                        'issuer': transaction.issuer,
-                        'tel': transaction.tel,
-                        'email': transaction.email,
-                        'address': transaction.address,
-                    }
-                })
-            except ValidationError as e:
-                return JsonResponse({
-                    'status': 'error',
-                    'errors': {'__all__': [{'message': str(e)}]},
-                    'message': str(e)
-                })
-        else:
+
+            messages.success(request, "Transaction and items added successfully.")
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Transaction and items added successfully.',
+                'transaction': {
+                    'id': transaction.id,
+                    'transaction_no': transaction.transaction_no,
+                    'patient': str(transaction.patient),
+                    'date': transaction.date.strftime('%Y-%m-%d'),
+                    'issuer': transaction.issuer,
+                    'tel': transaction.tel,
+                    'email': transaction.email,
+                    'address': transaction.address,
+                }
+            })
+        except ValidationError as e:
             return JsonResponse({
                 'status': 'error',
-                'errors': {
-                    'form': form.errors.get_json_data(),
-                    'formset': formset.errors
-                },
-                'message': 'Validation failed.'
+                'errors': {'__all__': [{'message': str(e)}]},
+                'message': str(e)
             })
     else:
-        form = TransactionForm()
-        formset = TransactionItemFormSet()
-    return render(request, 'transactions/add_transaction.html', {'form': form, 'formset': formset})
+        return JsonResponse({
+            'status': 'error',
+            'errors': {
+                'form': form.errors.get_json_data()
+            },
+            'message': 'Validation failed.'
+        })
 
 @login_required
 def transaction_detail(request, transaction_id):
@@ -94,23 +108,46 @@ def edit_transaction(request, transaction_id):
     transaction_obj = get_object_or_404(Transaction, id=transaction_id)
     if request.method == 'POST':
         form = TransactionForm(request.POST, instance=transaction_obj)
-        formset = TransactionItemFormSet(request.POST, instance=transaction_obj)
-        if form.is_valid() and formset.is_valid():
+        if form.is_valid():
             try:
                 with db_transaction.atomic():
                     transaction_updated = form.save()
-                    items = formset.save(commit=False)
-                    for item in items:
-                        item.transaction = transaction_updated
-                        if item.product and item.price == 0:
-                            if item.product.retail_price:
-                                item.price = item.product.retail_price
-                            else:
-                                item.price = 0
-                        item.save()
-                    for deleted_item in formset.deleted_objects:
-                        deleted_item.delete()
-                    formset.save_m2m()
+
+                    # Delete old items first
+                    transaction_updated.items.all().delete()
+
+                    # Re-add items from POST
+                    item_types = request.POST.getlist('item_type[]', [])
+                    product_ids = request.POST.getlist('product[]', [])
+                    quantities = request.POST.getlist('quantity[]', [])
+                    prices = request.POST.getlist('price[]', [])
+
+                    for i in range(len(item_types)):
+                        item_type = item_types[i].strip()
+                        prod_id = product_ids[i].strip() if i < len(product_ids) else ''
+                        quantity = quantities[i].strip() if i < len(quantities) else '0'
+                        price = prices[i].strip() if i < len(prices) else '0.00'
+
+                        if not item_type:
+                            continue
+
+                        q = int(quantity) if quantity.isdigit() else 0
+                        p = float(price) if price.replace('.', '', 1).isdigit() else 0.00
+                        product = Product.objects.filter(id=prod_id).first() if prod_id else None
+
+                        if product and p == 0:
+                            p = product.retail_price if product.retail_price else 0
+
+                        if q > 0:
+                            item = TransactionItem(
+                                transaction=transaction_updated,
+                                item_type=item_type,
+                                product=product,
+                                quantity=q,
+                                price=p
+                            )
+                            item.save()
+
                 messages.success(request, "Transaction and items updated successfully.")
                 if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                     return JsonResponse({
@@ -143,8 +180,7 @@ def edit_transaction(request, transaction_id):
                 return JsonResponse({
                     'status': 'error',
                     'errors': {
-                        'form': form.errors.get_json_data(),
-                        'formset': formset.errors
+                        'form': form.errors.get_json_data()
                     },
                     'message': 'Validation failed.'
                 })
@@ -153,11 +189,16 @@ def edit_transaction(request, transaction_id):
     else:
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             form = TransactionForm(instance=transaction_obj)
-            formset = TransactionItemFormSet(instance=transaction_obj)
-            # Render partial HTML that includes the management form
-            rendered_formset = render(request, 'transactions/_transaction_formset.html', {
-                'formset': formset
-            })
+            items = transaction_obj.items.all()
+
+            # Render a partial HTML snippet of items in non-formset manner
+            # We'll generate HTML for items: item_type[], product[], quantity[], price[]
+            products = Product.objects.all()
+            html_items = render_to_string('transactions/_transaction_items.html', {
+                'items': items,
+                'products': products
+            }, request=request)
+
             data = {
                 'id': transaction_obj.id,
                 'transaction_no': transaction_obj.transaction_no,
@@ -167,18 +208,17 @@ def edit_transaction(request, transaction_id):
                 'tel': transaction_obj.tel,
                 'email': transaction_obj.email,
                 'address': transaction_obj.address,
-                'formset_html': rendered_formset.content.decode('utf-8')
+                'formset_html': html_items
             }
             return JsonResponse({'status': 'success', 'transaction': data})
         else:
             form = TransactionForm(instance=transaction_obj)
-            formset = TransactionItemFormSet(instance=transaction_obj)
-
-    return render(request, 'transactions/edit_transaction.html', {
-        'form': form,
-        'formset': formset,
-        'transaction': transaction_obj
-    })
+            products = Product.objects.all()
+            return render(request, 'transactions/edit_transaction.html', {
+                'form': form,
+                'transaction': transaction_obj,
+                'products': products
+            })
 
 @login_required
 def invoice_view(request, transaction_id):

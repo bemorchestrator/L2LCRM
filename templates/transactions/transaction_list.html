@@ -68,106 +68,12 @@
                 </table>
             </div>
             <div class="flex items-center justify-between px-4 py-3 bg-white dark:bg-[#1a1a1a] border-t border-gray-200 dark:border-gray-700 sm:px-6">
-                <div class="flex flex-1 justify-between sm:hidden">
-                    {% if page_obj.has_previous %}
-                        <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                            Previous
-                        </a>
-                    {% else %}
-                        <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md cursor-not-allowed">Previous</span>
-                    {% endif %}
-                    {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                            Next
-                        </a>
-                    {% else %}
-                        <span class="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md cursor-not-allowed">Next</span>
-                    {% endif %}
-                </div>
-                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                    <div>
-                        <p class="text-sm text-gray-700 dark:text-gray-300">
-                            Showing <span class="font-medium">{{ page_obj.start_index }}</span> to <span class="font-medium">{{ page_obj.end_index }}</span> of <span class="font-medium">{{ page_obj.paginator.count }}</span> results
-                        </p>
-                    </div>
-                    <div>
-                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                            {% if page_obj.has_previous %}
-                                <a href="?page=1" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700" aria-label="First">
-                                    <span class="sr-only">First</span>
-                                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/>
-                                    </svg>
-                                </a>
-                                <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700" aria-label="Previous">
-                                    <span class="sr-only">Previous</span>
-                                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M12.293 16.707a1 1 0 01-1.414 0L7 12.414V15a1 1 0 11-2 0V6a1 1 0 112 0v3.586l3.879-3.879a1 1 0 011.414 1.414L8.414 15l4.879 4.879a1 1 0 010 1.414z" clip-rule="evenodd"/>
-                                    </svg>
-                                </a>
-                            {% else %}
-                                <span class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 cursor-not-allowed" aria-disabled="true" aria-label="First">
-                                    <span class="sr-only">First</span>
-                                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/>
-                                    </svg>
-                                </span>
-                                <span class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 cursor-not-allowed" aria-disabled="true" aria-label="Previous">
-                                    <span class="sr-only">Previous</span>
-                                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M12.293 16.707a1 1 0 01-1.414 0L7 12.414V15a1 1 0 11-2 0V6a1 1 0 112 0v3.586l3.879-3.879a1 1 0 011.414 1.414L8.414 15l4.879 4.879a1 1 0 010 1.414z" clip-rule="evenodd"/>
-                                    </svg>
-                                </span>
-                            {% endif %}
-                            {% for num in page_obj.paginator.page_range %}
-                                {% if page_obj.number == num %}
-                                    <span aria-current="page">
-                                        <span class="z-10 inline-flex items-center px-4 py-2 border border-green-500 text-sm font-medium text-green-700 bg-green-50 dark:bg-gray-700 dark:text-white">
-                                            {{ num }}
-                                        </span>
-                                    </span>
-                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                                    <a href="?page={{ num }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700">
-                                        {{ num }}
-                                    </a>
-                                {% endif %}
-                            {% endfor %}
-                            {% if page_obj.has_next %}
-                                <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700" aria-label="Next">
-                                    <span class="sr-only">Next</span>
-                                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 010-1.414L11.414 10 7.707 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                </a>
-                                <a href="?page={{ page_obj.paginator.num_pages }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700" aria-label="Last">
-                                    <span class="sr-only">Last</span>
-                                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/>
-                                    </svg>
-                                </a>
-                            {% else %}
-                                <span class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 cursor-not-allowed" aria-disabled="true" aria-label="Next">
-                                    <span class="sr-only">Next</span>
-                                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 010-1.414L11.414 10 7.707 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                </span>
-                                <span class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white dark:bg-[#1a1a1a] text-sm font-medium text-gray-500 cursor-not-allowed rounded-r-md" aria-disabled="true" aria-label="Last">
-                                    <span class="sr-only">Last</span>
-                                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 010-1.414L11.414 10 7.707 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                </span>
-                            {% endif %}
-                        </nav>
-                    </div>
-                </div>
+                 {% include 'transactions/pagination.html' with page_obj=page_obj %}
             </div>
         </div>
     </div>
 </section>
 
-<!-- Modal -->
 <div id="modal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-50 z-50">
     <div class="bg-white dark:bg-[#131313] rounded-lg shadow-lg w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center px-4 py-3 border-b dark:border-gray-700">
@@ -222,39 +128,6 @@
                     </div>
                     <hr class="my-4 border-gray-300 dark:border-gray-600">
                     <div id="transactionItemsWrapper">
-                        {{ formset.management_form }}
-                        {% for form_i in formset.forms %}
-                            <div class="p-3 border rounded mb-3 relative bg-gray-50 dark:bg-gray-800 dark:text-gray-100">
-                                {{ form_i.id }}
-                                {{ form_i.DELETE }}
-                                <div class="grid grid-cols-5 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form_i.item_type.label }}</label>
-                                        {{ form_i.item_type }}
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form_i.product.label }}</label>
-                                        {{ form_i.product }}
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ form_i.quantity.label }}</label>
-                                        {{ form_i.quantity }}
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Unit Price</label>
-                                        {{ form_i.price }}
-                                    </div>
-                                    <div class="flex items-center justify-end">
-                                        <button type="button" class="remove-item inline-flex items-center mt-6 text-red-500 hover:text-red-700 focus:outline-none">
-                                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M6 3V4H4V6H16V4H14V3H6ZM6 6V15C6 16.1046 6.89543 17 8 17H12C13.1046 17 14 16.1046 14 15V6H6Z"/>
-                                            </svg>
-                                            Remove
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
                     </div>
                     <button type="button" id="addItemButton" class="mt-3 px-4 py-2 bg-blue-500 text-white rounded-lg">Add Another Item</button>
                     <div class="flex justify-end items-center mt-4 text-gray-700 dark:text-gray-300">
@@ -350,10 +223,7 @@
             document.getElementById('tel').value = "";
 
             const itemsWrapper = document.getElementById('transactionItemsWrapper');
-            itemsWrapper.querySelectorAll('.p-3.border.rounded.mb-3').forEach(div => div.remove());
-            itemsWrapper.innerHTML = `
-                {{ formset.management_form }}
-            `.trim();
+            itemsWrapper.innerHTML = ``;
 
             updateGrandTotal();
         }
@@ -361,10 +231,9 @@
         function updateGrandTotal() {
             let sum = 0.00;
             document.querySelectorAll('#transactionItemsWrapper .p-3.border.rounded.mb-3').forEach(row => {
-                const qtyField = row.querySelector('input[name$="-quantity"]');
-                const priceField = row.querySelector('input[name$="-price"]');
-                const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
-                if (qtyField && priceField && (!deleteCheckbox || !deleteCheckbox.checked)) {
+                const qtyField = row.querySelector('input[name="quantity[]"]');
+                const priceField = row.querySelector('input[name="price[]"]');
+                if (qtyField && priceField) {
                     const qty = parseFloat(qtyField.value) || 0;
                     const price = parseFloat(priceField.value) || 0;
                     sum += qty * price;
@@ -373,26 +242,12 @@
             document.getElementById('grandTotal').textContent = '$' + sum.toFixed(2);
         }
 
-        function updateTotalForms(delta) {
-            const totalFormsInput = document.querySelector('input[name="form-TOTAL_FORMS"]');
-            let total = parseInt(totalFormsInput.value);
-            total += delta;
-            totalFormsInput.value = total;
-        }
-
         function handleRemoveItem(event) {
             if (!event.target.closest('.remove-item')) return;
             event.preventDefault();
             const removeButton = event.target.closest('.remove-item');
             const itemDiv = removeButton.closest('.p-3.border.rounded.mb-3');
-            const deleteCheckbox = itemDiv.querySelector('input[name$="-DELETE"]');
-            if (deleteCheckbox) {
-                deleteCheckbox.checked = true;
-                itemDiv.style.display = 'none';
-            } else {
-                itemDiv.remove();
-                updateTotalForms(-1);
-            }
+            itemDiv.remove();
             updateGrandTotal();
         }
 
@@ -565,6 +420,30 @@
             event.preventDefault();
             const url = transactionForm.action;
             const formData = new FormData(this);
+            const itemTypes = [];
+            const products = [];
+            const quantities = [];
+            const prices = [];
+
+            document.querySelectorAll('#transactionItemsWrapper .p-3.border.rounded.mb-3').forEach(row => {
+                const itemType = row.querySelector('select[name="item_type[]"]');
+                const product = row.querySelector('select[name="product[]"]');
+                const quantity = row.querySelector('input[name="quantity[]"]');
+                const price = row.querySelector('input[name="price[]"]');
+
+                if (itemType && product && quantity && price) {
+                    itemTypes.push(itemType.value);
+                    products.push(product.value);
+                    quantities.push(quantity.value);
+                    prices.push(price.value);
+                }
+            });
+
+            itemTypes.forEach((val) => formData.append('item_type[]', val));
+            products.forEach((val) => formData.append('product[]', val));
+            quantities.forEach((val) => formData.append('quantity[]', val));
+            prices.forEach((val) => formData.append('price[]', val));
+
             fetch(url, {
                 method: 'POST',
                 headers: {
@@ -688,7 +567,7 @@
         });
 
         document.addEventListener('input', event => {
-            if (event.target.name && (event.target.name.endsWith('-quantity') || event.target.name.endsWith('-price'))) {
+            if (event.target.name && (event.target.name.endsWith('quantity[]') || event.target.name.endsWith('price[]'))) {
                 updateGrandTotal();
             }
         });
@@ -762,52 +641,36 @@
             });
         }
 
-        {% if messages %}
-            {% for message in messages %}
-                Swal.fire({
-                    icon: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}",
-                    title: "{% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% elif message.tags == 'warning' %}Warning{% else %}Notice{% endif %}",
-                    text: "{{ message }}",
-                    timer: 3000,
-                    showConfirmButton: false
-                });
-            {% endfor %}
-        {% endif %}
-
         const addItemButton = document.getElementById('addItemButton');
-        let formIndex = parseInt("{{ formset.total_form_count }}");
         if (addItemButton) {
             addItemButton.addEventListener('click', function() {
-                const totalFormsInput = document.querySelector('input[name="form-TOTAL_FORMS"]');
-                const newFormIndex = formIndex;
+                const itemsWrapper = document.getElementById('transactionItemsWrapper');
                 const emptyFormHtml = `
                 <div class="p-3 border rounded mb-3 relative bg-gray-50 dark:bg-gray-800 dark:text-gray-100">
-                    <input type="hidden" name="form-${newFormIndex}-id" id="id_form-${newFormIndex}-id">
-                    <input type="checkbox" name="form-${newFormIndex}-DELETE" style="display:none;">
                     <div class="grid grid-cols-5 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Item type</label>
-                            <select name="form-${newFormIndex}-item_type" class="form-control dark:bg-gray-700 dark:text-white">
+                            <select name="item_type[]" class="form-control dark:bg-gray-700 dark:text-white">
                                 <option value="Article">Article</option>
                                 <option value="Component">Component</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product</label>
-                            <select name="form-${newFormIndex}-product" class="form-control product-select dark:bg-gray-700 dark:text-white">
+                            <select name="product[]" class="form-control product-select dark:bg-gray-700 dark:text-white">
                                 <option value="">---------</option>
-                                {% for p in formset.empty_form.fields.product.queryset %}
+                                {% for p in products %}
                                     <option value="{{ p.id }}">{{ p.item_name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Quantity</label>
-                            <input type="number" name="form-${newFormIndex}-quantity" min="1" class="form-control quantity-field dark:bg-gray-700 dark:text-white" value="1">
+                            <input type="number" name="quantity[]" min="1" class="form-control quantity-field dark:bg-gray-700 dark:text-white" value="1">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Price</label>
-                            <input type="number" name="form-${newFormIndex}-price" step="0.01" class="form-control price-input dark:bg-gray-700 dark:text-white" value="0.00">
+                            <input type="number" name="price[]" step="0.01" class="form-control price-input dark:bg-gray-700 dark:text-white" value="0.00">
                         </div>
                         <div class="flex items-center">
                             <button type="button" class="remove-item inline-flex items-center mt-6 text-red-500 hover:text-red-700 focus:outline-none">
@@ -819,9 +682,7 @@
                         </div>
                     </div>
                 </div>`;
-                transactionItemsWrapper.insertAdjacentHTML('beforeend', emptyFormHtml);
-                updateTotalForms(1);
-                formIndex++;
+                itemsWrapper.insertAdjacentHTML('beforeend', emptyFormHtml);
                 attachPriceFetch();
                 updateGrandTotal();
             });
@@ -837,7 +698,7 @@
         function fetchPrice(event) {
             const productId = this.value;
             const rowEl = this.closest('.grid');
-            const priceField = rowEl.querySelector('input[name$="-price"]');
+            const priceField = rowEl.querySelector('input[name="price[]"]');
             if (productId) {
                 fetch("{% url 'get_product_details' product_id=0 %}".replace('0', productId), {
                     method: 'GET',

@@ -8,7 +8,7 @@ class Transaction(models.Model):
     patient = models.ForeignKey(Patients, on_delete=models.CASCADE, related_name='transactions')
     transaction_no = models.CharField(max_length=50, unique=True, blank=True)
     date = models.DateField(auto_now_add=True)
-    issuer = models.CharField(max_length=255, default='JOHNTANG')
+    issuer = models.CharField(max_length=255, default='Sebastian Liew')
     tel = models.CharField(max_length=20, blank=True, null=True)
     name = models.CharField(max_length=255, editable=False)
     email = models.EmailField(editable=False)
@@ -52,22 +52,39 @@ class TransactionItem(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def save(self, *args, **kwargs):
+        if self.product and self.product.quantity < self.quantity:
+            raise ValidationError(
+                f"Not enough stock for {self.product.item_name}. "
+                f"Available: {self.product.quantity}, Required: {self.quantity}."
+            )
         super(TransactionItem, self).save(*args, **kwargs)
         self.update_inventory()
 
     def update_inventory(self):
         if self.product:
-            if self.item_type == self.ARTICLE and self.product.product_type == self.product.ARTICLE:
+            if self.item_type == self.ARTICLE and self.product.product_type == Product.ARTICLE:
                 self.product.quantity -= self.quantity
                 if self.product.quantity < 0:
-                    raise ValidationError(f"Not enough stock for {self.product.item_name}. Available: {self.product.quantity + self.quantity}, Required: {self.quantity}.")
+                    raise ValidationError(
+                        f"Not enough stock for {self.product.item_name}. "
+                        f"Available: {self.product.quantity + self.quantity}, Required: {self.quantity}."
+                    )
                 self.product.save()
                 self.product.update_component_quantities(self.quantity)
-            elif self.item_type == self.COMPONENT and self.product.product_type == self.product.COMPONENT:
+            elif self.item_type == self.COMPONENT and self.product.product_type == Product.COMPONENT:
                 self.product.quantity -= self.quantity
                 if self.product.quantity < 0:
-                    raise ValidationError(f"Not enough stock for {self.product.item_name}. Available: {self.product.quantity + self.quantity}, Required: {self.quantity}.")
+                    raise ValidationError(
+                        f"Not enough stock for {self.product.item_name}. "
+                        f"Available: {self.product.quantity + self.quantity}, Required: {self.quantity}."
+                    )
                 self.product.save()
+
+    def delete(self, *args, **kwargs):
+        if self.product:
+            self.product.quantity += self.quantity
+            self.product.save()
+        super(TransactionItem, self).delete(*args, **kwargs)
 
     def __str__(self):
         return f"{self.item_type} - {self.product.item_name if self.product else 'N/A'} (x{self.quantity})"

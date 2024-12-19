@@ -1,5 +1,3 @@
-# report/views.py
-
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.core.paginator import Paginator
@@ -9,18 +7,13 @@ from .models import ItemSalesReport
 from .forms import ItemSalesReportForm
 
 def item_sales_report_list(request):
-    """
-    View to list all item sales reports with pagination.
-    Renders the item_sales_report.html template.
-    """
     reports = ItemSalesReport.objects.all().order_by('-date_from')
     paginator = Paginator(reports, 10)  # Show 10 reports per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    # Replace request.is_ajax() with header inspection
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        # If AJAX request, return the rendered table rows
+        # If AJAX request, return only the rows
         return render(request, 'report/_report_rows.html', {'reports': page_obj.object_list})
 
     return render(request, 'report/item_sales_report.html', {
@@ -29,9 +22,6 @@ def item_sales_report_list(request):
 
 @require_POST
 def add_report(request):
-    """
-    View to add a new item sales report via AJAX.
-    """
     form = ItemSalesReportForm(request.POST)
     if form.is_valid():
         report = form.save()
@@ -60,9 +50,6 @@ def add_report(request):
 
 @require_POST
 def delete_report(request, report_id):
-    """
-    View to delete a single report via AJAX.
-    """
     report = get_object_or_404(ItemSalesReport, id=report_id)
     report.delete()
     return JsonResponse({
@@ -72,10 +59,6 @@ def delete_report(request, report_id):
 
 @require_POST
 def bulk_delete_reports(request):
-    """
-    View to bulk delete reports via AJAX.
-    Expects 'report_ids[]' in POST data.
-    """
     report_ids = request.POST.getlist('report_ids[]')
     reports = ItemSalesReport.objects.filter(id__in=report_ids)
     deleted_count = reports.count()
@@ -87,9 +70,6 @@ def bulk_delete_reports(request):
 
 @require_GET
 def edit_report(request, report_id):
-    """
-    View to fetch report details for editing via AJAX.
-    """
     report = get_object_or_404(ItemSalesReport, id=report_id)
     report_data = {
         'id': report.id,
@@ -111,9 +91,6 @@ def edit_report(request, report_id):
 
 @require_GET
 def search_reports(request):
-    """
-    View to search reports based on query via AJAX.
-    """
     query = request.GET.get('q', '')
     reports = ItemSalesReport.objects.filter(
         Q(item_name__icontains=query) |
@@ -130,12 +107,13 @@ def search_reports(request):
     paginator = Paginator(reports, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+
+    # Return rows as JSON or HTML fragment
+    # Since originally it returns rendered HTML fragment:
+    # We'll return HTML fragment for partial updates
     return render(request, 'report/_report_rows.html', {'reports': page_obj.object_list})
 
 def generate_report(request):
-    """
-    View to generate aggregated reports dynamically based on queries.
-    """
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
 
